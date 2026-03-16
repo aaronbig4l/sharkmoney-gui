@@ -98,6 +98,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     public int getPendingInviteSize() {
         return this.pendingInvites.size();
     }
+
     @Override
     public void getallShrkPromiesesFromStorage(){
         sharkPromiseStorePending.keySet().stream().forEach(System.out::println);

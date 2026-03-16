@@ -101,7 +101,22 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public void sendPromise(CharSequence currencyName, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri) throws SharkCurrencyException {
+    public void sendPromise(CharSequence promiseId, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri) throws ASAPException, IOException {
+            SharkPromise promise = this.sharkCurrencyStorage
+                    .getSharkPendingPromiseFromStorage(promiseId);
+
+            byte[] serializedPromise = SharkPromiseSerializer
+                    .serializePromise(promise,
+                            sender,
+                            receiver,
+                            sign,
+                            encrypt,
+                            this.sharkPKIComponent.getASAPKeyStore(),
+                            false,
+                            0);
+
+            this.asapPeer
+                    .sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT, uri, serializedPromise);
 
     }
 
@@ -111,39 +126,38 @@ public class SharkCurrencyComponentImpl
                               byte[] groupId,
                               CharSequence creditorId,
                               CharSequence debtorId,
-                              boolean asCreditor) throws ASAPSecurityException, SharkPromiseException, IOException, SharkCurrencyException {
+                              boolean asCreditor) throws ASAPException, IOException {
         SharkPromise promise =
                 new SharkInMemoPromise(amount, referenceValue, groupId, creditorId, debtorId);
         Set<CharSequence> receiver = new HashSet<>();
         ASAPKeyStore keystore = this.sharkPKIComponent.getASAPKeyStore();
-        CharSequence currencyName = promise.getReferenceValue().getCurrencyName();
+        CharSequence promiseId = promise.getPromiseID();
         if(asCreditor) {
             SharkPromiseManagement
                     .signAsCreditor(keystore, promise);
             promise.setSigningStateOfPromise(SharkPromiseSignings.SIGNED_BY_CREDITOR);
             receiver.add(promise.getDebtorID());
-            this.sendPromise(currencyName,
+            this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
+            this.sendPromise(promiseId,
                     promise.getCreditorID(),
                     receiver,
                     true,
                     true,
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB);
-            //TODO is new need to be testest
-            this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
-            return promise.getPromiseID();
+            return promiseId;
         } else {
             SharkPromiseManagement
                     .signAsDebtor(keystore, promise);
             promise.setSigningStateOfPromise(SharkPromiseSignings.SIGNED_BY_DEBITOR);
             receiver.add(promise.getCreditorID());
-            this.sendPromise(currencyName,
+            this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
+            this.sendPromise(promiseId,
                     promise.getDebtorID(),
                     receiver,
                     true,
                     true,
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED);
             //TODO is new need to be testest
-            this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             return promise.getPromiseID();
         }
     }

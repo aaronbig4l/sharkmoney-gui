@@ -129,7 +129,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @throws SharkCurrencyException If the Promise cannot be sent due to error.
      */
     void sendPromise(CharSequence currencyName, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri)
-            throws SharkCurrencyException;
+            throws ASAPException, IOException;
 
     /**
      * creates a SharkPromise object
@@ -146,7 +146,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
                                byte[] groupId,
                                CharSequence creditorId,
                                CharSequence debtorId,
-                               boolean asCreditor) throws ASAPSecurityException, SharkPromiseException, IOException, SharkCurrencyException;
+                               boolean asCreditor) throws ASAPException, IOException;
 
 
     /**

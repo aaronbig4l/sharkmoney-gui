@@ -47,6 +47,8 @@ public class SharkPromiseSerializer {
         ASAPSerialization.writeCharSequenceSetParameter(receiver, baos);
 
         content = baos.toByteArray();
+        System.out.println("DEBUG SERIALIZE: content.length after merge = " + content.length);
+
 
         byte flags = 0;
         // Sign Promise
@@ -69,15 +71,18 @@ public class SharkPromiseSerializer {
             ASAPSerialization.writeByteArray(signature, baos);
             // attach signature to message
             content = baos.toByteArray();
+            System.out.println("DEBUG SERIALIZE: content.length after signing = " + content.length);
             flags += SharkPromise.SIGNED_MASK;
         }
 
         if(encrypt) {
+            System.out.println("DEBUG SERIALIZE: content.length before encrypt = " + content.length);
             // Encrypt Message
             content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
                     content,
                     receiver.iterator().next(),
                     asapKeyStore);
+            System.out.println("DEBUG SERIALIZE: content.length after encrypt = " + content.length);
             flags += SharkPromise.ENCRYPTED_MASK;
         }
 
@@ -88,7 +93,8 @@ public class SharkPromiseSerializer {
         return baos.toByteArray();
     }
 
-    public static SharkPromise deserializePromise(byte [] asapMessage, ASAPKeyStore asapKeyStore) throws IOException, ASAPException {
+    public static SharkPromise deserializePromise(byte [] asapMessage, ASAPKeyStore asapKeyStore) throws IOException, ASAPException, ClassNotFoundException {
+        System.out.println("DEBUG: deserializing Promise");
         ByteArrayInputStream bais = new ByteArrayInputStream(asapMessage);
         byte flags = ASAPSerialization.readByte(bais);
         byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
@@ -112,30 +118,27 @@ public class SharkPromiseSerializer {
             // replace message with decrypted message
             tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
                     encryptedMessagePackage, asapKeyStore);
+
+            System.out.println("DEBUG: decrypted tmpMessage.length = " + tmpMessage.length);
+            System.out.println("DEBUG: first 8 bytes after decrypt: " + java.util.Arrays.toString(
+                    java.util.Arrays.copyOf(tmpMessage, Math.min(8, tmpMessage.length))));
         }
 
         byte[] signature = null;
         byte[] signedMessage = null;
         if (signed) {
-            // split message from signature
             bais = new ByteArrayInputStream(tmpMessage);
-            tmpMessage = ASAPSerialization.readByteArray(bais);
-            signedMessage = tmpMessage;
+            byte[] wrappedContent = ASAPSerialization.readByteArray(bais); // = writeByteArray(promiseBytes)+sender+receivers
+            System.out.println("DEBUG: *** NEUER CODE AKTIV *** wrappedContent.length = " + wrappedContent.length);
+            signedMessage = wrappedContent; //what was signed
             signature = ASAPSerialization.readByteArray(bais);
+            tmpMessage = wrappedContent;
         }
 
-        ///////////////// produce object form serialized bytes
         bais = new ByteArrayInputStream(tmpMessage);
-
-        ////// content
-        byte[] snMessage = ASAPSerialization.readByteArray(bais);
-        ////// sender
+        byte[] snMessage = ASAPSerialization.readByteArray(bais);   // promiseBytes
         String snSender = ASAPSerialization.readCharSequenceParameter(bais);
-        ////// recipients
         Set<CharSequence> snReceivers = ASAPSerialization.readCharSequenceSetParameter(bais);
-        ///// timestamp
-        // String timestampString = ASAPSerialization.readCharSequenceParameter(bais);
-        // Timestamp creationTime = Timestamp.valueOf(timestampString);
 
         boolean verified = false; // initialize
         if (signature != null) {
@@ -146,6 +149,10 @@ public class SharkPromiseSerializer {
                 // verified definitely false
                 verified = false;
             }
+        }
+
+        if (signed && !verified) {
+            throw new ASAPException("Signature verification failed – message may be tampered");
         }
 
         // replace special sn symbols
@@ -173,26 +180,15 @@ public class SharkPromiseSerializer {
             return byteArray;
     }
 
-    public static SharkPromise byteArrayToSharkPromise(byte [] byteArray) {
-        SharkPromise bond = null;
+    public static SharkPromise byteArrayToSharkPromise(byte [] byteArray) throws IOException, ClassNotFoundException {
+        System.out.println("DEBUG: byteArray length in byteArrayToSharkPromise = " + byteArray.length);
         ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
-        ObjectInput in = null;
-        try {
-            in = new ObjectInputStream(bis);
-            bond = (SharkPromise) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                // ignore close exception
-            }
+        try (ObjectInputStream in = new ObjectInputStream(bis)) {
+            Object obj = in.readObject();
+            System.out.println("DEBUG: readObject returned = " + obj);
+            System.out.println("DEBUG: readObject class = " + (obj != null ? obj.getClass().getName() : "null"));
+            return (SharkPromise) obj;
         }
-
-        return bond;
     }
 
 
