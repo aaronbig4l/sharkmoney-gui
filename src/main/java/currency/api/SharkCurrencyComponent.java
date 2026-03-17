@@ -149,6 +149,10 @@ public interface SharkCurrencyComponent extends SharkComponent {
                                boolean asCreditor) throws ASAPException, IOException;
 
 
+    void signPromiseAndSendBack(CharSequence promiseId,
+                                CharSequence creditorId,
+                                CharSequence debtorId);
+
     /**
      * Calculates the current balance for the local user in the specified currency.
      *

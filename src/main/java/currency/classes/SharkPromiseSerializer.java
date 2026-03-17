@@ -36,7 +36,6 @@ public class SharkPromiseSerializer {
         // Convert promise to byteArray
         // use excludeSignature to exclude or include previous signatures (that can be helpful for a late verification of the the bond signatures)
         byte[] content = sharkPromiseToByteArray(promise, excludeSignature);
-
         // merge content, sender and recipient
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ///// content
@@ -45,10 +44,7 @@ public class SharkPromiseSerializer {
         ASAPSerialization.writeCharSequenceParameter(sender, baos);
         ///// recipients
         ASAPSerialization.writeCharSequenceSetParameter(receiver, baos);
-
         content = baos.toByteArray();
-        System.out.println("DEBUG SERIALIZE: content.length after merge = " + content.length);
-
 
         byte flags = 0;
         // Sign Promise
@@ -71,18 +67,15 @@ public class SharkPromiseSerializer {
             ASAPSerialization.writeByteArray(signature, baos);
             // attach signature to message
             content = baos.toByteArray();
-            System.out.println("DEBUG SERIALIZE: content.length after signing = " + content.length);
             flags += SharkPromise.SIGNED_MASK;
         }
 
         if(encrypt) {
-            System.out.println("DEBUG SERIALIZE: content.length before encrypt = " + content.length);
             // Encrypt Message
             content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
                     content,
                     receiver.iterator().next(),
                     asapKeyStore);
-            System.out.println("DEBUG SERIALIZE: content.length after encrypt = " + content.length);
             flags += SharkPromise.ENCRYPTED_MASK;
         }
 
@@ -94,7 +87,6 @@ public class SharkPromiseSerializer {
     }
 
     public static SharkPromise deserializePromise(byte [] asapMessage, ASAPKeyStore asapKeyStore) throws IOException, ASAPException, ClassNotFoundException {
-        System.out.println("DEBUG: deserializing Promise");
         ByteArrayInputStream bais = new ByteArrayInputStream(asapMessage);
         byte flags = ASAPSerialization.readByte(bais);
         byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
@@ -118,10 +110,6 @@ public class SharkPromiseSerializer {
             // replace message with decrypted message
             tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
                     encryptedMessagePackage, asapKeyStore);
-
-            System.out.println("DEBUG: decrypted tmpMessage.length = " + tmpMessage.length);
-            System.out.println("DEBUG: first 8 bytes after decrypt: " + java.util.Arrays.toString(
-                    java.util.Arrays.copyOf(tmpMessage, Math.min(8, tmpMessage.length))));
         }
 
         byte[] signature = null;
@@ -129,7 +117,6 @@ public class SharkPromiseSerializer {
         if (signed) {
             bais = new ByteArrayInputStream(tmpMessage);
             byte[] wrappedContent = ASAPSerialization.readByteArray(bais); // = writeByteArray(promiseBytes)+sender+receivers
-            System.out.println("DEBUG: *** NEUER CODE AKTIV *** wrappedContent.length = " + wrappedContent.length);
             signedMessage = wrappedContent; //what was signed
             signature = ASAPSerialization.readByteArray(bais);
             tmpMessage = wrappedContent;
@@ -176,21 +163,14 @@ public class SharkPromiseSerializer {
                 } catch (IOException ex) {
                 }
             }
-
             return byteArray;
     }
 
     public static SharkPromise byteArrayToSharkPromise(byte [] byteArray) throws IOException, ClassNotFoundException {
-        System.out.println("DEBUG: byteArray length in byteArrayToSharkPromise = " + byteArray.length);
         ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
         try (ObjectInputStream in = new ObjectInputStream(bis)) {
             Object obj = in.readObject();
-            System.out.println("DEBUG: readObject returned = " + obj);
-            System.out.println("DEBUG: readObject class = " + (obj != null ? obj.getClass().getName() : "null"));
             return (SharkPromise) obj;
         }
     }
-
-
-
 }

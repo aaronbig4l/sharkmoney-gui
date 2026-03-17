@@ -135,7 +135,7 @@ public class SharkCurrencyComponentImpl
         if(asCreditor) {
             SharkPromiseManagement
                     .signAsCreditor(keystore, promise);
-            promise.setSigningStateOfPromise(SharkPromiseSignings.SIGNED_BY_CREDITOR);
+            promise.updateState();
             receiver.add(promise.getDebtorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sendPromise(promiseId,
@@ -148,7 +148,7 @@ public class SharkCurrencyComponentImpl
         } else {
             SharkPromiseManagement
                     .signAsDebtor(keystore, promise);
-            promise.setSigningStateOfPromise(SharkPromiseSignings.SIGNED_BY_DEBITOR);
+            promise.updateState();
             receiver.add(promise.getCreditorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sendPromise(promiseId,
@@ -159,6 +159,31 @@ public class SharkCurrencyComponentImpl
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED);
             //TODO is new need to be testest
             return promise.getPromiseID();
+        }
+    }
+
+    @Override
+    public void signPromiseAndSendBack(CharSequence promiseId,
+                                       CharSequence creditorId,
+                                       CharSequence debtorId) {
+        try {
+            SharkPromise promise = this.sharkCurrencyStorage
+                    .getSharkPendingPromiseFromStorage(promiseId);
+            if(promise==null) {
+                throw new SharkPromiseException("Promise with PromiseId: "
+                        + promiseId + " not found in Storage");
+            }
+            ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
+            if(this.asapPeer.getPeerID().equals(creditorId)) {
+                SharkPromiseManagement.signAsCreditor(ks, promise);
+            } else {
+                SharkPromiseManagement.signAsDebtor(ks, promise);
+            }
+            this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
+            this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
+
+        } catch (SharkPromiseException | ASAPSecurityException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -175,9 +200,6 @@ public class SharkCurrencyComponentImpl
                 = this.sharkCurrencyStorage.getPendingInvite(currencyName.toString());
         byte[] groupId = sharkGroupDocument.getGroupId();
 
-        if (sharkGroupDocument == null){
-            throw new SharkCurrencyException("Fehler beim Akzeptieren: Es liegt keine Einladung für die Währung " + currencyName + " vor.");
-        }
         if (!sharkGroupDocument.getWhitelistMember().isEmpty() && !sharkGroupDocument.getWhitelistMember().contains(this.asapPeer.getPeerID().toString())){
             this.sharkCurrencyStorage.removePendingInvite(currencyName.toString());
             throw new SharkCurrencyException("Fehler beim Akzeptieren: Der Peer " + asapPeer.getPeerID().toString() + " befindet sich nicht in der Whitelist.");

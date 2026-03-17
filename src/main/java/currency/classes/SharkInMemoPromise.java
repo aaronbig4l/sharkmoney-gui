@@ -18,7 +18,7 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
     private CharSequence promiseID;
     private CharSequence debtorID, creditorID;
     private byte[] debtorSignature, creditorSignature;
-    private SharkPromiseSignings promiseSignings;
+    private SharkPromiseState promiseState;
 
     public SharkInMemoPromise(SharkPromise promise) {
         this(promise.getPromiseID(), promise.getAmount(),
@@ -62,7 +62,7 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
         this.debtorID=debtorID;
         this.creditorSignature=creditorSignature;
         this.debtorSignature=debtorSignature;
-        this.promiseSignings=SharkPromiseSignings.UNSIGNED;
+        this.promiseState= SharkPromiseState.UNSIGNED;
     }
 
     @Override
@@ -141,13 +141,32 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
     }
 
     @Override
-    public SharkPromiseSignings getSigningStateOfPromise() {
-        return this.promiseSignings;
+    public SharkPromiseState getStateOfPromise() {
+        return this.promiseState;
     }
 
     @Override
-    public void setSigningStateOfPromise(SharkPromiseSignings newState) {
-        this.promiseSignings=newState;
+    public void setStateOfPromise(SharkPromiseState newState) {
+        this.promiseState=newState;
+    }
+
+    @Override
+    public void updateState() {
+
+        if (this.promiseState == SharkPromiseState.ANULLED) { return; }
+
+        boolean hasDebtor = this.debtorSignature != null && this.debtorSignature.length > 0;
+        boolean hasCreditor = this.creditorSignature != null && this.creditorSignature.length > 0;
+
+        if (!hasDebtor && !hasCreditor) {
+            setStateOfPromise(SharkPromiseState.UNSIGNED);
+        } else if (!hasDebtor && hasCreditor) {
+            setStateOfPromise(SharkPromiseState.SIGNED_BY_CREDITOR);
+        } else if (hasDebtor && !hasCreditor) {
+            setStateOfPromise(SharkPromiseState.SIGNED_BY_DEBITOR);
+        } else {
+            setStateOfPromise(SharkPromiseState.FULLY_SIGNED);
+        }
     }
 
     /**
