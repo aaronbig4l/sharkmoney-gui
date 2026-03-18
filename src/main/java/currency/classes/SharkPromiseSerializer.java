@@ -173,4 +173,11 @@ public class SharkPromiseSerializer {
             return (SharkPromise) obj;
         }
     }
+
+    public static byte[] serializeSignAndSendBackMessage(CharSequence promiseId,
+                                                         CharSequence sender,
+                                                         Set<CharSequence> receiver,
+                                                         Boolean encrypted) {
+
+    }
 }

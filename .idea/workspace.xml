@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="sendInvitationFor2GroupsFromDifferentPeers() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- alle eingeladenen Peers befinden sich in der Whitelist und treten den Gruppen bei">
+      <change afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseRevSigPromHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkInMemoPromise.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkInMemoPromise.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromise.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromise.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSignings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseState.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" afterDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -98,6 +98,7 @@
     "JUnit.PromisesTest.createPromise.executor": "Run",
     "JUnit.PromisesTest.createPromiseAndSendToBob.executor": "Run",
     "JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup.executor": "Run",
+    "JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.testSerializationAndDeserialization.executor": "Run",
     "Maven.ASAPJava [clean].executor": "Run",
@@ -132,7 +133,7 @@
       <recent name="E:\HTW\WI2526\ASAPProjekt\ASAPCurrency\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup">
+  <component name="RunManager" selected="JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob">
     <configuration name="PromisSerializationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
@@ -159,22 +160,6 @@
       <option name="PACKAGE_NAME" value="promiseserializationtest" />
       <option name="MAIN_CLASS_NAME" value="promiseserializationtest.PromisSerializationTest" />
       <option name="METHOD_NAME" value="serializeAndDeserializePromise" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PromisesTest.createPromise" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ASAPJava" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="sendingPromisesTests.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="sendingPromisesTests" />
-      <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
-      <option name="METHOD_NAME" value="createPromise" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -212,13 +197,29 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ASAPJava" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sendingPromisesTests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="sendingPromisesTests" />
+      <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
+      <option name="METHOD_NAME" value="createPromiseSendAndSignWithinAGroupAliceBob" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBob" />
         <item itemvalue="JUnit.PromisSerializationTest.serializeAndDeserializePromise" />
         <item itemvalue="JUnit.PromisSerializationTest" />
-        <item itemvalue="JUnit.PromisesTest.createPromise" />
       </list>
     </recent_temporary>
   </component>

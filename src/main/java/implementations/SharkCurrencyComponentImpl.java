@@ -101,9 +101,20 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public void sendPromise(CharSequence promiseId, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri) throws ASAPException, IOException {
-            SharkPromise promise = this.sharkCurrencyStorage
-                    .getSharkPendingPromiseFromStorage(promiseId);
+    public void sendPromise(CharSequence promiseId,
+                            Boolean fromPendingStorage,
+                            CharSequence sender,
+                            Set<CharSequence> receiver,
+                            boolean sign,
+                            boolean encrypt,
+                            CharSequence uri) throws ASAPException, IOException {
+        SharkPromise promise;
+            if(fromPendingStorage) {
+                promise = this.sharkCurrencyStorage
+                        .getSharkPendingPromiseFromStorage(promiseId);
+            } else {
+                promise = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId);
+            }
 
             byte[] serializedPromise = SharkPromiseSerializer
                     .serializePromise(promise,
@@ -139,6 +150,7 @@ public class SharkCurrencyComponentImpl
             receiver.add(promise.getDebtorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sendPromise(promiseId,
+                    true,
                     promise.getCreditorID(),
                     receiver,
                     true,
@@ -152,6 +164,7 @@ public class SharkCurrencyComponentImpl
             receiver.add(promise.getCreditorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sendPromise(promiseId,
+                    true,
                     promise.getDebtorID(),
                     receiver,
                     true,
@@ -165,7 +178,9 @@ public class SharkCurrencyComponentImpl
     @Override
     public void signPromiseAndSendBack(CharSequence promiseId,
                                        CharSequence creditorId,
-                                       CharSequence debtorId) {
+                                       CharSequence debtorId,
+                                       Boolean sign,
+                                       Boolean encrypt) {
         try {
             SharkPromise promise = this.sharkCurrencyStorage
                     .getSharkPendingPromiseFromStorage(promiseId);
@@ -174,15 +189,31 @@ public class SharkCurrencyComponentImpl
                         + promiseId + " not found in Storage");
             }
             ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
+            CharSequence sender;
+            Set<CharSequence> receiver = new HashSet<>();
             if(this.asapPeer.getPeerID().equals(creditorId)) {
                 SharkPromiseManagement.signAsCreditor(ks, promise);
+                sender=creditorId;
+                receiver.add(debtorId);
             } else {
                 SharkPromiseManagement.signAsDebtor(ks, promise);
+                sender=debtorId;
+                receiver.add(creditorId);
             }
+            promise.updateState();
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
-        } catch (SharkPromiseException | ASAPSecurityException | IOException e) {
+            byte[] serializedContent = null;
+
+            serializedContent = SharkPromiseSerializer
+                    .serializeSignAndSendBackMessage(promiseId, sender, receiver, encrypt);
+            this.asapPeer.sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT,
+                    SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
+                    serializedContent);
+
+
+        } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }
     }

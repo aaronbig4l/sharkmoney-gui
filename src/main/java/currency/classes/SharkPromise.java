@@ -15,6 +15,7 @@ public interface SharkPromise {
     String SHARK_PROMISE_OVERALL_FORMAT = "//shark-promise//";
     String SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED = "signAsCreditor";
     String SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB = "signAsDebitor";
+    String SHARK_PROMISE_RECEIVE_SIGNED_SIG = "recSignedSig";
 
     /**
      * Unique identifier of the promise.

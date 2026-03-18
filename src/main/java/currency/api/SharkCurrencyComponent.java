@@ -120,7 +120,8 @@ public interface SharkCurrencyComponent extends SharkComponent {
     /**
      * Sends a specific amount of Currency to another peer.
      * Creates a transaction, serializes it, signs it and adds it to the ASAP channel.
-     * @param currencyName The name of the currency group.
+     * @param promiseId Id of the promise.
+     * @param fromPendingStorage true when the promise is send and not fully signed
      * @param sender ID of sender
      * @param receiver The ASAP Peer IDs of the recipients.
      * @param sign true if this promise should be signed by sender
@@ -128,7 +129,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @param uri the uri of this promise
      * @throws SharkCurrencyException If the Promise cannot be sent due to error.
      */
-    void sendPromise(CharSequence currencyName, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri)
+    void sendPromise(CharSequence promiseId, Boolean fromPendingStorage, CharSequence sender, Set<CharSequence> receiver, boolean sign, boolean encrypt, CharSequence uri)
             throws ASAPException, IOException;
 
     /**
@@ -151,7 +152,9 @@ public interface SharkCurrencyComponent extends SharkComponent {
 
     void signPromiseAndSendBack(CharSequence promiseId,
                                 CharSequence creditorId,
-                                CharSequence debtorId);
+                                CharSequence debtorId,
+                                Boolean sign,
+                                Boolean encrypt);
 
     /**
      * Calculates the current balance for the local user in the specified currency.

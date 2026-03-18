@@ -83,6 +83,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public void removeSharkPendingPromiseFromStorage(CharSequence promiseId) {
         this.sharkPromiseStorePending.remove(promiseId);
+        System.out.println("DEBUG: remove pending promise, new size: " + this.sharkPromiseStorePending.size());
     }
 
     public SharkPromise getSharkPendingPromiseFromStorage(CharSequence promiseId) {

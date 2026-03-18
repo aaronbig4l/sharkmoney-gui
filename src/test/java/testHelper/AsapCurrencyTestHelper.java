@@ -185,7 +185,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         this.davidStorage=this.davidCurrencyComponent.getSharkCurrencyStorage();
     }
 
-    protected byte[] aliceCreatesGroupWithBobSetUp() throws SharkException, InterruptedException, IOException {
+    protected byte[] aliceCreatesEncryptedGroupWithBobSetUp() throws SharkException, InterruptedException, IOException {
 
         setUpScenarioEstablishCurrency_2_BobAndAlice();
         Thread.sleep(500);
@@ -203,7 +203,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
-                false,
+                true,
                 true);
 
         Thread.sleep(1000);
