@@ -3,8 +3,10 @@ package sendingPromisesTests;
 import currency.classes.*;
 import group.SharkGroupDocument;
 import net.sharksystem.SharkException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
+import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
 
@@ -111,7 +113,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                 ALICE_ID,
                 BOB_ID,
                 true,
-                sharkGroupDocument.isEncrypted());
+                sharkGroupDocument.isEncrypted(),
+                false);
         Thread.sleep(200);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(200);
@@ -146,7 +149,42 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     }
 
     @Test
-    public void sendPromiseWithouGroup() {}
+    public void createPromiseSendAndSignWithNothingWithinAGroupAliceBob() throws SharkException, IOException, InterruptedException {
+
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        try {
+
+
+            SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+            CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
+                    sharkGroupDocument.getAssignedCurrency(),
+                    groupId,
+                    ALICE_ID, //creditor
+                    BOB_ID, //debtor
+                    true);
+            Assertions.fail("It should not find BOBs public Key bc they not exchanged credentials ");
+        }
+        catch (ASAPException e ){
+
+        }
+
+
+
+
+
+    }
+
+    @Test
+    public void createPromiseSendAndSignWithinAGroupAliceBobClara(){
+
+    }
+
+
+    @Test
+    public void sendPromiseWithToLessIncome(){
+
+    }
 
 
 

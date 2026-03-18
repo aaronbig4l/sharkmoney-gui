@@ -170,7 +170,6 @@ public class SharkCurrencyComponentImpl
                     true,
                     true,
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED);
-            //TODO is new need to be testest
             return promise.getPromiseID();
         }
     }
@@ -180,7 +179,8 @@ public class SharkCurrencyComponentImpl
                                        CharSequence creditorId,
                                        CharSequence debtorId,
                                        Boolean sign,
-                                       Boolean encrypt) {
+                                       Boolean encrypt,
+                                       Boolean asCreditor) {
         try {
             SharkPromise promise = this.sharkCurrencyStorage
                     .getSharkPendingPromiseFromStorage(promiseId);
@@ -191,7 +191,7 @@ public class SharkCurrencyComponentImpl
             ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
             CharSequence sender;
             Set<CharSequence> receiver = new HashSet<>();
-            if(this.asapPeer.getPeerID().equals(creditorId)) {
+            if(asCreditor) {
                 SharkPromiseManagement.signAsCreditor(ks, promise);
                 sender=creditorId;
                 receiver.add(debtorId);
@@ -204,15 +204,24 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
+            byte[] signature;
+            if(asCreditor) {
+                signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorSignature();
+            } else {
+                signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getDebtorSignature();
+            }
             byte[] serializedContent = null;
 
             serializedContent = SharkPromiseSerializer
-                    .serializeSignAndSendBackMessage(promiseId, sender, receiver, encrypt);
+                    .serializeSignAndSendBackMessage(promiseId,
+                            signature,
+                            sender,
+                            receiver,
+                            encrypt,
+                            this.sharkPKIComponent.getASAPKeyStore());
             this.asapPeer.sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT,
                     SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
                     serializedContent);
-
-
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }

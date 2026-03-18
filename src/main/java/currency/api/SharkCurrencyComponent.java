@@ -154,7 +154,8 @@ public interface SharkCurrencyComponent extends SharkComponent {
                                 CharSequence creditorId,
                                 CharSequence debtorId,
                                 Boolean sign,
-                                Boolean encrypt);
+                                Boolean encrypt,
+                                Boolean asCreditor);
 
     /**
      * Calculates the current balance for the local user in the specified currency.

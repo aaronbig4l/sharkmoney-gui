@@ -1,6 +1,8 @@
 package currency.classes;
 
+import currency.storage.SharkCurrencyStorage;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
@@ -175,9 +177,114 @@ public class SharkPromiseSerializer {
     }
 
     public static byte[] serializeSignAndSendBackMessage(CharSequence promiseId,
+                                                         byte[] signature,
                                                          CharSequence sender,
                                                          Set<CharSequence> receiver,
-                                                         Boolean encrypted) {
+                                                         Boolean encrypted,
+                                                         ASAPKeyStore asapKeyStore) throws ASAPSecurityException, IOException {
+        if( (receiver != null && receiver.size() > 1) && encrypted) {
+            throw new ASAPSecurityException("cannot (yet) encrypt one message for more than one recipient - split it into more messages");
+        }
 
+        if(receiver == null || receiver.isEmpty()) {
+            if(encrypted) throw new ASAPSecurityException("impossible to encrypt a message without a receiver");
+        }
+
+        ByteArrayOutputStream innerBaos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(promiseId, innerBaos);
+        ASAPSerialization.writeByteArray(signature, innerBaos);
+        byte[] innerContent = innerBaos.toByteArray();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeByteArray(innerContent, baos);
+        ASAPSerialization.writeCharSequenceParameter(sender, baos);
+        ASAPSerialization.writeCharSequenceSetParameter(receiver, baos);
+        byte[] content = baos.toByteArray();
+
+        byte flags = 0;
+        if(encrypted) {
+            content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                    content,
+                    receiver.iterator().next(),
+                    asapKeyStore);
+            flags += SharkPromise.ENCRYPTED_MASK;
+        }
+
+        baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeByteParameter(flags, baos);
+        ASAPSerialization.writeByteArray(content, baos);
+        return baos.toByteArray();
+    }
+
+    public static void deserializeSignAndSendBackMessage(byte[] asapMessage, ASAPKeyStore asapKeyStore, SharkCurrencyStorage sharkCurrencyStorage) throws ASAPException, IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(asapMessage);
+        byte flags = ASAPSerialization.readByte(bais);
+        byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
+
+        boolean signed = (flags & SharkPromise.SIGNED_MASK) != 0;
+        boolean encrypted = (flags & SharkPromise.ENCRYPTED_MASK) != 0;
+
+        if (encrypted) {
+            // decrypt
+            bais = new ByteArrayInputStream(tmpMessage);
+            ASAPCryptoAlgorithms.EncryptedMessagePackage
+                    encryptedMessagePackage = ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
+
+            // for me?
+            if (!asapKeyStore.isOwner(encryptedMessagePackage.getReceiver())) {
+                throw new ASAPException("SharkPromise Message: message not for me. Current user: "
+                        + asapKeyStore.getOwner()
+                        + ", recipient: "
+                        + encryptedMessagePackage.getReceiver());
+            }
+            // replace message with decrypted message
+            tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
+                    encryptedMessagePackage, asapKeyStore);
+        }
+
+        byte[] signature = null;
+        byte[] signedMessage = null;
+        if (signed) {
+            bais = new ByteArrayInputStream(tmpMessage);
+            byte[] wrappedContent = ASAPSerialization.readByteArray(bais); // = writeByteArray(promiseBytes)+sender+receivers
+            signedMessage = wrappedContent; //what was signed
+            signature = ASAPSerialization.readByteArray(bais);
+            tmpMessage = wrappedContent;
+        }
+
+        bais = new ByteArrayInputStream(tmpMessage);
+        byte[] snMessage = ASAPSerialization.readByteArray(bais);   // promiseBytes
+        String snSender = ASAPSerialization.readCharSequenceParameter(bais);
+        Set<CharSequence> snReceivers = ASAPSerialization.readCharSequenceSetParameter(bais);
+
+        boolean verified = false; // initialize
+        if (signature != null) {
+            try {
+                verified = ASAPCryptoAlgorithms.verify(
+                        signedMessage, signature, snSender, asapKeyStore);
+            } catch (ASAPSecurityException e) {
+                // verified definitely false
+                verified = false;
+            }
+        }
+
+        if (signed && !verified) {
+            throw new ASAPException("Signature verification failed – message may be tampered");
+        }
+
+        ByteArrayInputStream bais2 = new ByteArrayInputStream(snMessage);
+        String promiseId = ASAPSerialization.readCharSequenceParameter(bais2);
+        byte[] signatureSender = ASAPSerialization.readByteArray(bais2);
+
+        SharkPromise promise = sharkCurrencyStorage
+                .getSharkPendingPromiseFromStorage(promiseId);
+        if(promise.getCreditorSignature()==null || promise.getCreditorSignature().length==0) {
+            promise.setCreditorSignature(signatureSender);
+        } else {
+            promise.setDebtorSignature(signatureSender);
+        }
+        promise.updateState();
+        sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
+        sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
     }
 }

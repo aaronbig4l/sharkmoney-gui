@@ -22,10 +22,15 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
 
         this.sharkCurrencyComponent = (SharkCurrencyComponentImpl) sharkCurrencyComponent;
 
+        //Promise handler
+        handlers.put(SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
+                new SharkPromiseAskSigDebHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED,
                 new SharkPromiseAskSigCredHandler());
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB,
                 new SharkPromiseAskSigDebHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
+
+        //Group handler
         handlers.put(SharkCurrencyComponent.INVITE_CHANNEL_URI,
                 new SharkGroupInviteHandler(sharkCurrencyComponent.getSharkCurrencyStorage(),
                         this.sharkCurrencyComponent.getPeerIdOfImpl().toString()));
