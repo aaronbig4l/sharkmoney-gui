@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="An ethereum wallet is generated or loaded every time a Peer starts.">
-      <change afterPath="$PROJECT_DIR$/src/test/java/conectiontoAChain/PeersOnSepoliaNetworkTests.java" afterDir="false" />
+    <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="Successful Transaction Test on Sepolia Network from Alice to Bob">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/blockchain/transaction/OfflineTXCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/blockchain/transaction/OfflineTXCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/conectiontoAChain/PeersOnSepoliaNetworkTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/conectiontoAChain/PeersOnSepoliaNetworkTests.java" afterDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -90,6 +91,7 @@
     "JUnit.EstablishCurrencyTests.sendGroupInviteToMoreThanOnePersonAndAccept.executor": "Run",
     "JUnit.EstablishCurrencyTests.successfullGroupInviteSendAndReceived.executor": "Run",
     "JUnit.PeersOnSepoliaNetworkTests.executor": "Run",
+    "JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers.executor": "Run",
     "JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFlow.executor": "Run",
     "JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.executor": "Run",
@@ -126,7 +128,7 @@
       <recent name="E:\HTW\WI2526\ASAPProjekt\ASAPCurrency\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob">
+  <component name="RunManager" selected="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers">
     <configuration name="CryptoWalletTest.testEveryPeerHasAnEthereumWallet" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
@@ -143,22 +145,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CryptoWalletTest.testOnePeerHasAnEthereumWallet" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ASAPJava" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="conectiontoAChain.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="conectiontoAChain" />
-      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.CryptoWalletTest" />
-      <option name="METHOD_NAME" value="testOnePeerHasAnEthereumWallet" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="PeersOnSepoliaNetworkTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
@@ -170,6 +156,22 @@
       <option name="PACKAGE_NAME" value="conectiontoAChain" />
       <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ASAPJava" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="conectiontoAChain.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
+      <option name="METHOD_NAME" value="sepoliaTransactionBetweenAllPeers" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -208,11 +210,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers" />
         <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" />
         <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFlow" />
         <item itemvalue="JUnit.PeersOnSepoliaNetworkTests" />
         <item itemvalue="JUnit.CryptoWalletTest.testEveryPeerHasAnEthereumWallet" />
-        <item itemvalue="JUnit.CryptoWalletTest.testOnePeerHasAnEthereumWallet" />
       </list>
     </recent_temporary>
   </component>
@@ -399,7 +401,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773584951387</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Successful Transaction Test on Sepolia Network from Alice to Bob">
+      <option name="closed" value="true" />
+      <created>1773693494733</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1773693494733</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -439,7 +449,8 @@
     <MESSAGE value="OfflineTXCreator.java &#10;- creates signed offline Transactions and returns them as Hex-String&#10;SharkCurrencyComponent.java&#10;- String" />
     <MESSAGE value="OfflineTXCreator.java &#10;- creates signed offline Transactions and returns them as Hex-String&#10;SharkCurrencyComponent.java&#10;- adding Methods for Ehtereum Wallet integration" />
     <MESSAGE value="An ethereum wallet is generated or loaded every time a Peer starts." />
-    <option name="LAST_COMMIT_MESSAGE" value="An ethereum wallet is generated or loaded every time a Peer starts." />
+    <MESSAGE value="Successful Transaction Test on Sepolia Network from Alice to Bob" />
+    <option name="LAST_COMMIT_MESSAGE" value="Successful Transaction Test on Sepolia Network from Alice to Bob" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
