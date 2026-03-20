@@ -219,6 +219,53 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         return groupId;
     }
 
+    protected byte[] aliceCreatesEncryptedGroupWithBobAndClaraSetUp() throws SharkException, InterruptedException, IOException {
+        setUpScenarioEstablishCurrency_3_ClaraAndBobAndAlice();
+        Thread.sleep(500);
+        CharSequence currencyName = "AliceTalerForPromiseTest_A";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                false,
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+        whitelist.add(CLARA_ID);
+
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                true,
+                true);
+
+        Thread.sleep(1000);
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Clara, join my group!", CLARA_ID);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        // 5.1 Accept Invitation
+        this.bobImpl.acceptInviteAndSign(currencyName);
+        Thread.sleep(1000);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+        this.claraImpl.acceptInviteAndSign(currencyName);
+        Thread.sleep(1000);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+        Thread.sleep(1000);
+        Thread.sleep(1000);
+        //5.2 more encounters (we need better solution for this xd)
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(2000);
+
+        return groupId;
+    }
+
+
     protected static void stopPeerSafely(SharkPeer peer) {
         if (peer != null) {
             try {
