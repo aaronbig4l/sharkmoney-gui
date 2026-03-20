@@ -24,7 +24,7 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
 
         //Promise handler
         handlers.put(SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
-                new SharkPromiseAskSigDebHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
+                new SharkPromiseRevSigPromHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED,
                 new SharkPromiseAskSigCredHandler());
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB,

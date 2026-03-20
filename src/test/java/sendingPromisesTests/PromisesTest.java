@@ -106,18 +106,18 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                 BOB_ID, //debtor
                 true);
 
-        Thread.sleep(200);
+        Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(200);
+        Thread.sleep(1000);
         this.bobImpl.signPromiseAndSendBack(promiseId,
                 ALICE_ID,
                 BOB_ID,
                 true,
                 sharkGroupDocument.isEncrypted(),
                 false);
-        Thread.sleep(200);
+        Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(200);
+        Thread.sleep(1000);
 
         //Assertions
         SharkPromise signedPromiseAlice
@@ -145,7 +145,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(2, signedPromiseBob.getAmount());
         Assertions.assertArrayEquals(groupId, signedPromiseAlice.getGroupIDOfPromise());
         Assertions.assertArrayEquals(groupId, signedPromiseBob.getGroupIDOfPromise());
-
     }
 
     @Test
@@ -154,8 +153,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
 
         try {
-
-
             SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
             CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
                     sharkGroupDocument.getAssignedCurrency(),
@@ -168,11 +165,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         catch (ASAPException e ){
 
         }
-
-
-
-
-
     }
 
     @Test
@@ -185,8 +177,5 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     public void sendPromiseWithToLessIncome(){
 
     }
-
-
-
 
 }

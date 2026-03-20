@@ -25,7 +25,7 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
             System.out.println("DEBUG: received a message being asked to sign as debitor from: "
                             + sender);
             ASAPMessages messages = storage.getChannel(uri).getMessages(false);
-            System.out.println("DEBUG: uri = " + uri);
+            System.out.println("DEBUG: (should be asksigdeb) uri = " + uri);
             System.out.println("DEBUG: messages.size() = " + messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 byte[] messageData = messages.getMessage(i, true);

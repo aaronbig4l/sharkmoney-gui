@@ -202,6 +202,7 @@ public class SharkPromiseSerializer {
         byte[] content = baos.toByteArray();
 
         byte flags = 0;
+        flags += SharkPromise.SIGNED_MASK;
         if(encrypted) {
             content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
                     content,
@@ -221,7 +222,6 @@ public class SharkPromiseSerializer {
         byte flags = ASAPSerialization.readByte(bais);
         byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
 
-        boolean signed = (flags & SharkPromise.SIGNED_MASK) != 0;
         boolean encrypted = (flags & SharkPromise.ENCRYPTED_MASK) != 0;
 
         if (encrypted) {
@@ -244,33 +244,11 @@ public class SharkPromiseSerializer {
 
         byte[] signature = null;
         byte[] signedMessage = null;
-        if (signed) {
-            bais = new ByteArrayInputStream(tmpMessage);
-            byte[] wrappedContent = ASAPSerialization.readByteArray(bais); // = writeByteArray(promiseBytes)+sender+receivers
-            signedMessage = wrappedContent; //what was signed
-            signature = ASAPSerialization.readByteArray(bais);
-            tmpMessage = wrappedContent;
-        }
 
         bais = new ByteArrayInputStream(tmpMessage);
-        byte[] snMessage = ASAPSerialization.readByteArray(bais);   // promiseBytes
+        byte[] snMessage = ASAPSerialization.readByteArray(bais);
         String snSender = ASAPSerialization.readCharSequenceParameter(bais);
         Set<CharSequence> snReceivers = ASAPSerialization.readCharSequenceSetParameter(bais);
-
-        boolean verified = false; // initialize
-        if (signature != null) {
-            try {
-                verified = ASAPCryptoAlgorithms.verify(
-                        signedMessage, signature, snSender, asapKeyStore);
-            } catch (ASAPSecurityException e) {
-                // verified definitely false
-                verified = false;
-            }
-        }
-
-        if (signed && !verified) {
-            throw new ASAPException("Signature verification failed – message may be tampered");
-        }
 
         ByteArrayInputStream bais2 = new ByteArrayInputStream(snMessage);
         String promiseId = ASAPSerialization.readCharSequenceParameter(bais2);
@@ -278,10 +256,12 @@ public class SharkPromiseSerializer {
 
         SharkPromise promise = sharkCurrencyStorage
                 .getSharkPendingPromiseFromStorage(promiseId);
-        if(promise.getCreditorSignature()==null || promise.getCreditorSignature().length==0) {
+        if(snSender.equals(promise.getCreditorID().toString())) {
             promise.setCreditorSignature(signatureSender);
-        } else {
+        } else if(snSender.equals(promise.getDebtorID().toString())) {
             promise.setDebtorSignature(signatureSender);
+        } else {
+            throw new ASAPException("Sender is neither creditor nor debtor of this promise");
         }
         promise.updateState();
         sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
