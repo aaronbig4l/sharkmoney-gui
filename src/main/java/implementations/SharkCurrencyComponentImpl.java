@@ -1,5 +1,6 @@
 package implementations;
 
+import blockchain.wallet.WalletManager;
 import currency.classes.*;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkPromiseException;
@@ -18,7 +19,11 @@ import org.web3j.crypto.CipherException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.*;
 
 /**
@@ -303,7 +308,7 @@ public class SharkCurrencyComponentImpl
             this.wallet.initializeWallet(asapPeer.getPeerID().toString(), walletDir);
 
 
-        } catch (IOException | InvalidAlgorithmParameterException | CipherException | NoSuchAlgorithmException |
+        } catch (IOException | CipherException | InvalidAlgorithmParameterException | NoSuchAlgorithmException |
                  NoSuchProviderException e) {
             throw new SharkException("Could not initialize ASAP storage for currency", e);
         }
