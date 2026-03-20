@@ -4,12 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="sendInvitationFor2GroupsFromDifferentPeers() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- alle eingeladenen Peers befinden sich in der Whitelist und treten den Gruppen bei">
+    <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="Successful Transaction Test on Sepolia Network from Alice to Bob">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/blockchain/transaction/OfflineTXCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/blockchain/transaction/OfflineTXCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/conectiontoAChain/PeersOnSepoliaNetworkTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/conectiontoAChain/PeersOnSepoliaNetworkTests.java" afterDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -31,7 +33,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="GroupInviteAndRecive" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -132,13 +134,20 @@
   </component>
   <component name="RunManager" selected="JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob">
     <configuration name="PromisSerializationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers">
+    <configuration name="CryptoWalletTest.testEveryPeerHasAnEthereumWallet" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
+          <option name="PATTERN" value="conectiontoAChain.*" />
           <option name="PATTERN" value="promiseserializationtest.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.CryptoWalletTest" />
+      <option name="METHOD_NAME" value="testEveryPeerHasAnEthereumWallet" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="PACKAGE_NAME" value="promiseserializationtest" />
       <option name="MAIN_CLASS_NAME" value="promiseserializationtest.PromisSerializationTest" />
       <option name="TEST_OBJECT" value="class" />
@@ -146,10 +155,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PeersOnSepoliaNetworkTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
     <configuration name="PromisSerializationTest.serializeAndDeserializePromise" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
+          <option name="PATTERN" value="conectiontoAChain.*" />
           <option name="PATTERN" value="promiseserializationtest.*" />
           <option name="ENABLED" value="true" />
         </pattern>
@@ -158,18 +169,26 @@
       <option name="MAIN_CLASS_NAME" value="promiseserializationtest.PromisSerializationTest" />
       <option name="METHOD_NAME" value="serializeAndDeserializePromise" />
       <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
     <configuration name="PromisesTest.createPromiseAndSendToBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="sendingPromisesTests.*" />
+          <option name="PATTERN" value="conectiontoAChain.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
+      <option name="METHOD_NAME" value="sepoliaTransactionBetweenAllPeers" />
       <option name="PACKAGE_NAME" value="sendingPromisesTests" />
       <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
       <option name="METHOD_NAME" value="createPromiseAndSendToBob" />
@@ -178,14 +197,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PeersOnSepoliaNetworkTests.sepoliaTransactionFlow" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
     <configuration name="PromisesTest.createPromiseAndSendToBobBothInSameGroup" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
+          <option name="PATTERN" value="conectiontoAChain.*" />
           <option name="PATTERN" value="sendingPromisesTests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
+      <option name="METHOD_NAME" value="sepoliaTransactionFlow" />
       <option name="PACKAGE_NAME" value="sendingPromisesTests" />
       <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
       <option name="METHOD_NAME" value="createPromiseAndSendToBobBothInSameGroup" />
@@ -195,16 +219,21 @@
       </method>
     </configuration>
     <configuration name="PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="sendingPromisesTests.*" />
+          <option name="PATTERN" value="conectiontoAChain.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="sendingPromisesTests" />
       <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
       <option name="METHOD_NAME" value="createPromiseSendAndSignWithinAGroupAliceBob" />
+      <option name="PACKAGE_NAME" value="conectiontoAChain" />
+      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
+      <option name="METHOD_NAME" value="sepoliaTransactionFromAliceToBob" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -212,6 +241,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionBetweenAllPeers" />
+        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" />
+        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFlow" />
+        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests" />
+        <item itemvalue="JUnit.CryptoWalletTest.testEveryPeerHasAnEthereumWallet" />
         <item itemvalue="JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBob" />
@@ -236,7 +270,6 @@
       <workItem from="1768815264593" duration="3720000" />
       <workItem from="1768819307981" duration="5783000" />
       <workItem from="1771326029238" duration="5960000" />
-      <workItem from="1773416513401" duration="523000" />
     </task>
     <task id="LOCAL-00001" summary="Create Maven Repository">
       <created>1764622241417</created>
@@ -380,7 +413,39 @@
       <option name="project" value="LOCAL" />
       <updated>1773316001110</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="sendInvitationFor2GroupsFromDifferentPeersWithDifferentWhitelistAndDecline() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- unterschiedliche Whitelisten für beide Gruppen&#10;- in beiden Gruppen lehnt jeweils ein Peer dem Beitritt ab">
+      <option name="closed" value="true" />
+      <created>1773318835654</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1773318835654</updated>
+    </task>
+    <task id="LOCAL-00020" summary="OfflineTXCreator.java &#10;- creates signed offline Transactions and returns them as Hex-String&#10;SharkCurrencyComponent.java&#10;- adding Methods for Ehtereum Wallet integration">
+      <option name="closed" value="true" />
+      <created>1773522500885</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1773522500885</updated>
+    </task>
+    <task id="LOCAL-00021" summary="An ethereum wallet is generated or loaded every time a Peer starts.">
+      <option name="closed" value="true" />
+      <created>1773584951387</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1773584951387</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Successful Transaction Test on Sepolia Network from Alice to Bob">
+      <option name="closed" value="true" />
+      <created>1773693494733</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1773693494733</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -416,7 +481,12 @@
     <MESSAGE value="addMember() in SharkGroupDocument.java bearbeitet, sodass nur noch Peers, die sich in der Whitelist befinden, einer Gruppe beitreten können." />
     <MESSAGE value="sendInvitationFor2GroupsFromSamePeer() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die vom gleichen Peer ausgehen. &#10;- alle eingeladenen Peers befinden sich in der Whitelist und treten den Gruppen bei" />
     <MESSAGE value="sendInvitationFor2GroupsFromDifferentPeers() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- alle eingeladenen Peers befinden sich in der Whitelist und treten den Gruppen bei" />
-    <option name="LAST_COMMIT_MESSAGE" value="sendInvitationFor2GroupsFromDifferentPeers() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- alle eingeladenen Peers befinden sich in der Whitelist und treten den Gruppen bei" />
+    <MESSAGE value="sendInvitationFor2GroupsFromDifferentPeersWithDifferentWhitelistAndDecline() in CurrencyGroupTests.java&#10;- Testet den Umgang mit 2 Einladungen, die von unterschiedlichen Peers ausgehen. &#10;- unterschiedliche Whitelisten für beide Gruppen&#10;- in beiden Gruppen lehnt jeweils ein Peer dem Beitritt ab" />
+    <MESSAGE value="OfflineTXCreator.java &#10;- creates signed offline Transactions and returns them as Hex-String&#10;SharkCurrencyComponent.java&#10;- String" />
+    <MESSAGE value="OfflineTXCreator.java &#10;- creates signed offline Transactions and returns them as Hex-String&#10;SharkCurrencyComponent.java&#10;- adding Methods for Ehtereum Wallet integration" />
+    <MESSAGE value="An ethereum wallet is generated or loaded every time a Peer starts." />
+    <MESSAGE value="Successful Transaction Test on Sepolia Network from Alice to Bob" />
+    <option name="LAST_COMMIT_MESSAGE" value="Successful Transaction Test on Sepolia Network from Alice to Bob" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

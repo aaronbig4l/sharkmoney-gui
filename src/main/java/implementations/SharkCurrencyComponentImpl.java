@@ -14,6 +14,7 @@ import net.sharksystem.asap.*;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.pki.SharkPKIComponent;
+import org.web3j.crypto.CipherException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -32,6 +33,7 @@ public class SharkCurrencyComponentImpl
     private ASAPPeer asapPeer;
     private SharkCurrencyListenerNEW sharkCurrencyListenerNEW;
     private SharkCurrencyStorage sharkCurrencyStorage;
+    private WalletManager wallet;
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
@@ -240,6 +242,9 @@ public class SharkCurrencyComponentImpl
                 = this.sharkCurrencyStorage.getPendingInvite(currencyName.toString());
         byte[] groupId = sharkGroupDocument.getGroupId();
 
+        if (sharkGroupDocument == null){
+            throw new SharkCurrencyException("Fehler beim Akzeptieren: Es liegt keine Einladung für die Währung " + currencyName + " vor.");
+        }
         if (!sharkGroupDocument.getWhitelistMember().isEmpty() && !sharkGroupDocument.getWhitelistMember().contains(this.asapPeer.getPeerID().toString())){
             this.sharkCurrencyStorage.removePendingInvite(currencyName.toString());
             throw new SharkCurrencyException("Fehler beim Akzeptieren: Der Peer " + asapPeer.getPeerID().toString() + " befindet sich nicht in der Whitelist.");
@@ -286,7 +291,20 @@ public class SharkCurrencyComponentImpl
             this.asapPeer.getASAPStorage(SharkCurrencyComponent.CURRENCY_FORMAT);
             this.sharkCurrencyStorage = new SharkCurrencyStorageImpl();
             this.asapPeer.addASAPMessageReceivedListener(SharkCurrencyComponent.CURRENCY_FORMAT, this);
-        } catch (IOException e) {
+
+            // Initialize Ethereum Wallet for the Peer in Storage (using the Peer ID as password for now)
+            String peerStoragePath = "storage/" + asapPeer.getPeerID().toString() + "/wallet/";
+            File walletDir = new File(peerStoragePath);
+
+            if (!walletDir.exists()){
+                walletDir.mkdirs();
+            }
+            this.wallet = new WalletManager();
+            this.wallet.initializeWallet(asapPeer.getPeerID().toString(), walletDir);
+
+
+        } catch (IOException | InvalidAlgorithmParameterException | CipherException | NoSuchAlgorithmException |
+                 NoSuchProviderException e) {
             throw new SharkException("Could not initialize ASAP storage for currency", e);
         }
     }
@@ -361,5 +379,18 @@ public class SharkCurrencyComponentImpl
     public void subscribeSharkCurrencyListener(SharkCurrencyListenerNEW listener) {
         this.sharkCurrencyListenerNEW = listener;
         this.addSharkCurrencyListener(listener);
+    }
+
+    @Override
+    public String getWalletAddress() {
+        if (this.wallet != null){
+            return this.wallet.getMyAdress();
+        }
+        return "";
+    }
+
+    @Override
+    public WalletManager getWallet() {
+        return this.wallet;
     }
 }

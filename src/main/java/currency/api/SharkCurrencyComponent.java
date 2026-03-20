@@ -1,6 +1,7 @@
 package currency.api;
 
 
+import blockchain.wallet.WalletManager;
 import currency.classes.SharkCurrency;
 import currency.classes.SharkPromise;
 import currency.storage.SharkCurrencyStorage;
@@ -202,4 +203,16 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @param listener the listener that will be subscribed
      */
     void subscribeSharkCurrencyListener(SharkCurrencyListenerNEW listener);
+
+    /**
+     * Get the Ethereum Wallet Address of the Peer
+     * @return ethereum Address as String
+     */
+    String getWalletAddress();
+
+    /**
+     * Get the Ethereum Wallet of the Peer
+     * @return ethereum wallet
+     */
+    WalletManager getWallet();
 }
