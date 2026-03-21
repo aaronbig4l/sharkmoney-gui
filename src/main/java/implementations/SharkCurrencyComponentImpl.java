@@ -39,7 +39,7 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyListenerNEW sharkCurrencyListenerNEW;
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
-    //TODO macht das Sinn ?
+
     private Map<CharSequence, Integer> promiseBalance = new HashMap<>();
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
@@ -213,9 +213,9 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
-            //TODO This is new and does not work
-            String debug = this.setBalance(promise.getReferenceValue().getCurrencyName(), promise.getAmount()) ? "true" : "false";
-            System.out.println("BalanceDebug + \u001B[34m" + debug + "\u001B[0m");
+
+            int transactionAmount = asCreditor ? - promise.getAmount() : promise.getAmount();
+            this.addBalance(promise.getReferenceValue().getCurrencyName(), transactionAmount);
 
             byte[] signature;
             if(asCreditor) {
@@ -253,6 +253,9 @@ public class SharkCurrencyComponentImpl
         return true;
     }
 
+    public void addBalance(CharSequence currencyName, int amount) {
+        this.promiseBalance.merge(currencyName, amount, Integer::sum);
+    }
 
     @Override
     public void acceptInviteAndSign(CharSequence currencyName) throws ASAPException, IOException {
@@ -371,6 +374,7 @@ public class SharkCurrencyComponentImpl
     public void asapMessagesReceived(ASAPMessages asapMessages, String sender, List<ASAPHop> list) throws IOException {
         try {
             CharSequence uri = asapMessages.getURI();
+
             this.notifySharkCurrencyListener(uri);
         } catch (NullPointerException e) {
             e.printStackTrace();
