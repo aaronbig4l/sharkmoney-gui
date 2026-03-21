@@ -39,6 +39,8 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyListenerNEW sharkCurrencyListenerNEW;
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
+    //TODO macht das Sinn ?
+    private Map<CharSequence, Integer> promiseBalance = new HashMap<>();
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
@@ -211,6 +213,10 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
+            //TODO This is new and does not work
+            String debug = this.setBalance(promise.getReferenceValue().getCurrencyName(), promise.getAmount()) ? "true" : "false";
+            System.out.println("BalanceDebug + \u001B[34m" + debug + "\u001B[0m");
+
             byte[] signature;
             if(asCreditor) {
                 signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorSignature();
@@ -236,8 +242,17 @@ public class SharkCurrencyComponentImpl
 
     @Override
     public int getBalance(CharSequence currencyName) throws SharkCurrencyException {
-        return 0;
+        return (this.promiseBalance == null || currencyName == null) ? 0 : this.promiseBalance.getOrDefault(currencyName, 0);
     }
+
+
+    private boolean setBalance(CharSequence currencyName, int balance) {
+        // Führt automatisch einen Insert oder Update durch
+        this.promiseBalance.put(currencyName, balance);
+
+        return true;
+    }
+
 
     @Override
     public void acceptInviteAndSign(CharSequence currencyName) throws ASAPException, IOException {

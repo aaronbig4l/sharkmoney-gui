@@ -252,7 +252,66 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
 
     @Test
-    public void sendPromiseWithToLessIncome(){
+    public void sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim() throws SharkException, IOException, InterruptedException {
+        byte []  groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        Assertions.assertEquals(0, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+
+
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                ALICE_ID, //creditor
+                BOB_ID, //debtor
+                true);
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(1000);
+        this.bobImpl.signPromiseAndSendBack(promiseId,
+                ALICE_ID,
+                BOB_ID,
+                true,
+                sharkGroupDocument.isEncrypted(),
+                false);
+        Thread.sleep(1000);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+
+        //Assertions
+        SharkPromise signedPromiseAlice
+                = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
+        SharkPromise signedPromiseBob
+                = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
+
+
+        Assertions.assertEquals(2, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+
+        Assertions.assertEquals(-2, aliceCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

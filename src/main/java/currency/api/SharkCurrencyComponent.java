@@ -167,6 +167,8 @@ public interface SharkCurrencyComponent extends SharkComponent {
      */
     int getBalance(CharSequence currencyName) throws SharkCurrencyException;
 
+
+
     /**
      * this will execute the acceptInvite() method from the listener but first
      * it signs the document which currency name is given in the parameter :D
