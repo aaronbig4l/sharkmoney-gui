@@ -40,6 +40,8 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
+    private Map<CharSequence, Integer> promiseBalance = new HashMap<>();
+
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
     }
@@ -211,6 +213,10 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
+
+            int transactionAmount = asCreditor ? promise.getAmount() : - promise.getAmount();
+            this.addBalance(promise.getReferenceValue().getCurrencyName(), transactionAmount);
+
             byte[] signature;
             if(asCreditor) {
                 signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorSignature();
@@ -236,7 +242,19 @@ public class SharkCurrencyComponentImpl
 
     @Override
     public int getBalance(CharSequence currencyName) throws SharkCurrencyException {
-        return 0;
+        return (this.promiseBalance == null || currencyName == null) ? 0 : this.promiseBalance.getOrDefault(currencyName, 0);
+    }
+
+
+    private boolean setBalance(CharSequence currencyName, int balance) {
+        // Führt automatisch einen Insert oder Update durch
+        this.promiseBalance.put(currencyName, balance);
+
+        return true;
+    }
+
+    public void addBalance(CharSequence currencyName, int amount) {
+        this.promiseBalance.merge(currencyName, amount, Integer::sum);
     }
 
     @Override
@@ -356,6 +374,7 @@ public class SharkCurrencyComponentImpl
     public void asapMessagesReceived(ASAPMessages asapMessages, String sender, List<ASAPHop> list) throws IOException {
         try {
             CharSequence uri = asapMessages.getURI();
+            //TODO Hier muss dann was geandert werden damit auch beim initiator sich der balnce andert
             this.notifySharkCurrencyListener(uri);
         } catch (NullPointerException e) {
             e.printStackTrace();
