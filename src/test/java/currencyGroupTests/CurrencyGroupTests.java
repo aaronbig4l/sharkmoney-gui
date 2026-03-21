@@ -1,4 +1,5 @@
 package currencyGroupTests;
+import currency.classes.SharkCryptoCurrency;
 import group.GroupSignings;
 import group.SharkGroupDocument;
 import currency.classes.SharkCurrency;
@@ -1325,5 +1326,55 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
                 "Clara should not have pending invited");
         Assertions.assertFalse(this.davidStorage.hasPendingInvites(),
                 "David should not have pending invited");
+    }
+
+    @Test
+    public void aliceCreateAGroupWithCryptoBasedCurrency() throws SharkException {
+        // 0. Setting up Alice Peer
+        this.setUpScenarioEstablishCurrency_1_justAlice();
+
+        // 1. Alice arranges a new Crypto Currency (0.005 ETH per Unit)
+        CharSequence currencyName = "AliceTalerCryptoA";
+        SharkCurrency dummyCryptoCurrency = new SharkCryptoCurrency(
+                false,                // global limit
+                currencyName.toString(),        // Name
+                "A crypto based test Currency",               // Spec
+                0.005
+        );
+
+        // 2. Alice creates a new Group using the created Currency
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(dummyCryptoCurrency,
+                new ArrayList<>(),
+                false,
+                true);
+        SharkGroupDocument testDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] aliceSignature = testDoc.getCurrentMembers().get(ALICE_ID);
+
+        // 3. Checking results
+        boolean verified = ASAPCryptoAlgorithms.verify(
+                groupId, // Content which was signed
+                aliceSignature,
+                ALICE_ID,
+                ((SharkPKIComponent) aliceSharkPeer
+                        .getComponent(SharkPKIComponent.class))
+                        .getASAPKeyStore());
+        Assertions
+                .assertEquals(ALICE_ID, testDoc.getGroupCreator());
+        Assertions
+                .assertTrue(verified, "The Signature of Alice could not have been verified");
+        Assertions
+                .assertEquals(1,testDoc.getCurrentMembers().size());
+        Assertions
+                .assertArrayEquals(aliceSignature, testDoc.getCurrentMembers().get(ALICE_ID),
+                        "The saved signature is different than the original one");
+
+        Assertions.assertTrue(testDoc.getAssignedCurrency() instanceof SharkCryptoCurrency,
+                "The assigned currency should be of type SharkCryptoCurrency");
+
+        SharkCryptoCurrency groupCurrency = (SharkCryptoCurrency) testDoc.getAssignedCurrency();
+        Assertions.assertEquals(0.005, groupCurrency.getExchangeRate(),
+                "The exchange rate must match the initial value");
+        Assertions.assertEquals("ETH", groupCurrency.getBackingCryptoType(),
+                "The backing crypto type must be ETH");
     }
 }
