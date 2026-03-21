@@ -297,9 +297,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                 = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
 
 
-        Assertions.assertEquals(2, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+        Assertions.assertEquals(-2, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
 
-        Assertions.assertEquals(-2, aliceCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+        Assertions.assertEquals(2, aliceCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
 
 
 

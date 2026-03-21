@@ -214,7 +214,7 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
 
-            int transactionAmount = asCreditor ? - promise.getAmount() : promise.getAmount();
+            int transactionAmount = asCreditor ? promise.getAmount() : - promise.getAmount();
             this.addBalance(promise.getReferenceValue().getCurrencyName(), transactionAmount);
 
             byte[] signature;
@@ -374,7 +374,7 @@ public class SharkCurrencyComponentImpl
     public void asapMessagesReceived(ASAPMessages asapMessages, String sender, List<ASAPHop> list) throws IOException {
         try {
             CharSequence uri = asapMessages.getURI();
-
+            //TODO Hier muss dann was geandert werden damit auch beim initiator sich der balnce andert
             this.notifySharkCurrencyListener(uri);
         } catch (NullPointerException e) {
             e.printStackTrace();
