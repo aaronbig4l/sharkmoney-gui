@@ -39,6 +39,6 @@ public interface SharkCurrency {
      * Turns the Currency object into a byte[] for serialization purposes
      * @return the byte series of this currency object
      */
-    byte[] toByte() throws SharkCurrencyException, IOException, ASAPException;
+    byte[] toByte() throws SharkCurrencyException, IOException, ASAPException, Exception;
 
 }
