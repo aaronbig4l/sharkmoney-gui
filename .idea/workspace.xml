@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="eigene SharkCryptoCurrency für crypto-gestützte Währungen">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -94,6 +95,7 @@
     "JUnit.PromisesTest.createPromiseAndSendToBob.executor": "Run",
     "JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup.executor": "Run",
     "JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob.executor": "Run",
+    "JUnit.PromisesTest.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.testSerializationAndDeserialization.executor": "Run",
     "Maven.ASAPJava [clean].executor": "Run",
@@ -128,7 +130,7 @@
       <recent name="E:\HTW\WI2526\ASAPProjekt\ASAPCurrency\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency">
+  <component name="RunManager" selected="JUnit.PromisesTest">
     <configuration name="CryptoWalletTest.testEveryPeerHasAnEthereumWallet" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
@@ -193,17 +195,16 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PromisSerializationTest.serializeAndDeserializePromise" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PromisesTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="promiseserializationtest.*" />
+          <option name="PATTERN" value="sendingPromisesTests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="conectiontoAChain" />
-      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
-      <option name="METHOD_NAME" value="serializeAndDeserializePromise" />
+      <option name="PACKAGE_NAME" value="sendingPromisesTests" />
+      <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -211,11 +212,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PromisesTest" />
         <item itemvalue="JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency" />
         <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" />
         <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFlow" />
         <item itemvalue="JUnit.CryptoWalletTest.testEveryPeerHasAnEthereumWallet" />
-        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" />
       </list>
     </recent_temporary>
   </component>

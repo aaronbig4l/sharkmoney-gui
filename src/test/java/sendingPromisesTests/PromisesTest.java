@@ -255,18 +255,31 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     public void sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim() throws SharkException, IOException, InterruptedException {
         byte []  groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
 
-        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent alicePKI
+                = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI
+                = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
 
         // let Bob accept ALice credentials and create a certificate
-        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        CredentialMessageInMemo aliceCredentialMessage
+                = new CredentialMessageInMemo(ALICE_ID,
+                ALICE_NAME,
+                System.currentTimeMillis(),
+                alicePKI.getPublicKey());
         bobPKI.acceptAndSignCredential(aliceCredentialMessage);
 
         // Alice accepts Bob Public Key
-        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        CredentialMessageInMemo bobCredentialMessage
+                = new CredentialMessageInMemo(BOB_ID,
+                BOB_NAME,
+                System.currentTimeMillis(),
+                bobPKI.getPublicKey());
         alicePKI.acceptAndSignCredential(bobCredentialMessage);
 
-        Assertions.assertEquals(0, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
+        byte[] currencyId
+                = this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency().getCurrencyId();
+
+        Assertions.assertEquals(0, bobCurrencyComponent.getBalance(currencyId));
 
 
         SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
@@ -297,22 +310,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                 = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
 
 
-        Assertions.assertEquals(-2, bobCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
-
-        Assertions.assertEquals(2, aliceCurrencyComponent.getBalance("AliceTalerForPromiseTest_A"));
-
-
-
-
-
-
-
-
-
-
-
-
-
+        Assertions.assertEquals(-2, bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(2, aliceCurrencyComponent.getBalance(currencyId));
     }
-
 }

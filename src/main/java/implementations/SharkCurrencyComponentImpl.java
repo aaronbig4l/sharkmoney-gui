@@ -40,7 +40,7 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
-    private Map<CharSequence, Integer> promiseBalance = new HashMap<>();
+    private Map<byte[], Integer> promiseBalance = new HashMap<>();
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
@@ -215,7 +215,7 @@ public class SharkCurrencyComponentImpl
 
 
             int transactionAmount = asCreditor ? promise.getAmount() : - promise.getAmount();
-            this.addBalance(promise.getReferenceValue().getCurrencyName(), transactionAmount);
+            this.addBalance(promise.getReferenceValue().getCurrencyId(), transactionAmount);
 
             byte[] signature;
             if(asCreditor) {
@@ -241,20 +241,18 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public int getBalance(CharSequence currencyName) throws SharkCurrencyException {
+    public int getBalance(byte[] currencyName) throws SharkCurrencyException {
         return (this.promiseBalance == null || currencyName == null) ? 0 : this.promiseBalance.getOrDefault(currencyName, 0);
     }
 
 
-    private boolean setBalance(CharSequence currencyName, int balance) {
-        // Führt automatisch einen Insert oder Update durch
-        this.promiseBalance.put(currencyName, balance);
-
+    private boolean setBalance(byte[] currencyId, int balance) {
+        this.promiseBalance.put(currencyId, balance);
         return true;
     }
 
-    public void addBalance(CharSequence currencyName, int amount) {
-        this.promiseBalance.merge(currencyName, amount, Integer::sum);
+    public void addBalance(byte[] currencyId, int amount) {
+        this.promiseBalance.merge(currencyId, amount, Integer::sum);
     }
 
     @Override

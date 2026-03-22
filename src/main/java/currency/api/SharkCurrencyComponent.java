@@ -161,12 +161,11 @@ public interface SharkCurrencyComponent extends SharkComponent {
     /**
      * Calculates the current balance for the local user in the specified currency.
      *
-     * @param currencyName The name of the currency.
+     * @param currencyId The id of the currency.
      * @return The current balance.
      * @throws SharkCurrencyException If the history cannot be read.
      */
-    int getBalance(CharSequence currencyName) throws SharkCurrencyException;
-
+    int getBalance(byte[] currencyId) throws SharkCurrencyException;
 
 
     /**
