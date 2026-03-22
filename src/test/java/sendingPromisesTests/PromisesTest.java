@@ -303,14 +303,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(1000);
 
-        //Assertions
-        SharkPromise signedPromiseAlice
-                = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
-        SharkPromise signedPromiseBob
-                = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
-
 
         Assertions.assertEquals(-2, bobCurrencyComponent.getBalance(currencyId));
-        Assertions.assertEquals(2, aliceCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(2, aliceImpl.getBalance(currencyId));
     }
 }

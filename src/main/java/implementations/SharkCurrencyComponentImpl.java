@@ -40,7 +40,7 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
-    private Map<byte[], Integer> promiseBalance = new HashMap<>();
+    private Map<String, Integer> promiseBalance = new HashMap<>();
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
@@ -219,6 +219,7 @@ public class SharkCurrencyComponentImpl
             } else {
                 signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getDebtorSignature();
             }
+            this.addBalance(promise);
             byte[] serializedContent = null;
 
             serializedContent = SharkPromiseSerializer
@@ -231,7 +232,7 @@ public class SharkCurrencyComponentImpl
             this.asapPeer.sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT,
                     SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
                     serializedContent);
-            this.addBalance(promise);
+
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }
@@ -239,7 +240,11 @@ public class SharkCurrencyComponentImpl
 
     @Override
     public int getBalance(byte[] currencyName) throws SharkCurrencyException {
-        return (this.promiseBalance == null || currencyName == null) ? 0 : this.promiseBalance.getOrDefault(currencyName, 0);
+        if (currencyName == null) return 0;
+
+        // Konsistente Umwandlung in einen stabilen Key
+        String key = encodeKey(currencyName);
+        return this.promiseBalance.getOrDefault(key, 0);
     }
 
     @Override
@@ -251,7 +256,8 @@ public class SharkCurrencyComponentImpl
             transactionAmount = -promise.getAmount();
         }
         byte[] currencyId = promise.getReferenceValue().getCurrencyId();
-        this.promiseBalance.merge(currencyId, transactionAmount, Integer::sum);
+        String key = java.util.Base64.getEncoder().encodeToString(currencyId);
+        this.promiseBalance.merge(key, transactionAmount, Integer::sum);
     }
 
     @Override
@@ -371,7 +377,7 @@ public class SharkCurrencyComponentImpl
     public void asapMessagesReceived(ASAPMessages asapMessages, String sender, List<ASAPHop> list) throws IOException {
         try {
             CharSequence uri = asapMessages.getURI();
-            //TODO Hier muss dann was geandert werden damit auch beim initiator sich der balnce andert
+
             this.notifySharkCurrencyListener(uri);
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -413,5 +419,9 @@ public class SharkCurrencyComponentImpl
     @Override
     public WalletManager getWallet() {
         return this.wallet;
+    }
+
+    private String encodeKey(byte[] id){
+        return Base64.getEncoder().encodeToString(id);
     }
 }
