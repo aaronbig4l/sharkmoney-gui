@@ -213,10 +213,6 @@ public class SharkCurrencyComponentImpl
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
-
-            int transactionAmount = asCreditor ? promise.getAmount() : - promise.getAmount();
-            this.addBalance(promise.getReferenceValue().getCurrencyId(), transactionAmount);
-
             byte[] signature;
             if(asCreditor) {
                 signature = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorSignature();
@@ -235,6 +231,7 @@ public class SharkCurrencyComponentImpl
             this.asapPeer.sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT,
                     SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
                     serializedContent);
+            this.addBalance(promise);
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }
@@ -245,14 +242,16 @@ public class SharkCurrencyComponentImpl
         return (this.promiseBalance == null || currencyName == null) ? 0 : this.promiseBalance.getOrDefault(currencyName, 0);
     }
 
-
-    private boolean setBalance(byte[] currencyId, int balance) {
-        this.promiseBalance.put(currencyId, balance);
-        return true;
-    }
-
-    public void addBalance(byte[] currencyId, int amount) {
-        this.promiseBalance.merge(currencyId, amount, Integer::sum);
+    @Override
+    public void addBalance(SharkPromise promise) {
+        int transactionAmount;
+        if(this.asapPeer.getPeerID()==promise.getCreditorID())
+            transactionAmount = promise.getAmount();
+        else {
+            transactionAmount = -promise.getAmount();
+        }
+        byte[] currencyId = promise.getReferenceValue().getCurrencyId();
+        this.promiseBalance.merge(currencyId, transactionAmount, Integer::sum);
     }
 
     @Override

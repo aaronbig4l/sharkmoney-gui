@@ -217,7 +217,7 @@ public class SharkPromiseSerializer {
         return baos.toByteArray();
     }
 
-    public static void deserializeSignAndSendBackMessage(byte[] asapMessage, ASAPKeyStore asapKeyStore, SharkCurrencyStorage sharkCurrencyStorage) throws ASAPException, IOException {
+    public static SharkPromise deserializeSignAndSendBackMessage(byte[] asapMessage, ASAPKeyStore asapKeyStore, SharkCurrencyStorage sharkCurrencyStorage) throws ASAPException, IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(asapMessage);
         byte flags = ASAPSerialization.readByte(bais);
         byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
@@ -266,5 +266,6 @@ public class SharkPromiseSerializer {
         promise.updateState();
         sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
         sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
+        return promise;
     }
 }

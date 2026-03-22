@@ -176,6 +176,16 @@ public interface SharkCurrencyComponent extends SharkComponent {
      */
     void acceptInviteAndSign(CharSequence currencyName) throws SharkCurrencyException, ASAPSecurityException, ASAPException, IOException;
 
+
+    /**
+     * Add Balance to your Account (also negative Promise)
+     * @param promise
+     */
+    void addBalance(SharkPromise promise);
+
+
+
+
     /**
      * declines an invite to a group,
      * it will remove the invite form pending invites in storage

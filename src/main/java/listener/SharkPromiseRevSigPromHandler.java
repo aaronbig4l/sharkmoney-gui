@@ -1,5 +1,6 @@
 package listener;
 
+import currency.api.SharkCurrencyComponent;
 import currency.classes.SharkPromise;
 import currency.classes.SharkPromiseSerializer;
 import currency.storage.SharkCurrencyStorage;
@@ -13,9 +14,12 @@ import java.io.IOException;
 public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandler {
 
     private SharkCurrencyStorage currencyStorage;
+    private SharkCurrencyComponent sharkCurrencyComponent;
 
-    public SharkPromiseRevSigPromHandler(SharkCurrencyStorage currencyStorage) {
+    public SharkPromiseRevSigPromHandler(SharkCurrencyStorage currencyStorage,
+                                         SharkCurrencyComponent sharkCurrencyComponent) {
         this.currencyStorage=currencyStorage;
+        this.sharkCurrencyComponent=sharkCurrencyComponent;
     }
 
     public void handle(CharSequence uri, ASAPStorage storage, SharkPKIComponent pki, CharSequence sender) throws IOException, ASAPException {
@@ -25,10 +29,12 @@ public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandle
             ASAPMessages messages = storage.getChannel(uri).getMessages(false);
             for (int i = 0; i < messages.size(); i++) {
                 byte[] messageData = messages.getMessage(i, true);
-                SharkPromiseSerializer
+                SharkPromise promise = SharkPromiseSerializer
                         .deserializeSignAndSendBackMessage(messageData,
                                 pki.getASAPKeyStore(),
                                 this.currencyStorage);
+
+                this.sharkCurrencyComponent.addBalance(promise);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
