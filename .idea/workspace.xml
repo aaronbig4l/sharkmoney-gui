@@ -6,17 +6,70 @@
   <component name="ChangeListManager">
     <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="eigene SharkCryptoCurrency für crypto-gestützte Währungen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/classes/SharkPromiseSerializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerManagerNEW.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerManagerNEW.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerNEW.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerNEW.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyMessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyMessageHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkGroupInviteHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkGroupInviteHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkNewMemberHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkNewMemberHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigCredHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigCredHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseRevSigPromHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseRevSigPromHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/.sharkPeerExtraData" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/0/asap%2Fcertificate.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/0/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/1/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/0/asap%2Fcertificate.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/0/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/1/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/SharkCredentials/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/signAsDebitor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/0/%2F%2Fgroup-document%2F%2Fnew-member.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/0/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/.sharkPeerExtraData" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/0/asap%2Fcertificate.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/0/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/1/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/0/asap%2Fcertificate.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/0/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/1/asap%2Fcertificate.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/SharkCredentials/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Fnew-member.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/0/%2F%2Fgroup-document%2F%2Finvite.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/signAsDebitor.content" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/signAsDebitor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/asapCurrentAttributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/asapCurrentAttributes" beforeDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
-    <list id="168dacd9-333c-42b9-85b6-1c0eda314f2f" name="Changes by Luxis" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/api/SharkCurrencyComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
-    </list>
+    <list id="168dacd9-333c-42b9-85b6-1c0eda314f2f" name="Changes by Luxis" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,15 +109,6 @@
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java">
-      <ranges>
-        <range start1="215" end1="219" start2="215" end2="215" changelist="168dacd9-333c-42b9-85b6-1c0eda314f2f" />
-        <range start1="237" end1="237" start2="233" end2="234" changelist="168dacd9-333c-42b9-85b6-1c0eda314f2f" />
-        <range start1="247" end1="255" start2="244" end2="254" changelist="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" />
-      </ranges>
-    </file>
-  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -82,59 +126,60 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.aliceCreatesAGroupWithLocalCurrency.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.establishGroupWithMemberThatIsNotWhitelisted.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.groupWith2WhitlistedButInvite3.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.receiveInviteListenerAcceptedTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendGroupInviteTo3PeersAnd2AcceptAnd1Decline.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendGroupInviteTo3PeersAndAllAccept.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendGroupInviteToMoreThanOnePersonAndAccept.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromDifferentPeers.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromDifferentPeersWithDifferentWhitelistAndDecline.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromSamePeer.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CurrencyGroupTests.successfullGroupInviteSendAndReceived.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.aliceCreatesAGroupWithLocalCurrency.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.establishGroupWithMemberThatIsNotWhitelisted.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.receiveInviteListenerAcceptedTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.receiveInviteListenerDeniedTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.sendGroupInviteToMoreThanOnePersonAndAccept.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EstablishCurrencyTests.successfullGroupInviteSendAndReceived.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisSerializationTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisSerializationTest.serializeAndDeserializePromise.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisesTest.createPromise.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisesTest.createPromiseAndSendToBob.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromisesTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SharkCurrencySerializationTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.SharkCurrencySerializationTest.testSerializationAndDeserialization.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ASAPJava [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ASAPJava [install].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Eric M/Documents/Projekt_Studium_WiSe2526/ASAPCurrency&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency.executor": "Run",
+    "JUnit.CurrencyGroupTests.aliceCreatesAGroupWithLocalCurrency.executor": "Run",
+    "JUnit.CurrencyGroupTests.establishGroupWithMemberThatIsNotWhitelisted.executor": "Run",
+    "JUnit.CurrencyGroupTests.executor": "Run",
+    "JUnit.CurrencyGroupTests.groupWith2WhitlistedButInvite3.executor": "Run",
+    "JUnit.CurrencyGroupTests.receiveInviteListenerAcceptedTest.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendGroupInviteTo3PeersAnd2AcceptAnd1Decline.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendGroupInviteTo3PeersAndAllAccept.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendGroupInviteToMoreThanOnePersonAndAccept.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromDifferentPeers.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromDifferentPeersWithDifferentWhitelistAndDecline.executor": "Run",
+    "JUnit.CurrencyGroupTests.sendInvitationFor2GroupsFromSamePeer.executor": "Run",
+    "JUnit.CurrencyGroupTests.successfullGroupInviteSendAndReceived.executor": "Run",
+    "JUnit.EstablishCurrencyTests.aliceCreatesAGroupWithLocalCurrency.executor": "Run",
+    "JUnit.EstablishCurrencyTests.establishGroupWithMemberThatIsNotWhitelisted.executor": "Run",
+    "JUnit.EstablishCurrencyTests.executor": "Run",
+    "JUnit.EstablishCurrencyTests.receiveInviteListenerAcceptedTest.executor": "Run",
+    "JUnit.EstablishCurrencyTests.receiveInviteListenerDeniedTest.executor": "Run",
+    "JUnit.EstablishCurrencyTests.sendGroupInviteToMoreThanOnePersonAndAccept.executor": "Run",
+    "JUnit.EstablishCurrencyTests.successfullGroupInviteSendAndReceived.executor": "Run",
+    "JUnit.PromisSerializationTest.executor": "Run",
+    "JUnit.PromisSerializationTest.serializeAndDeserializePromise.executor": "Run",
+    "JUnit.PromisesTest.createPromise.executor": "Run",
+    "JUnit.PromisesTest.createPromiseAndSendToBob.executor": "Run",
+    "JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup.executor": "Run",
+    "JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob.executor": "Run",
+    "JUnit.PromisesTest.executor": "Run",
+    "JUnit.PromisesTest.sendingPromisesToDifferentPeers.executor": "Run",
+    "JUnit.SharkCurrencySerializationTest.executor": "Run",
+    "JUnit.SharkCurrencySerializationTest.testSerializationAndDeserialization.executor": "Run",
+    "Maven.ASAPJava [clean].executor": "Run",
+    "Maven.ASAPJava [install].executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Eric M/Documents/Projekt_Studium_WiSe2526/ASAPCurrency",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "configurable.group.appearance",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\HTW\WI2526\ASAPProjekt\ASAPCurrency\lib" />
@@ -157,22 +202,6 @@
       <option name="PACKAGE_NAME" value="currencyGroupTests" />
       <option name="MAIN_CLASS_NAME" value="currencyGroupTests.CurrencyGroupTests" />
       <option name="METHOD_NAME" value="aliceCreateAGroupWithCryptoBasedCurrency" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ASAPJava" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="conectiontoAChain.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="conectiontoAChain" />
-      <option name="MAIN_CLASS_NAME" value="conectiontoAChain.PeersOnSepoliaNetworkTests" />
-      <option name="METHOD_NAME" value="sepoliaTransactionFromAliceToBob" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -225,13 +254,29 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PromisesTest.sendingPromisesToDifferentPeers" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ASAPJava" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sendingPromisesTests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="sendingPromisesTests" />
+      <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
+      <option name="METHOD_NAME" value="sendingPromisesToDifferentPeers" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PromisesTest" />
+        <item itemvalue="JUnit.PromisesTest.sendingPromisesToDifferentPeers" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup" />
         <item itemvalue="JUnit.PromisesTest.sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim" />
-        <item itemvalue="JUnit.PromisesTest" />
         <item itemvalue="JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency" />
-        <item itemvalue="JUnit.PeersOnSepoliaNetworkTests.sepoliaTransactionFromAliceToBob" />
       </list>
     </recent_temporary>
   </component>

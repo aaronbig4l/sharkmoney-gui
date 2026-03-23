@@ -1,6 +1,7 @@
 package listener;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPStorage;
 import net.sharksystem.pki.SharkPKIComponent;
 
@@ -17,9 +18,9 @@ public interface SharkCurrencyMessageHandler {
      * logic for handling different kinds of messages will be implemented here
      *
      * @param uri uri of the message which tells us the type of message
-     * @param storage
+     * @param messages
      * @param pki
-     * @param sender
+     * @param receiver
      */
-    void handle(CharSequence uri, ASAPStorage storage, SharkPKIComponent pki, CharSequence sender) throws IOException, ASAPException;
+    void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence receiver) throws IOException, ASAPException;
 }

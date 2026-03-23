@@ -195,7 +195,7 @@ public class SharkCurrencyComponentImpl
                     .getSharkPendingPromiseFromStorage(promiseId);
             if(promise==null) {
                 throw new SharkPromiseException("Promise with PromiseId: "
-                        + promiseId + " not found in Storage");
+                        + promiseId + " not found in pending Storage");
             }
             ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
             CharSequence sender;
@@ -377,8 +377,8 @@ public class SharkCurrencyComponentImpl
     public void asapMessagesReceived(ASAPMessages asapMessages, String sender, List<ASAPHop> list) throws IOException {
         try {
             CharSequence uri = asapMessages.getURI();
-
-            this.notifySharkCurrencyListener(uri);
+            System.out.println("DEBUG asapMessagesReceived: uri=" + uri + ", size=" + asapMessages.size());
+            this.notifySharkCurrencyListener(uri, asapMessages);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

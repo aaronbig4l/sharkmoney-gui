@@ -241,16 +241,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(2, signedPromiseBob.getAmount());
         Assertions.assertArrayEquals(groupId, signedPromiseAlice.getGroupIDOfPromise());
         Assertions.assertArrayEquals(groupId, signedPromiseBob.getGroupIDOfPromise());
-
-
-
-
-
-
-
-
-
-
     }
 
 
@@ -327,31 +317,32 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
         alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
 
-        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
-        byte[] currencyId = sharkGroupDocument.getAssignedCurrency().getCurrencyId();
-
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
+        SharkCurrency currency = aliceDoc.getAssignedCurrency();
 
         CharSequence promiseBobId = this.aliceCurrencyComponent.createPromise(5,
-                sharkGroupDocument.getAssignedCurrency(), groupId, ALICE_ID, BOB_ID, true);
+                currency, groupId, ALICE_ID, BOB_ID, true);
 
         CharSequence promiseClaraId = this.aliceCurrencyComponent.createPromise(10,
-                sharkGroupDocument.getAssignedCurrency(), groupId, ALICE_ID, CLARA_ID, true);
+                currency, groupId, ALICE_ID, CLARA_ID, true);
 
         // Network Sync 1: Sending the promises
         Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
-
-        this.bobImpl.signPromiseAndSendBack(promiseBobId, ALICE_ID, BOB_ID, true, sharkGroupDocument.isEncrypted(), false);
-        this.claraImpl.signPromiseAndSendBack(promiseClaraId, ALICE_ID, CLARA_ID, true, sharkGroupDocument.isEncrypted(), false);
+        this.bobImpl.signPromiseAndSendBack(promiseBobId, ALICE_ID, BOB_ID, true, aliceDoc.isEncrypted(), false);
+        this.claraImpl.signPromiseAndSendBack(promiseClaraId, ALICE_ID, CLARA_ID, true, aliceDoc.isEncrypted(), false);
 
 
         Thread.sleep(500);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
 
         Assertions.assertEquals(15, this.aliceImpl.getBalance(currencyId), "Alice should have a balance of 15 units (5 + 10).");

@@ -24,9 +24,8 @@ public class SharkGroupInviteHandler implements SharkCurrencyMessageHandler {
     }
 
     @Override
-    public void handle(CharSequence uri, ASAPStorage storage, SharkPKIComponent pki, CharSequence sender) {
+    public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence sender) {
         try {
-            ASAPMessages messages = storage.getChannel(uri).getMessages(false);
             if (messages.size() == 0) {
                 System.err.println("DEBUG: No messages found in channel " + uri);
                 return;

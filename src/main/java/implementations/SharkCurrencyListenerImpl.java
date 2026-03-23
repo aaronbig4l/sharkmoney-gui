@@ -5,6 +5,7 @@ import currency.classes.SharkPromise;
 import exepections.SharkCurrencyException;
 import listener.*;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPStorage;
 import net.sharksystem.pki.SharkPKIComponent;
 
@@ -39,15 +40,17 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
     }
 
     @Override
-    public void sharkCurrencyMessageReceived(CharSequence uri) {
+    public void sharkCurrencyMessageReceived(CharSequence uri, ASAPMessages messages) {
         try {
             SharkCurrencyMessageHandler handler = handlers.get(uri.toString());
             if(handler==null) {
                 throw new SharkCurrencyException("Could not find uri: " + uri);
             }
-            ASAPStorage storage = this.sharkCurrencyComponent.getASAPStorage();
+            System.out.println("DEBUG Listener: uri=" + uri);
+            System.out.println("DEBUG Listener: handler found=" + (handlers.get(uri.toString()) != null));
+            System.out.println("DEBUG Listener: all registered keys=" + handlers.keySet());
             SharkPKIComponent pki = this.sharkCurrencyComponent.getSharkPKIComponent();
-            handler.handle(uri,storage,pki, this.sharkCurrencyComponent.getPeerIdOfImpl());
+            handler.handle(uri,messages,pki, this.sharkCurrencyComponent.getPeerIdOfImpl());
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }

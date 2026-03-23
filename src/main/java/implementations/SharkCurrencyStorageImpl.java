@@ -10,8 +10,8 @@ import java.util.*;
 
 public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
-    private final Map<CharSequence, SharkPromise> sharkPromiseStorePending = new HashMap<>();
-    private final Map<CharSequence, SharkPromise> sharkPromiseStoreSigned = new HashMap<>();
+    private final Map<String, SharkPromise> sharkPromiseStorePending = new HashMap<>();
+    private final Map<String, SharkPromise> sharkPromiseStoreSigned = new HashMap<>();
     private final Map<String, SharkGroupDocument> pendingInvites = new HashMap<>();
     private final Map<String, SharkGroupDocument> groupDocuments = new HashMap<>();
 
@@ -61,8 +61,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     @Override
     public void addSharkSignedPromiseToStorage(SharkPromise promise) {
-        CharSequence promiseId = promise.getPromiseID();
-        this.sharkPromiseStoreSigned.put(promiseId, promise);
+        this.sharkPromiseStoreSigned.put(promise.getPromiseID().toString(), promise);
     }
 
     @Override
@@ -72,21 +71,20 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     @Override
     public SharkPromise getSharkSignedPromiseFromStorage(CharSequence promiseId) {
-        return this.sharkPromiseStoreSigned.get(promiseId);
+        return this.sharkPromiseStoreSigned.get(promiseId.toString());
     }
 
     public void addSharkPendingPromiseToStorage(SharkPromise promise) {
-        CharSequence promiseId = promise.getPromiseID();
-        this.sharkPromiseStorePending.put(promiseId, promise);
+        this.sharkPromiseStorePending.put(promise.getPromiseID().toString(), promise);
     }
 
     public void removeSharkPendingPromiseFromStorage(CharSequence promiseId) {
-        this.sharkPromiseStorePending.remove(promiseId);
+        this.sharkPromiseStorePending.remove(promiseId.toString());
         System.out.println("DEBUG: remove pending promise, new size: " + this.sharkPromiseStorePending.size());
     }
 
     public SharkPromise getSharkPendingPromiseFromStorage(CharSequence promiseId) {
-        return this.sharkPromiseStorePending.get(promiseId);
+        return this.sharkPromiseStorePending.get(promiseId.toString());
     }
 
     //this method is needed because of hashingf purposes
@@ -97,11 +95,6 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public int getPendingInviteSize() {
         return this.pendingInvites.size();
-    }
-
-    @Override
-    public void getallShrkPromiesesFromStorage(){
-        sharkPromiseStorePending.keySet().stream().forEach(System.out::println);
     }
 
 }

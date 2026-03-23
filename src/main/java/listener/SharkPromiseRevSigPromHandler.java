@@ -22,11 +22,10 @@ public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandle
         this.sharkCurrencyComponent=sharkCurrencyComponent;
     }
 
-    public void handle(CharSequence uri, ASAPStorage storage, SharkPKIComponent pki, CharSequence sender) throws IOException, ASAPException {
+    public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence sender) throws IOException, ASAPException {
         try {
             System.out.println("DEBUG: received a fully signed promise from: "
                     + sender);
-            ASAPMessages messages = storage.getChannel(uri).getMessages(false);
             for (int i = 0; i < messages.size(); i++) {
                 byte[] messageData = messages.getMessage(i, true);
                 SharkPromise promise = SharkPromiseSerializer

@@ -4,12 +4,14 @@ import currency.classes.SharkPromise;
 import currency.classes.SharkPromiseSerializer;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPStorage;
 import net.sharksystem.pki.SharkPKIComponent;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 
 public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler {
 
@@ -20,23 +22,23 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
     }
 
     @Override
-    public void handle(CharSequence uri, ASAPStorage storage, SharkPKIComponent pki, CharSequence sender) {
-        try {
-            System.out.println("DEBUG: received a message being asked to sign as debitor from: "
-                            + sender);
-            ASAPMessages messages = storage.getChannel(uri).getMessages(false);
-            System.out.println("DEBUG: (should be asksigdeb) uri = " + uri);
-            System.out.println("DEBUG: messages.size() = " + messages.size());
-            for (int i = 0; i < messages.size(); i++) {
+    public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence receiver) throws IOException {
+
+        System.out.println("DEBUG: received a message being asked to sign as debitor from: "
+                + receiver);
+        for (int i = 0; i < messages.size(); i++) {
+            try {
                 byte[] messageData = messages.getMessage(i, true);
-                System.out.println("DEBUG: message[" + i + "] length = " + messageData.length);
-                System.out.println("DEBUG: first byte (flags) = " + messageData[0]);
                 SharkPromise promise = SharkPromiseSerializer
                         .deserializePromise(messageData, pki.getASAPKeyStore());
-                this.currencyStorage.addSharkPendingPromiseToStorage(promise);
+                    this.currencyStorage.addSharkPendingPromiseToStorage(promise);
+                    System.out.println("DEBUG Handler: stored promise id=" + promise.getPromiseID());
+                } catch (ASAPException e) {
+                    System.out.println("DEBUG Handler: skipping message (not for me): " + e.getMessage());
+                } catch (ClassNotFoundException | IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+
     }
 }

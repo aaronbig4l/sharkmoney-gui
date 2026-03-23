@@ -256,7 +256,6 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(1000);
         Thread.sleep(1000);
-        Thread.sleep(1000);
         //5.2 more encounters (we need better solution for this xd)
         this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
         this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
