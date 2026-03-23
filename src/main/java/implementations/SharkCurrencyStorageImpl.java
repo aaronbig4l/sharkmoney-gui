@@ -6,8 +6,7 @@ import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
