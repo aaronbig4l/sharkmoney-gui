@@ -151,12 +151,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
                                boolean asCreditor) throws ASAPException, IOException;
 
 
-    void signPromiseAndSendBack(CharSequence promiseId,
-                                CharSequence creditorId,
-                                CharSequence debtorId,
-                                Boolean sign,
-                                Boolean encrypt,
-                                Boolean asCreditor);
+    void signPromiseAndSendBack(CharSequence promiseId);
 
     /**
      * Calculates the current balance for the local user in the specified currency.
@@ -193,14 +188,6 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @param currencyName name of the group currency you were invited from
      */
     void declineInvite(CharSequence currencyName);
-
-    /**
-     *
-     * @return
-     * @throws IOException
-     * @throws ASAPException
-     */
-    ASAPStorage getASAPStorage() throws IOException, ASAPException;
 
     /**
      * returns the shark currency storage

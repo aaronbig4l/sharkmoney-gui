@@ -200,19 +200,21 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public void signPromiseAndSendBack(CharSequence promiseId,
-                                       CharSequence creditorId,
-                                       CharSequence debtorId,
-                                       Boolean sign,
-                                       Boolean encrypt,
-                                       Boolean asCreditor) {
+    public void signPromiseAndSendBack(CharSequence promiseId) {
         try {
+            if(this.sharkCurrencyStorage.containsSignedPromise(promiseId)) {
+                throw new SharkPromiseException("Promise with id: " + promiseId + " has already been sent and signed");
+            }
+
             SharkPromise promise = this.sharkCurrencyStorage
                     .getSharkPendingPromiseFromStorage(promiseId);
             if(promise==null) {
                 throw new SharkPromiseException("Promise with PromiseId: "
                         + promiseId + " not found in pending Storage");
             }
+            CharSequence creditorId = promise.getCreditorID();
+            CharSequence debtorId = promise.getDebtorID();
+            boolean asCreditor = this.asapPeer.getPeerID() == creditorId;
             ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
             CharSequence sender;
             Set<CharSequence> receiver = new HashSet<>();
@@ -237,7 +239,8 @@ public class SharkCurrencyComponentImpl
             }
             this.addBalance(promise);
             byte[] serializedContent = null;
-
+            boolean encrypt = this.sharkCurrencyStorage
+                    .getGroupDocument(promise.getGroupIDOfPromise()).isEncrypted();
             serializedContent = SharkPromiseSerializer
                     .serializeSignAndSendBackMessage(promiseId,
                             signature,
@@ -398,11 +401,6 @@ public class SharkCurrencyComponentImpl
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public ASAPStorage getASAPStorage() throws IOException, ASAPException {
-        return this.asapPeer.getASAPStorage(SharkCurrencyComponent.CURRENCY_FORMAT);
     }
 
     public SharkPKIComponent getSharkPKIComponent() {
