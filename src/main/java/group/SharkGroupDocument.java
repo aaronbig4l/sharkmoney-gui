@@ -19,7 +19,7 @@ public class SharkGroupDocument {
     private final byte[] groupId;
     private final CharSequence groupCreator;
     private final SharkCurrency assignedCurrency;
-    private ArrayList<CharSequence> whitelistMember;
+    private final ArrayList<CharSequence> whitelistMember;
     private final boolean encrypted;
     private final boolean balanceVisible;
     private GroupSignings groupDocState;
