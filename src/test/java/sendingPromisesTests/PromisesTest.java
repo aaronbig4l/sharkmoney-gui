@@ -2,6 +2,8 @@ package sendingPromisesTests;
 
 
 import currency.classes.*;
+import exepections.SharkCurrencyException;
+import exepections.SharkPromiseException;
 import group.SharkGroupDocument;
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
@@ -13,7 +15,10 @@ import testHelper.AsapCurrencyTestHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PromisesTest extends AsapCurrencyTestHelper {
 
@@ -415,28 +420,50 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     }
 
     @Test
-    public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException {
+    public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException, IOException {
 
        byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
        byte[] groupIdAlice = groupIds[0];
        byte[] groupIdBob = groupIds[1];
-       byte[] currencyIdAlice
-               = this.aliceStorage
-               .getGroupDocument(groupIdAlice).getAssignedCurrency().getCurrencyId();
-       byte[] currencyIdBob
-               = this.bobStorage
-               .getGroupDocument(groupIdBob).getAssignedCurrency().getCurrencyId();
-
-       CharSequence promiseIdAliceToBob = null;
-       CharSequence promiseIdBobToAlice = null;
+       SharkCurrency aliceCurrency
+               = this.aliceStorage.getGroupDocument(groupIdAlice).getAssignedCurrency();
+       SharkCurrency bobCurrency
+               = this.bobStorage.getGroupDocument(groupIdBob).getAssignedCurrency();
+       byte[] currencyIdAlice = aliceCurrency.getCurrencyId();
+       byte[] currencyIdBob = bobCurrency.getCurrencyId();
 
        //Assertions
-        Assertions
-                .assertNull(this.aliceStorage.getSharkPendingPromiseFromStorage(promiseIdBobToAlice));
-        Assertions
-                .assertNull(this.bobStorage.getSharkPendingPromiseFromStorage(promiseIdAliceToBob));
+        Exception exAliceToBob = assertThrows(SharkPromiseException.class, () -> {
+            this.aliceCurrencyComponent.createPromise(5,
+                    aliceCurrency, groupIdAlice, ALICE_ID, BOB_ID, true);
+        });
+        Exception exBobToAlice = assertThrows(SharkPromiseException.class, () -> {
+            this.bobCurrencyComponent.createPromise(5,
+                    bobCurrency, groupIdBob, BOB_ID, ALICE_ID, true);
+        });
+        Exception aliceGettingPendingException = assertThrows(SharkCurrencyException.class, () -> {
+            this.aliceStorage.getGroupDocument(groupIdBob);
+        });
+        Exception bobGettingPendingException = assertThrows(SharkCurrencyException.class, () -> {
+            this.bobStorage.getGroupDocument(groupIdAlice);
+        });
+
+        Assertions.assertEquals("Creditor and Debitor must be in the same group with given ID: "
+                + Arrays.toString(groupIdAlice),
+                exAliceToBob.getMessage());
+        Assertions.assertEquals("Creditor and Debitor must be in the same group with given ID: "
+                        + Arrays.toString(groupIdBob),
+                exBobToAlice.getMessage());
+        Assertions.assertEquals(0, this.aliceStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
         Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyIdAlice));
         Assertions.assertEquals(0, this.bobImpl.getBalance(currencyIdBob));
+        Assertions.assertTrue(aliceGettingPendingException
+                .getMessage().contains("not found in Storage"));
+        Assertions.assertTrue(bobGettingPendingException
+                .getMessage().contains("not found in Storage"));
+        Assertions.assertNotNull(this.aliceStorage.getGroupDocument(groupIdAlice));
+        Assertions.assertNotNull(this.bobStorage.getGroupDocument(groupIdBob));
     }
 
     @Test
@@ -449,9 +476,46 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     }
 
+    @Test
+    public void createPromiseWithZeroOrNegativeAmountAliceToBob() throws SharkException, IOException, InterruptedException {
 
+        // Alice created a group with bob in it (he accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
 
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
 
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
 
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        SharkCurrency currency = this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency();
+
+        // Should not work because amount is 0
+        Exception cantCreateZeroAmountException = assertThrows(SharkPromiseException.class, () -> {
+            this.aliceCurrencyComponent
+                    .createPromise(0, currency, groupId, ALICE_ID, BOB_ID, true);
+        });
+        // Should not work because amount is negative
+        Exception cantCreateNegativeAmountException = assertThrows(SharkPromiseException.class, () -> {
+            this.aliceCurrencyComponent
+                    .createPromise(-2, currency, groupId, ALICE_ID, BOB_ID, true);
+        });
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        //TODO: assertions
+        Assertions.assertEquals("Amount for promises must be positive",
+                cantCreateZeroAmountException.getMessage());
+        Assertions.assertEquals("Amount for promises must be positive",
+                cantCreateNegativeAmountException.getMessage());
+        Assertions.assertEquals(0, this.aliceStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
+    }
 
 }

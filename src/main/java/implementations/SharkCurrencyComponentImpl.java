@@ -147,6 +147,22 @@ public class SharkCurrencyComponentImpl
                               CharSequence creditorId,
                               CharSequence debtorId,
                               boolean asCreditor) throws ASAPException, IOException {
+        if(amount<=0) {
+            throw new SharkPromiseException("Amount for promises must be positive");
+        }
+
+        if(this.sharkCurrencyStorage.getGroupDocument(groupId)==null) {
+            throw new SharkPromiseException("You are not in a group with given ID: "
+                    + Arrays.toString(groupId));
+        }
+        boolean containsCred = this.sharkCurrencyStorage
+                .getGroupDocument(groupId).getCurrentMembers().containsKey(creditorId.toString());
+        boolean containsDeb = this.sharkCurrencyStorage
+                .getGroupDocument(groupId).getCurrentMembers().containsKey(debtorId.toString());
+        if(!containsCred || !containsDeb) {
+            throw new SharkPromiseException("Creditor and Debitor must be in the same group with given ID: "
+                    + Arrays.toString(groupId));
+        }
         SharkPromise promise =
                 new SharkInMemoPromise(amount, referenceValue, groupId, creditorId, debtorId);
         Set<CharSequence> receiver = new HashSet<>();

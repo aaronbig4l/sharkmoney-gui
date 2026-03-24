@@ -103,4 +103,8 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         return joiner.toString();
     }
 
+    public int getPendingPromiseStorageSize() {
+        return this.sharkPromiseStorePending.size();
+    }
+
 }

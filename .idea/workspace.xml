@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="eigene SharkCryptoCurrency für crypto-gestützte Währungen">
-      <change beforePath="$PROJECT_DIR$/src/main/java/group/GroupInvitation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" afterDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -99,8 +98,10 @@
     "JUnit.PromisesTest.createPromiseAndSendToBob.executor": "Run",
     "JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup.executor": "Run",
     "JUnit.PromisesTest.createPromiseSendAndSignWithinAGroupAliceBob.executor": "Run",
+    "JUnit.PromisesTest.createPromiseWithZeroOrNegativeAmountAliceToBob.executor": "Run",
     "JUnit.PromisesTest.executor": "Run",
     "JUnit.PromisesTest.sendingPromisesToDifferentPeers.executor": "Run",
+    "JUnit.PromisesTest.sendingPromisesToOtherPeerInAnotherGroup.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.executor": "Run",
     "JUnit.SharkCurrencySerializationTest.testSerializationAndDeserialization.executor": "Run",
     "Maven.ASAPJava [clean].executor": "Run",
@@ -137,23 +138,7 @@
       <recent name="E:\HTW\WI2526\ASAPProjekt\ASAPCurrency\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PromisesTest">
-    <configuration name="CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ASAPJava" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="currencyGroupTests.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="currencyGroupTests" />
-      <option name="MAIN_CLASS_NAME" value="currencyGroupTests.CurrencyGroupTests" />
-      <option name="METHOD_NAME" value="aliceCreateAGroupWithCryptoBasedCurrency" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.PromisesTest.createPromiseWithZeroOrNegativeAmountAliceToBob">
     <configuration name="PromisesTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
@@ -185,7 +170,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PromisesTest.sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PromisesTest.createPromiseWithZeroOrNegativeAmountAliceToBob" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ASAPJava" />
       <extension name="coverage">
         <pattern>
@@ -195,7 +180,7 @@
       </extension>
       <option name="PACKAGE_NAME" value="sendingPromisesTests" />
       <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
-      <option name="METHOD_NAME" value="sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim" />
+      <option name="METHOD_NAME" value="createPromiseWithZeroOrNegativeAmountAliceToBob" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -217,13 +202,29 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PromisesTest.sendingPromisesToOtherPeerInAnotherGroup" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ASAPJava" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sendingPromisesTests.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="sendingPromisesTests" />
+      <option name="MAIN_CLASS_NAME" value="sendingPromisesTests.PromisesTest" />
+      <option name="METHOD_NAME" value="sendingPromisesToOtherPeerInAnotherGroup" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PromisesTest.createPromiseWithZeroOrNegativeAmountAliceToBob" />
+        <item itemvalue="JUnit.PromisesTest.sendingPromisesToOtherPeerInAnotherGroup" />
         <item itemvalue="JUnit.PromisesTest" />
         <item itemvalue="JUnit.PromisesTest.sendingPromisesToDifferentPeers" />
         <item itemvalue="JUnit.PromisesTest.createPromiseAndSendToBobBothInSameGroup" />
-        <item itemvalue="JUnit.PromisesTest.sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim" />
-        <item itemvalue="JUnit.CurrencyGroupTests.aliceCreateAGroupWithCryptoBasedCurrency" />
       </list>
     </recent_temporary>
   </component>
@@ -252,7 +253,7 @@
       <workItem from="1768819307981" duration="5783000" />
       <workItem from="1771326029238" duration="5960000" />
       <workItem from="1773416513401" duration="523000" />
-      <workItem from="1774344975750" duration="2563000" />
+      <workItem from="1774344975750" duration="7844000" />
     </task>
     <task id="LOCAL-00001" summary="Create Maven Repository">
       <created>1764622241417</created>
