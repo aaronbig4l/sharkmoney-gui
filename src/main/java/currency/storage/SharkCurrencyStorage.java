@@ -26,6 +26,8 @@ public interface SharkCurrencyStorage {
     void addSharkSignedPromiseToStorage(SharkPromise promise);
     void removeSharkSignedPromiseFromStorage(CharSequence promiseId);
     SharkPromise getSharkSignedPromiseFromStorage(CharSequence promiseId);
+    int getSignedPromiseStorageSize();
+    boolean containsSignedPromise(CharSequence promiseId);
 
     //PENDING PROMISE STORAGE METHODS
     void addSharkPendingPromiseToStorage(SharkPromise promise);

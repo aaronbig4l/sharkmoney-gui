@@ -74,6 +74,11 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         return this.sharkPromiseStoreSigned.get(promiseId.toString());
     }
 
+    @Override
+    public boolean containsSignedPromise(CharSequence promiseId) {
+        return this.sharkPromiseStoreSigned.containsKey(promiseId.toString());
+    }
+
     public void addSharkPendingPromiseToStorage(SharkPromise promise) {
         this.sharkPromiseStorePending.put(promise.getPromiseID().toString(), promise);
     }
@@ -105,6 +110,10 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public int getPendingPromiseStorageSize() {
         return this.sharkPromiseStorePending.size();
+    }
+
+    public int getSignedPromiseStorageSize() {
+        return this.sharkPromiseStoreSigned.size();
     }
 
 }
