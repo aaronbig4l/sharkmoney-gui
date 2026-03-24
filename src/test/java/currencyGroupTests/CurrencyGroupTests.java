@@ -1375,4 +1375,151 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
         Assertions.assertEquals("ETH", groupCurrency.getBackingCryptoType(),
                 "The backing crypto type must be ETH");
     }
+
+    @Test
+    public void aliceInvitesBobToCryptoGroupAndBobAccepts() throws SharkException, IOException, InterruptedException {
+        this.setUpScenarioEstablishCurrency_2_BobAndAlice();
+
+        // 1. Alice creates Crypto currency and Group
+        CharSequence currencyName = "AliceTalerCryptoB";
+        SharkCryptoCurrency dummyCryptoCurrency = new SharkCryptoCurrency(
+                false,
+                currencyName.toString(),
+                "A crypto based test Currency",
+                0.05);
+
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(dummyCryptoCurrency, whitelist, false, true);
+        Thread.sleep(2000);
+
+        // 2. Send invitation and simulate encounter
+        this.aliceCurrencyComponent.invitePeerToGroup(groupId, "Join my Crypto Group Bob!", BOB_ID);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+
+        // 3. Bob accepts the Group Document
+        this.bobImpl.acceptInviteAndSign(currencyName);
+        Thread.sleep(2000);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(2000);
+
+        // 4. Check if bob recognized the Group is using a SharkCryptoCurrency
+        SharkGroupDocument bobDoc = this.bobStorage.getGroupDocument(groupId);
+        Assertions.assertNotNull(bobDoc, "Bob should have a Group Document");
+
+        Assertions.assertTrue(bobDoc.getAssignedCurrency() instanceof SharkCryptoCurrency,
+                "Bob didn't recognized the assigned currency as SharkCryptoCurrency");
+
+        SharkCryptoCurrency bobsCurrencyView = (SharkCryptoCurrency) bobDoc.getAssignedCurrency();
+        Assertions.assertEquals(0.05, bobsCurrencyView.getExchangeRate(), "The exchange rate of the crypto based currency is false!");
+        Assertions.assertEquals("ETH", bobsCurrencyView.getBackingCryptoType());
+    }
+
+    @Test
+    public void mixedGroupsOneLocalOneCryptoWithDifferentMembers() throws SharkException, InterruptedException, IOException {
+        // Setup
+        this.setUpScenarioEstablishCurrency_4_DavidAndClaraAndBobAndAlice();
+
+        // 1. Alice and David create a Group (one lokal and one crypto based)
+        CharSequence localCurrencyName = "AliceTalerLocal";
+        SharkCurrency localCurrency = new SharkLocalCurrency(
+                false,
+                localCurrencyName.toString(),
+                "A local test coin");
+
+        CharSequence cryptoCurrencyName = "DavidCryptoBasedCoin";
+        SharkCryptoCurrency cryptoCurrency = new SharkCryptoCurrency(
+                false,
+                cryptoCurrencyName.toString(),
+                "A crypto based test coin",
+                0.02);
+
+        // 2. Establish Group
+        // Group A: Alice (Creator), Bob, Clara
+        ArrayList<CharSequence> whitelistAlice = new ArrayList<>();
+        whitelistAlice.add(BOB_ID);
+        whitelistAlice.add(CLARA_ID);
+        byte[] groupIdA = this.aliceCurrencyComponent.establishGroup(localCurrency, whitelistAlice, false, true);
+
+        // Group B (Crypro): David (Creator), Bob, Clara
+        ArrayList<CharSequence> whitelistDavid = new ArrayList<>();
+        whitelistDavid.add(BOB_ID);
+        whitelistDavid.add(CLARA_ID);
+        byte[] groupIdB = this.davidCurrencyComponent.establishGroup(cryptoCurrency, whitelistDavid, false, true);
+
+        Thread.sleep(2000); // Zeit zum Speichern
+
+        // 3. Send invites
+        this.aliceCurrencyComponent.invitePeerToGroup(groupIdA, "Join Local Group!", BOB_ID);
+        this.aliceCurrencyComponent.invitePeerToGroup(groupIdA, "Join Local Group!", CLARA_ID);
+
+        this.davidCurrencyComponent.invitePeerToGroup(groupIdB, "Join Crypto Group!", BOB_ID);
+        this.davidCurrencyComponent.invitePeerToGroup(groupIdB, "Join Crypto Group!", CLARA_ID);
+
+        // 4. simulate encounters
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        this.runEncounter(this.davidSharkPeer, this.bobSharkPeer, true);
+        this.runEncounter(this.davidSharkPeer, this.claraSharkPeer, true);
+
+        Thread.sleep(2000);
+
+        // Bob and Clara accept both invitations from Group A and B
+        this.bobImpl.acceptInviteAndSign(localCurrencyName);
+        this.bobImpl.acceptInviteAndSign(cryptoCurrencyName);
+
+        this.claraImpl.acceptInviteAndSign(localCurrencyName);
+        this.claraImpl.acceptInviteAndSign(cryptoCurrencyName);
+
+        Thread.sleep(1000);
+
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        this.runEncounter(this.bobSharkPeer, this.davidSharkPeer, true);
+        this.runEncounter(this.claraSharkPeer, this.davidSharkPeer, true);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+
+        Thread.sleep(2000);
+
+        // 5. Assertions
+        SharkGroupDocument aliceDocA = this.aliceStorage.getGroupDocument(groupIdA);
+        SharkGroupDocument bobDocA = this.bobStorage.getGroupDocument(groupIdA);
+
+        SharkGroupDocument davidDocB = this.davidStorage.getGroupDocument(groupIdB);
+        SharkGroupDocument claraDocB = this.claraStorage.getGroupDocument(groupIdB);
+
+        Assertions.assertNotNull(aliceDocA, "Alice Document A is null");
+        Assertions.assertNotNull(davidDocB, "David Document B is null");
+
+        // Check group member count
+        Assertions.assertEquals(3, aliceDocA.getCurrentMembers().size(), "Group A should have 3 members");
+        Assertions.assertEquals(3, davidDocB.getCurrentMembers().size(), "Group B should have 3 members");
+
+        // Check Group Status
+        Assertions.assertEquals(GroupSignings.SIGNED_BY_ALL, aliceDocA.getGroupDocState());
+        Assertions.assertEquals(GroupSignings.SIGNED_BY_ALL, davidDocB.getGroupDocState());
+
+        // Check types of SharkCurrency
+        Assertions.assertTrue(bobDocA.getAssignedCurrency() instanceof SharkLocalCurrency,
+                "Bob should have a SharkLocalCurrency in Group A");
+
+        Assertions.assertTrue(claraDocB.getAssignedCurrency() instanceof SharkCryptoCurrency,
+                "Clara should have a SharkCryptoCurrency in Group B");
+
+        // Check exchange rate
+        SharkCryptoCurrency claraCryptoView = (SharkCryptoCurrency) claraDocB.getAssignedCurrency();
+        Assertions.assertEquals(0.02, claraCryptoView.getExchangeRate(), "The exchange rate is false!");
+        Assertions.assertEquals("ETH", claraCryptoView.getBackingCryptoType());
+
+        // Check isolation (Alice should not have knowledge about Davids Group, vice versa David about Alice Group too)
+        Assertions.assertThrows(SharkCurrencyException.class, () -> {
+            this.aliceStorage.getGroupDocument(groupIdB);
+        }, "Alice is not allowed to have access to Davids group");
+
+
+        Assertions.assertThrows(SharkCurrencyException.class, () -> {
+            this.davidStorage.getGroupDocument(groupIdA);
+        }, "David is not allowed to have access to Alices group");
+    }
 }

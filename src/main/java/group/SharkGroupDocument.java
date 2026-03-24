@@ -1,5 +1,6 @@
 package group;
 
+import currency.classes.SharkCryptoCurrency;
 import currency.classes.SharkCurrency;
 import currency.classes.SharkLocalCurrency;
 import exepections.SharkCurrencyException;
@@ -145,7 +146,12 @@ public class SharkGroupDocument {
 
         // 3. Currency
         if (this.assignedCurrency != null) {
-            byte[] currencyBytes = ((SharkLocalCurrency)this.assignedCurrency).toByte();
+            byte[] currencyBytes = null; // Cast entfernt!
+            try {
+                currencyBytes = this.assignedCurrency.toByte();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             documentVariables.add(Base64.getEncoder().encodeToString(currencyBytes));
         } else {
             documentVariables.add(EMPTY_PLACEHOLDER);
@@ -206,7 +212,18 @@ public class SharkGroupDocument {
         String currencyData = documentVariables.get(idx++).toString();
         if (!currencyData.equals(EMPTY_PLACEHOLDER)) {
             byte[] currencyBytes = Base64.getDecoder().decode(currencyData);
-            currency = SharkLocalCurrency.fromByte(currencyBytes);
+
+            // Wir schauen uns die Liste kurz an, um zu entscheiden, welche Klasse es ist
+            String decodedString = SerializationHelper.bytes2str(currencyBytes);
+            List<CharSequence> vars = SerializationHelper.string2CharSequenceList(decodedString);
+
+            if (vars.size() == 4) {
+                currency = SharkLocalCurrency.fromByte(currencyBytes);
+            } else if (vars.size() == 6) {
+                currency = SharkCryptoCurrency.fromByte(currencyBytes);
+            } else {
+                throw new SharkCurrencyException("Unbekanntes Währungs-Format empfangen!");
+            }
         }
 
         // 4. Whitelist
