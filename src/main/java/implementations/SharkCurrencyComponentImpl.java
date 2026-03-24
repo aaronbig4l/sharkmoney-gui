@@ -239,11 +239,11 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public int getBalance(byte[] currencyName) throws SharkCurrencyException {
-        if (currencyName == null) return 0;
+    public int getBalance(byte[] currencyId) throws SharkCurrencyException {
+        if (currencyId == null) return 0;
 
         // Konsistente Umwandlung in einen stabilen Key
-        String key = encodeKey(currencyName);
+        String key = encodeKey(currencyId);
         return this.promiseBalance.getOrDefault(key, 0);
     }
 

@@ -123,8 +123,6 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
-
-    // WORK IN PROGRESS, hier noch nicht fertig
     @Test
     public void successfullGroupInviteSendAndReceived() throws SharkException, InterruptedException, IOException {
 

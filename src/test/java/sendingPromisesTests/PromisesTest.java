@@ -358,11 +358,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     public void sendPromisesInDifferentGroupsButThePeersAreTheSame() throws SharkException, IOException, InterruptedException {
         // Arrange: Basic setup for Alice and Bob
         this.setUpScenarioEstablishCurrency_2_BobAndAlice();
-
         SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
         SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
-
-
         bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
         alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
 
@@ -421,8 +418,25 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException {
 
        byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
+       byte[] groupIdAlice = groupIds[0];
+       byte[] groupIdBob = groupIds[1];
+       byte[] currencyIdAlice
+               = this.aliceStorage
+               .getGroupDocument(groupIdAlice).getAssignedCurrency().getCurrencyId();
+       byte[] currencyIdBob
+               = this.bobStorage
+               .getGroupDocument(groupIdBob).getAssignedCurrency().getCurrencyId();
 
+       CharSequence promiseIdAliceToBob = null;
+       CharSequence promiseIdBobToAlice = null;
 
+       //Assertions
+        Assertions
+                .assertNull(this.aliceStorage.getSharkPendingPromiseFromStorage(promiseIdBobToAlice));
+        Assertions
+                .assertNull(this.bobStorage.getSharkPendingPromiseFromStorage(promiseIdAliceToBob));
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyIdAlice));
+        Assertions.assertEquals(0, this.bobImpl.getBalance(currencyIdBob));
     }
 
     @Test

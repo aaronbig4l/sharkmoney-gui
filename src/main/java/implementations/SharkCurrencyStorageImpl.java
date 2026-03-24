@@ -97,4 +97,10 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         return this.pendingInvites.size();
     }
 
+    public String listAllMyGroupIds() {
+        StringJoiner joiner = new StringJoiner(", ", "[", "]");
+        this.groupDocuments.keySet().forEach(joiner::add);
+        return joiner.toString();
+    }
+
 }

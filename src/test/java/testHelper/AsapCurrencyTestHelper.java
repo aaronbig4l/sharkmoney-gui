@@ -223,8 +223,8 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
     protected byte[][] aliceCreatesEncryptedGroupAndBobToo() throws SharkException, InterruptedException {
         setUpScenarioEstablishCurrency_2_BobAndAlice();
         Thread.sleep(500);
-        CharSequence aliceCurrencyName = "AliceTalerForPromiseTest";
-        CharSequence bobCurrencycName = "BobTalerForPromiseTest";
+        CharSequence aliceCurrencyName = "AliceTalerForPromiseTest_B";
+        CharSequence bobCurrencycName = "BobTalerForPromiseTest_B";
         SharkCurrency aliceCurrency = new SharkLocalCurrency(
                 false,
                 aliceCurrencyName.toString(),
@@ -235,23 +235,21 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 "A test Currency");
 
         ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(ALICE_ID);
+        whitelist.add(BOB_ID);
 
         byte[] groupIdAlice = this.aliceCurrencyComponent.establishGroup(
                 aliceCurrency,
                 whitelist,
                 true,
                 true);
-
         Thread.sleep(1000);
-
-        byte [] groupIdBoB = this.bobCurrencyComponent.establishGroup(
+        byte[] groupIdBoB = this.bobCurrencyComponent.establishGroup(
                 bobCurrency,
                 whitelist,
                 true,
                 true
         );
-
-        Thread.sleep(1000);
 
         return new byte[][]{groupIdAlice,groupIdBoB};
 
@@ -263,7 +261,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
     protected byte[] aliceCreatesEncryptedGroupWithBobAndClaraSetUp() throws SharkException, InterruptedException, IOException {
         setUpScenarioEstablishCurrency_3_ClaraAndBobAndAlice();
         Thread.sleep(500);
-        CharSequence currencyName = "AliceTalerForPromiseTest_A";
+        CharSequence currencyName = "AliceTalerForPromiseTest_C";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
                 false,
                 currencyName.toString(),

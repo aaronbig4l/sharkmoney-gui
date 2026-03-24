@@ -5,67 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f95f2a6-4fa0-40cd-8f01-d91fde6bc6cd" name="Changes" comment="eigene SharkCryptoCurrency für crypto-gestützte Währungen">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/currency/storage/SharkCurrencyStorage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/group/GroupInvitation.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyComponentImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyListenerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/SharkCurrencyStorageImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerManagerNEW.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerManagerNEW.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerNEW.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyListenerNEW.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyMessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkCurrencyMessageHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkGroupInviteHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkGroupInviteHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkNewMemberHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkNewMemberHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigCredHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigCredHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseAskSigDebHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseRevSigPromHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/listener/SharkPromiseRevSigPromHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/currencyGroupTests/CurrencyGroupTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sendingPromisesTests/PromisesTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/testHelper/AsapCurrencyTestHelper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/.sharkPeerExtraData" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/0/asap%2Fcertificate.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/0/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/1/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/0/asap%2Fcertificate.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/0/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/1/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/Bob_ID/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/ASAPSharkCertificates/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/SharkCredentials/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/2/signAsDebitor.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/0/%2F%2Fgroup-document%2F%2Fnew-member.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/0/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/Bob_ID/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Alice/application%3A%2F%2Fx-asap-currency/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/.sharkPeerExtraData" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/0/asap%2Fcertificate.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/0/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/1/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/0/asap%2Fcertificate.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/0/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/1/asap%2Fcertificate.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/Alice_ID/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/ASAPSharkCertificates/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/SharkCredentials/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Fnew-member.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/0/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/%2F%2Fgroup-document%2F%2Fnew-member.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/1/signAsDebitor.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/0/%2F%2Fgroup-document%2F%2Finvite.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/0/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/%2F%2Fgroup-document%2F%2Finvite.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/signAsDebitor.content" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/1/signAsDebitor.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/Alice_ID/asapCurrentAttributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testResultsRootFolder/PromisesTest/createPromiseAndSendToBobBothInSameGroup__/Bob/application%3A%2F%2Fx-asap-currency/asapCurrentAttributes" beforeDir="false" />
     </list>
     <list id="f0d41ee6-f2dc-4ce6-998d-dcd71ebccd13" name="Changes by Eric M" comment="Changes by Eric M" />
     <list id="bd11a90a-041e-48d4-9005-5403c8c91059" name="Changes by kacper" comment="" />
@@ -164,8 +109,10 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Eric M/Documents/Projekt_Studium_WiSe2526/ASAPCurrency",
     "node.js.detected.package.eslint": "true",
@@ -280,6 +227,14 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.32098.37" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.32098.37" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -297,6 +252,7 @@
       <workItem from="1768819307981" duration="5783000" />
       <workItem from="1771326029238" duration="5960000" />
       <workItem from="1773416513401" duration="523000" />
+      <workItem from="1774344975750" duration="2563000" />
     </task>
     <task id="LOCAL-00001" summary="Create Maven Repository">
       <created>1764622241417</created>
