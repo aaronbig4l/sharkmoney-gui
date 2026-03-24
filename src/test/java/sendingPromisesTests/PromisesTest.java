@@ -117,12 +117,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
         Thread.sleep(1000);
-        this.bobImpl.signPromiseAndSendBack(promiseId,
-                ALICE_ID,
-                BOB_ID,
-                true,
-                sharkGroupDocument.isEncrypted(),
-                false);
+        this.bobImpl.signPromiseAndSendBack(promiseId);
         Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(1000);
@@ -207,13 +202,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
 
         Thread.sleep(500);
-
-        this.bobImpl.signPromiseAndSendBack(promiseId,
-                ALICE_ID,
-                BOB_ID,
-                true,
-                sharkGroupDocument.isEncrypted(),
-                false);
+        this.bobImpl.signPromiseAndSendBack(promiseId);
 
         Thread.sleep(500);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
@@ -291,12 +280,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
         Thread.sleep(1000);
-        this.bobImpl.signPromiseAndSendBack(promiseId,
-                ALICE_ID,
-                BOB_ID,
-                true,
-                sharkGroupDocument.isEncrypted(),
-                false);
+        this.bobImpl.signPromiseAndSendBack(promiseId);
         Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(1000);
@@ -339,8 +323,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
         Thread.sleep(2000);
 
-        this.bobImpl.signPromiseAndSendBack(promiseBobId, ALICE_ID, BOB_ID, true, aliceDoc.isEncrypted(), false);
-        this.claraImpl.signPromiseAndSendBack(promiseClaraId, ALICE_ID, CLARA_ID, true, aliceDoc.isEncrypted(), false);
+        this.bobImpl.signPromiseAndSendBack(promiseBobId);
+        this.claraImpl.signPromiseAndSendBack(promiseClaraId);
 
 
         Thread.sleep(500);
@@ -403,8 +387,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Thread.sleep(1000);
 
 
-        this.bobImpl.signPromiseAndSendBack(promiseA, ALICE_ID, BOB_ID, true, docA.isEncrypted(), false);
-        this.aliceImpl.signPromiseAndSendBack(promiseB, BOB_ID, ALICE_ID, true, docB.isEncrypted(), false);
+        this.bobImpl.signPromiseAndSendBack(promiseA);
+        this.aliceImpl.signPromiseAndSendBack(promiseB);
 
 
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
@@ -420,7 +404,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     }
 
     @Test
-    public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException, IOException {
+    public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException {
 
        byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
        byte[] groupIdAlice = groupIds[0];
@@ -518,4 +502,44 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
     }
 
+    @Test
+    public void bobTriesToSignPromiseTwice() throws SharkException, IOException, InterruptedException {
+
+        // Alice created a group with bob in it (he accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        SharkCurrency currency = this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency();
+        CharSequence promiseID = this.aliceCurrencyComponent.createPromise(5,
+                currency, groupId, ALICE_ID, BOB_ID, true);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+        this.bobCurrencyComponent.signPromiseAndSendBack(promiseID);
+        Thread.sleep(100);
+        Exception secondTimeSigningException = assertThrows(RuntimeException.class, () -> {
+            this.bobCurrencyComponent.signPromiseAndSendBack(promiseID);
+        });
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+
+        Assertions.assertTrue(secondTimeSigningException.getMessage().contains("has already been sent and signed"));
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(1, this.aliceStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(1, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(promiseID,
+                this.aliceStorage.getSharkSignedPromiseFromStorage(promiseID).getPromiseID());
+        Assertions.assertEquals(promiseID,
+                this.bobStorage.getSharkSignedPromiseFromStorage(promiseID).getPromiseID());
+    }
 }
