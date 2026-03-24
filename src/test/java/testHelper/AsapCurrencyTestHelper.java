@@ -219,6 +219,47 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         return groupId;
     }
 
+
+    protected byte[][] aliceCreatesEncryptedGroupAndBobToo() throws SharkException, InterruptedException {
+        setUpScenarioEstablishCurrency_2_BobAndAlice();
+        Thread.sleep(500);
+        CharSequence aliceCurrencyName = "AliceTalerForPromiseTest";
+        CharSequence bobCurrencycName = "BobTalerForPromiseTest";
+        SharkCurrency aliceCurrency = new SharkLocalCurrency(
+                false,
+                aliceCurrencyName.toString(),
+                "A test Currency" );
+        SharkCurrency bobCurrency = new SharkLocalCurrency(
+                false,
+                bobCurrencycName.toString(),
+                "A test Currency");
+
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+
+        byte[] groupIdAlice = this.aliceCurrencyComponent.establishGroup(
+                aliceCurrency,
+                whitelist,
+                true,
+                true);
+
+        Thread.sleep(1000);
+
+        byte [] groupIdBoB = this.bobCurrencyComponent.establishGroup(
+                bobCurrency,
+                whitelist,
+                true,
+                true
+        );
+
+        Thread.sleep(1000);
+
+        return new byte[][]{groupIdAlice,groupIdBoB};
+
+
+    }
+
+
+
     protected byte[] aliceCreatesEncryptedGroupWithBobAndClaraSetUp() throws SharkException, InterruptedException, IOException {
         setUpScenarioEstablishCurrency_3_ClaraAndBobAndAlice();
         Thread.sleep(500);

@@ -417,6 +417,26 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-30, this.aliceImpl.getBalance(currencyB.getCurrencyId()));
     }
 
+    @Test
+    public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException {
+
+       byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
+
+
+    }
+
+    @Test
+    public void transferAPromiseToAnotherPeerInTheSameGroup(){
+
+    }
+
+    @Test
+    public void transferAPromiseToAnotherPeerInTheAnotherGroup(){
+
+    }
+
+
+
 
 
 
