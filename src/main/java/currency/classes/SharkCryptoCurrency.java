@@ -51,7 +51,7 @@ public class SharkCryptoCurrency implements SharkCurrency, Serializable {
         currencyVariables.add(this.specification);
         currencyVariables.add(String.valueOf(this.globalLimit));
 
-        // Wir schicken "ETH" trotzdem mit, für zukünftige Kompatibilität
+        
         currencyVariables.add(BACKING_CRYPTO_TYPE);
         currencyVariables.add(String.valueOf(this.exchangeRate));
 

@@ -163,6 +163,9 @@ public interface SharkCurrencyComponent extends SharkComponent {
     int getBalance(byte[] currencyId) throws SharkCurrencyException;
 
 
+    int getExtendedBalance(byte[] currencyId, CharSequence peerId) throws SharkCurrencyException;
+
+
     /**
      * this will execute the acceptInvite() method from the listener but first
      * it signs the document which currency name is given in the parameter :D
@@ -182,7 +185,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
 
 
     /**
-     * declines an invite to a group,
+     * declines an invitation to a group,
      * it will remove the invite form pending invites in storage
      *
      * @param currencyName name of the group currency you were invited from

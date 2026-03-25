@@ -25,6 +25,7 @@ public class SharkGroupDocument {
     private final boolean balanceVisible;
     private GroupSignings groupDocState;
     private final Map<String,byte[]> currentMembers = new HashMap<>(); //<PeerId, Signature>
+    private final Map<String, String> memberEthAdresses = new HashMap(); // <PeerId, Eth Adress>
 
     /**
      * Public constructor setting a new GroupId
@@ -114,6 +115,12 @@ public class SharkGroupDocument {
         return true;
     }
 
+    public void addMemberEthAdress(CharSequence peerId, String ethAdress) {
+        if (peerId != null && ethAdress != null && !ethAdress.isEmpty()) {
+            this.memberEthAdresses.put(peerId.toString(), ethAdress);
+        }
+    }
+
     /**
      * Prüft ob der aktuelle Gruppendokument State aktuell ist
      * und aktuallisiert ihn bei Bedarf
@@ -172,6 +179,15 @@ public class SharkGroupDocument {
                     .append(LIST_DELIMITER);
         }
         documentVariables.add(membersSb.length() > 0 ? membersSb.toString() : EMPTY_PLACEHOLDER);
+
+        // Ethereum Adressen serialisieren
+        StringBuilder ethAdressSb = new StringBuilder();
+        for(Map.Entry<String, String> entry : this.memberEthAdresses.entrySet()) {
+            ethAdressSb.append(entry.getKey()).append("=")
+            .append(entry.getValue())
+            .append(LIST_DELIMITER);
+        }
+        documentVariables.add(ethAdressSb.length() > 0 ? ethAdressSb.toString() : EMPTY_PLACEHOLDER);
 
         // String bauen und in Bytes konvertieren
         String serializedString = SerializationHelper.collection2String(documentVariables);
@@ -257,6 +273,21 @@ public class SharkGroupDocument {
             }
         }
 
+        // 8. Eth-Adressen-Map wiederherstellen (falls vorhanden)
+        if (documentVariables.size() > idx) {
+            String ethData = documentVariables.get(idx++).toString();
+            if (!ethData.equals(EMPTY_PLACEHOLDER)) {
+                StringTokenizer st = new StringTokenizer(ethData, LIST_DELIMITER);
+                while (st.hasMoreTokens()) {
+                    String pair = st.nextToken();
+                    String[] splitPair = pair.split("=");
+                    if(splitPair.length == 2) {
+                        doc.addMemberEthAdress(splitPair[0], splitPair[1]);
+                    }
+                }
+            }
+        }
+
         if(doc==null || doc.groupId.length<=0) {
             throw new SharkCurrencyException("Error in group-document serialization");
         }
@@ -327,4 +358,6 @@ public class SharkGroupDocument {
     public boolean isBalanceVisible() { return balanceVisible; }
     public Map<String, byte[]> getCurrentMembers() { return currentMembers; }
     public ArrayList getWhitelistMember() { return whitelistMember; }
+    public String getEthAdressForPeer(CharSequence peerId) { return this.memberEthAdresses.get(peerId.toString()); }
+    public Map<String, String> getMemberEthAdresses() { return this.memberEthAdresses; }
 }

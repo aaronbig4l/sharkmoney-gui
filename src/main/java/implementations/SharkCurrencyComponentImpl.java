@@ -40,7 +40,8 @@ public class SharkCurrencyComponentImpl
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
-    private Map<String, Integer> promiseBalance = new HashMap<>();
+    private Map<String, Integer> promiseBalanceSimple = new HashMap<>();
+    private Map<String, Map<CharSequence, Integer>> promiseBalanceExtended = new HashMap<>();
 
     public SharkCurrencyComponentImpl(SharkPKIComponent pki) throws SharkException {
         this.sharkPKIComponent = pki;
@@ -69,6 +70,10 @@ public class SharkCurrencyComponentImpl
             System.out.println("DEBUG: added: " + this.asapPeer.getPeerID());
             if(!successAddMember) {
                 throw new SharkCurrencyException("Error in adding member to group");
+            }
+
+            if(currency instanceof SharkCryptoCurrency) {
+                sharkGroupDocument.addMemberEthAdress(this.asapPeer.getPeerID(), this.getWalletAddress());
             }
 
             // 3. save the newly created document
@@ -263,20 +268,44 @@ public class SharkCurrencyComponentImpl
 
         // Konsistente Umwandlung in einen stabilen Key
         String key = encodeKey(currencyId);
-        return this.promiseBalance.getOrDefault(key, 0);
+        return this.promiseBalanceSimple.getOrDefault(key, 0);
+    }
+
+    public int getExtendedBalance(byte[] currencyId, CharSequence peerId) throws SharkCurrencyException {
+        if (currencyId == null) return 0;
+
+        if (peerId == null) return 0;
+
+        String key = encodeKey(currencyId);
+
+        Map<CharSequence, Integer> relationMap = this.promiseBalanceExtended.get(key);
+
+        if (relationMap == null) return 0;
+
+        return relationMap.getOrDefault(peerId, 0);
+
     }
 
     @Override
     public void addBalance(SharkPromise promise) {
         int transactionAmount;
-        if(this.asapPeer.getPeerID()==promise.getCreditorID())
+        CharSequence relation;
+        if(this.asapPeer.getPeerID()==promise.getCreditorID()){
             transactionAmount = promise.getAmount();
+        relation = promise.getDebtorID();}
         else {
             transactionAmount = -promise.getAmount();
+            relation = promise.getCreditorID();
         }
         byte[] currencyId = promise.getReferenceValue().getCurrencyId();
         String key = java.util.Base64.getEncoder().encodeToString(currencyId);
-        this.promiseBalance.merge(key, transactionAmount, Integer::sum);
+        this.promiseBalanceSimple.merge(key, transactionAmount, Integer::sum);
+
+        Map<CharSequence, Integer> relationMap = this.promiseBalanceExtended
+                .computeIfAbsent(key, k -> new HashMap<>());
+
+        relationMap.merge(relation, transactionAmount, Integer::sum);
+
     }
 
     @Override
@@ -301,6 +330,10 @@ public class SharkCurrencyComponentImpl
                 .sign(sharkGroupDocument.getGroupId(), ks);
         sharkGroupDocument.addMember(this.asapPeer.getPeerID(), signature);
 
+        if(sharkGroupDocument.getAssignedCurrency() instanceof SharkCryptoCurrency) {
+            sharkGroupDocument.addMemberEthAdress(this.asapPeer.getPeerID(), this.getWalletAddress());
+        }
+
         //safe doc to your storage
         this.sharkCurrencyStorage.saveGroupDocument(groupId,sharkGroupDocument);
 
@@ -316,6 +349,12 @@ public class SharkCurrencyComponentImpl
         dos.writeUTF(peerID);
         dos.writeInt(signature.length);
         dos.write(signature);
+        if(sharkGroupDocument.getAssignedCurrency() instanceof SharkCryptoCurrency) {
+            dos.writeBoolean(true); // Flag: there is a ETH-Adress
+            dos.writeUTF(this.getWalletAddress());
+        } else {
+            dos.writeBoolean(false); // Flag: there is no ETH-Adress
+        }
         dos.flush();
 
         byte[] signatureAndIDAsContent = baos.toByteArray();

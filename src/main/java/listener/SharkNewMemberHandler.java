@@ -2,6 +2,7 @@ package listener;
 
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
+import group.SharkGroupDocument;
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
@@ -44,8 +45,26 @@ public class SharkNewMemberHandler implements SharkCurrencyMessageHandler{
                 int sigLength = dis.readInt();
                 byte[] signature = new byte[sigLength];
                 dis.readFully(signature);
+
+                // check if ETH-Adress was send
+                boolean hasEthAdress = false;
+                String ethAdress = null;
+                if (dis.available() > 0) {
+                    hasEthAdress = dis.readBoolean();
+                    if(hasEthAdress) {
+                        ethAdress = dis.readUTF();
+                    }
+                }
+
                 //adding the person to my doc
                 this.sharkCurrencyStorage.addMemberToGroupDocument(groupId, peerID, signature);
+
+                if(hasEthAdress && ethAdress != null && !ethAdress.isEmpty()) {
+                    SharkGroupDocument doc = this.sharkCurrencyStorage.getGroupDocument(groupId);
+                    doc.addMemberEthAdress(peerID, ethAdress);
+                    this.sharkCurrencyStorage.saveGroupDocument(groupId, doc);
+                    System.out.println("DEBUG: Added ETH-Address " + ethAdress + " for Peer " + peerID);
+                }
             }
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);

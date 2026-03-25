@@ -169,6 +169,22 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
         }
     }
 
+    @Override
+    public void setCreditor(CharSequence peerId) {
+        if (allowedToChangeCreditor) {
+            this.creditorID=peerId;
+        }
+
+    }
+
+    @Override
+    public void setDebtor(CharSequence peerId) {
+        if (allowedToChangeDebtor) {
+            this.debtorID=peerId;
+        }
+
+    }
+
     /**
      * generates a new unique ID for this Promise
      * @return the unique UUID converted to a String

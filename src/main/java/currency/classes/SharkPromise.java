@@ -54,6 +54,10 @@ public interface SharkPromise {
 
     boolean allowedToChangeDebtor();
     boolean allowedToChangeCreditor();
+    
+    void setDebtor(CharSequence peerId);
+    
+    void setCreditor(CharSequence peerId);
 
     public byte[] getCreditorSignature();
     public byte[] getDebtorSignature();
