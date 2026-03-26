@@ -309,6 +309,46 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
+    public void transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId) throws SharkCurrencyException {
+        SharkPromise promise = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId);
+
+        if (promise == null) {
+            throw new SharkCurrencyException("Transfer failed: Promise with ID " + promiseId + " does not exist in Signed Storage.");
+        }
+
+        CharSequence myPeerId = this.getPeerIdOfImpl();
+        boolean isCreditor = myPeerId.equals(promise.getCreditorID());
+        boolean isDebtor = myPeerId.equals(promise.getDebtorID());
+
+       
+        if (isCreditor) {
+            if (!promise.allowedToChangeCreditor()) {
+                throw new SharkCurrencyException("Transfer failed: Permission to change the creditor is missing.");
+            }
+            promise.setCreditor(newPeerId);
+        } else if (isDebtor) {
+            if (!promise.allowedToChangeDebtor()) {
+                throw new SharkCurrencyException("Transfer failed: Permission to change the debtor is missing.");
+            }
+            promise.setDebtor(newPeerId);
+        } else {
+            throw new SharkCurrencyException("Transfer failed: The executing peer is neither creditor nor debtor of this promise.");
+        }
+
+       
+        promise.updateState();
+
+        
+        this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseId);
+        this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
+
+      
+        this.signPromiseAndSendBack(promiseId);
+    }
+    
+    
+    
+    @Override
     public void acceptInviteAndSign(CharSequence currencyName) throws ASAPException, IOException {
 
         //get doc from pending invites

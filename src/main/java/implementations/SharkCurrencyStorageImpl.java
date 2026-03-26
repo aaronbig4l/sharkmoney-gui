@@ -78,42 +78,10 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     public boolean containsSignedPromise(CharSequence promiseId) {
         return this.sharkPromiseStoreSigned.containsKey(promiseId.toString());
     }
-
-    //--------------------------------------------------------------------------------------------------------------------
-    @Override
-    public boolean transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId) {
-        //TODO needed to be fixed AND TESTET !!!!!!!!!!!!!!!!!!!!!!!!!
-        SharkPromise promise = this.sharkPromiseStoreSigned.get(promiseId.toString());
-        if (promise == null) {
-            return false;
-        }
-        if (newPeerId == null) {
-            return false;
-        }
-        try {
-        SharkPromise sharkPromise = this.sharkPromiseStoreSigned.get(newPeerId.toString());
-        //How to see if you are creditor or debitor
-        if(true){
-            sharkPromise.allowedToChangeDebtor();
-            sharkPromise.setAllowedToChangeDebtor(true);
-           sharkPromise.setDebtor(newPeerId);
-            sharkPromise.setDebtorSignature(promise.getDebtorSignature());
-
-        }
-        else {
-            sharkPromise.allowedToChangeCreditor();
-            sharkPromise.setAllowedToChangeCreditor(true);
-            sharkPromise.setCreditor(newPeerId);
-            sharkPromise.setCreditorSignature(promise.getCreditorSignature());
-        }}
-        catch (Exception e){
-        }
+    
 
 
 
-        return true;
-    }
-    //--------------------------------------------------------------------------------------------
 
     public void addSharkPendingPromiseToStorage(SharkPromise promise) {
         this.sharkPromiseStorePending.put(promise.getPromiseID().toString(), promise);

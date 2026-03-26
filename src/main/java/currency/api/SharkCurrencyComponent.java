@@ -182,6 +182,16 @@ public interface SharkCurrencyComponent extends SharkComponent {
     void addBalance(SharkPromise promise);
 
 
+    /**
+     * Transfers an existing promise to a new peer. Evaluates the role of the 
+     * executing peer (Creditor/Debtor) and checks the respective modification permissions.
+     * If permitted, modifies the promise, signs it newly, and updates the storage.
+     *
+     * @param promiseId The ID of the promise to transfer.
+     * @param newPeerId The ID of the new peer taking over the role.
+     * @throws SharkCurrencyException if permissions are missing, the promise doesn't exist, or cryptographic operations fail.
+     */
+    void transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId) throws SharkCurrencyException;
 
 
     /**

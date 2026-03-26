@@ -293,6 +293,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(2, aliceImpl.getExtendedBalance(currencyId, bobSharkPeer.getPeerID()));
 
 
+
     }
 
     @Test
@@ -468,7 +469,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
         SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
 
-
         bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
         alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
 
@@ -478,6 +478,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
         byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
         SharkCurrency currency = aliceDoc.getAssignedCurrency();
+
         CharSequence promiseId = this.aliceCurrencyComponent.createPromise(
                 2, currency, groupId, ALICE_ID, BOB_ID, true
         );
@@ -485,41 +486,40 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
         Thread.sleep(500);
+
         this.bobImpl.signPromiseAndSendBack(promiseId);
+
         Thread.sleep(500);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(500);
-        //New Method to test make it sens ?
-        this.bobCurrencyComponent.getSharkCurrencyStorage().transferPromiseToAnotherPeer(promiseId, CLARA_ID);
+
+        this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
 
         Thread.sleep(500);
-        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
         Thread.sleep(500);
 
         Assertions.assertEquals(2, this.claraImpl.getBalance(currencyId));
-        Assertions.assertEquals(0, this.bobCurrencyComponent.getBalance(currencyId));
-        Assertions.assertEquals(-2, this.aliceImpl.getBalance(currencyId));
-
-
-
-    }
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));}
 
     @Test
-    public void transferAPromiseToAnotherPeerInTheAnotherGroup() throws SharkException, InterruptedException {
+    public void transferAPromiseToAnotherPeerInTheAnotherGroup() throws SharkException, InterruptedException, IOException {
 
         byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
         byte[] groupIdAlice = groupIds[0];
-        byte[] groupIdBob = groupIds[1];
-        SharkCurrency aliceCurrency
-                = this.aliceStorage.getGroupDocument(groupIdAlice).getAssignedCurrency();
-        SharkCurrency bobCurrency
-                = this.bobStorage.getGroupDocument(groupIdBob).getAssignedCurrency();
-        byte[] currencyIdAlice = aliceCurrency.getCurrencyId();
-        byte[] currencyIdBob = bobCurrency.getCurrencyId();
 
+        SharkCurrency aliceCurrency = this.aliceStorage.getGroupDocument(groupIdAlice).getAssignedCurrency();
 
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(
+                5, aliceCurrency, groupIdAlice, ALICE_ID, ALICE_ID, true
+        );
 
+        Exception transferException = assertThrows(SharkPromiseException.class, () -> {
+            this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, BOB_ID);
+        });
 
+        Assertions.assertNotNull(transferException.getMessage());
     }
 
     @Test

@@ -28,7 +28,8 @@ public interface SharkCurrencyStorage {
     SharkPromise getSharkSignedPromiseFromStorage(CharSequence promiseId);
     int getSignedPromiseStorageSize();
     boolean containsSignedPromise(CharSequence promiseId);
-    boolean transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId);
+
+    
 
 
 
