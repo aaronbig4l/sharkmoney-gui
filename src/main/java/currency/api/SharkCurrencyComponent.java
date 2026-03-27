@@ -194,6 +194,12 @@ public interface SharkCurrencyComponent extends SharkComponent {
      */
     void transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId) throws SharkCurrencyException;
 
+    /**
+     * Starts a Settlement Party to rewrite debts
+     * @param groupId Id of an existing Group
+     */
+    void initiateSettlementParty(byte[] groupId);
+
 
     /**
      * declines an invitation to a group,

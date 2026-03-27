@@ -16,6 +16,7 @@ import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.web3j.crypto.CipherException;
+import transactionSettelment.SharkSettlementDocument;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -345,9 +346,56 @@ public class SharkCurrencyComponentImpl
       
         this.signPromiseAndSendBack(promiseId);
     }
-    
-    
-    
+
+    @Override
+    public void initiateSettlementParty(byte[] groupId) {
+        try {
+            SharkGroupDocument groupDoc = this.sharkCurrencyStorage.getGroupDocument(groupId);
+
+            if (groupDoc == null) throw new SharkCurrencyException("Group not found for Settlement!");
+
+            // Add all current Members of the Group to the Settlement Party
+            Set<CharSequence> expectedPeers = new HashSet<>(groupDoc.getCurrentMembers().keySet());
+
+            // Create random PartyID & Timeout
+            byte[] partyId = UUID.randomUUID().toString().getBytes();
+            long timeMillis = 60000L; // 60 seconds
+
+            // create new SharkSettlementDocument
+            SharkSettlementDocument sharkSettlementDocument = new SharkSettlementDocument(
+                    partyId, groupId, this.asapPeer.getPeerID(), expectedPeers, timeMillis
+            );
+
+            // Add own Promises
+            List<byte[]> serializedPromises = this.getSerializedPromisesForGroup(groupId);
+            sharkSettlementDocument.addPeerPromises(this.asapPeer.getPeerID(), serializedPromises);
+
+            // Send Document
+            this.sendSettlementDocument(sharkSettlementDocument);
+            System.out.println("Settlement Party initiated successfully!");
+
+        } catch (IOException | ASAPException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sends a Settlement Document to the ASAP Network
+    */
+    public void sendSettlementDocument(SharkSettlementDocument sharkSettlementDocument) throws IOException, ASAPException {
+        byte[] serializedDoc = sharkSettlementDocument.serialize();
+        this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, serializedDoc);
+    }
+
+    public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) {
+        System.out.println("Return Serialized Promises...");
+        return null;
+    }
+
+    public void executeFinalSettlement(SharkSettlementDocument settlementDocument) {
+        System.out.println("Return Serialized Promises...");
+    }
+
     @Override
     public void acceptInviteAndSign(CharSequence currencyName) throws ASAPException, IOException {
 
