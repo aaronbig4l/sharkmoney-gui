@@ -37,6 +37,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
     public static final String CURRENCY_FORMAT = "application://x-asap-currency";
     public final String INVITE_CHANNEL_URI = "//group-document//invite";
     public final String NEW_MEMBER_URI = "//group-document//new-member";
+    public final String SETTLEMENT_URI = "//group-document//settlement";
 
     /**
      * Establishes a new currency group with specific configuration.
