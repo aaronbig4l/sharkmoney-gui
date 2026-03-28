@@ -350,7 +350,7 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public void initiateSettlementParty(byte[] groupId) {
+    public byte[] initiateSettlementParty(byte[] groupId) {
         try {
             SharkGroupDocument groupDoc = this.sharkCurrencyStorage.getGroupDocument(groupId);
 
@@ -373,8 +373,11 @@ public class SharkCurrencyComponentImpl
             sharkSettlementDocument.addPeerPromises(this.asapPeer.getPeerID(), serializedPromises);
 
             // Send Document
+            this.getSharkCurrencyStorage().saveSettlementDocument(partyId, sharkSettlementDocument);
             this.sendSettlementDocument(sharkSettlementDocument);
             System.out.println("Settlement Party initiated successfully!");
+
+            return partyId;
 
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
@@ -408,22 +411,25 @@ public class SharkCurrencyComponentImpl
      */
     public void executeFinalSettlement(SharkSettlementDocument settlementDocument) throws IOException, ASAPException, ClassNotFoundException {
         Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
+        Set<String> processedPromises = new HashSet<>();
 
         // 1. extract all collected Promises from the Peers
         for (List<byte[]> promiseList : settlementDocument.getCollectedPromises().values()) {
             for (byte[] promisBytes : promiseList) {
-                SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes,
-                        this.sharkPKIComponent.getASAPKeyStore());
+                // remove old Promises
+                SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes, this.sharkPKIComponent.getASAPKeyStore());
 
-                CharSequence creditor = promise.getCreditorID();
-                CharSequence debtor = promise.getDebtorID();
-                int amount = promise.getAmount();
+                String pId = promise.getPromiseID().toString();
+                // Nur verarbeiten, wenn wir diese Promise-ID nicht schon hatten!
+                if (!processedPromises.contains(pId)) {
+                    processedPromises.add(pId);
 
-                // Add to global net balances (creditor gets the amount plus, debtor the amount minus)
-                globalNetBalances.put(creditor, globalNetBalances.getOrDefault(creditor, 0) + amount);
-                globalNetBalances.put(debtor, globalNetBalances.getOrDefault(debtor, 0) - amount);
+                    globalNetBalances.put(promise.getCreditorID(), globalNetBalances.getOrDefault(promise.getCreditorID(), 0) + promise.getAmount());
+                    globalNetBalances.put(promise.getDebtorID(), globalNetBalances.getOrDefault(promise.getDebtorID(), 0) - promise.getAmount());
+                }
             }
         }
+
 
         // 2. Start Settlement Algorithm
         SettlementParty settlementParty = new SettlementParty(new GreedySettlementStrategy());
@@ -431,13 +437,28 @@ public class SharkCurrencyComponentImpl
 
         SharkCurrency currency = this.sharkCurrencyStorage.getGroupDocument(settlementDocument.getGroupId()).getAssignedCurrency();
 
+        // Delete old Promises
+        List<SharkPromise> oldPromises = this.getSharkCurrencyStorage().getSignedPromisesForGroup(settlementDocument.getGroupId());
+        for (SharkPromise old : oldPromises) {
+            this.getSharkCurrencyStorage().removeSharkSignedPromiseFromStorage(old.getPromiseID());
+        }
+
         // 3. Create new Promises
         for (SettlementTransaction tx : optimizedTx) {
             if (this.asapPeer.getPeerID().toString().equals(tx.getDebtorId().toString())) {
-                this.createPromise(tx.getAmount(), currency, settlementDocument.getGroupId(), tx.getCreditorId(), tx.getDebtorId(), false);
-            } else if (this.asapPeer.getPeerID().toString().equals(tx.getCreditorId().toString())) {
+                this.createPromise(
+                        tx.getAmount(),
+                        currency,
+                        settlementDocument.getGroupId(),
+                        tx.getCreditorId(),
+                        tx.getDebtorId(),
+                        false);
+            }
+            /*
+            else if (this.asapPeer.getPeerID().toString().equals(tx.getCreditorId().toString())) {
                 this.createPromise(tx.getAmount(), currency, settlementDocument.getGroupId(), tx.getCreditorId(), tx.getDebtorId(), true);
             }
+             */
         }
 
         // 4. Mark in storage as finished
@@ -446,11 +467,20 @@ public class SharkCurrencyComponentImpl
 
     public void calculateAndSubmitHash(SharkSettlementDocument settlementDocument) throws Exception {
         Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
+        Set<String> processedPromises = new HashSet<>();
+
         for (List<byte[]> promiseList : settlementDocument.getCollectedPromises().values()) {
             for (byte[] promisBytes : promiseList) {
                 SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes, this.sharkPKIComponent.getASAPKeyStore());
-                globalNetBalances.put(promise.getCreditorID(), globalNetBalances.getOrDefault(promise.getCreditorID(), 0) + promise.getAmount());
-                globalNetBalances.put(promise.getDebtorID(), globalNetBalances.getOrDefault(promise.getDebtorID(), 0) - promise.getAmount());
+
+                String pId = promise.getPromiseID().toString();
+                // Nur verarbeiten, wenn wir diese Promise-ID nicht schon hatten!
+                if (!processedPromises.contains(pId)) {
+                    processedPromises.add(pId);
+
+                    globalNetBalances.put(promise.getCreditorID(), globalNetBalances.getOrDefault(promise.getCreditorID(), 0) + promise.getAmount());
+                    globalNetBalances.put(promise.getDebtorID(), globalNetBalances.getOrDefault(promise.getDebtorID(), 0) - promise.getAmount());
+                }
             }
         }
 
@@ -472,9 +502,18 @@ public class SharkCurrencyComponentImpl
         byte[] hashBytes = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
         String finalHash = Base64.getEncoder().encodeToString(hashBytes);
 
-        // 5. Add Hash to Settlement Doc and Send
+        // 5. Add Hash to Settlement Doc, save and send
         settlementDocument.addPeerHash(this.getPeerIdOfImpl(), finalHash);
+        this.sharkCurrencyStorage.saveSettlementDocument(settlementDocument.getPartyId(), settlementDocument); // <--- DAS MUSS HIER REIN
         this.sendSettlementDocument(settlementDocument);
+
+        // Check if Party state is completet
+        if (settlementDocument.getState() == SettlementPartyState.COMPLETED) {
+            if (!this.hasSettlementBeenExecuted(settlementDocument.getPartyId())) {
+                System.out.println("CONSENSUS MATCH! Executing Final Settlement...");
+                this.executeFinalSettlement(settlementDocument);
+            }
+        }
     }
 
     public boolean hasSettlementBeenExecuted(byte[] partyId) {

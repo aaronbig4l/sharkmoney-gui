@@ -37,7 +37,7 @@ public class GreedySettlementStrategy implements SettlementStrategy{
             Map.Entry<CharSequence, Integer> maxDebtor = debtors.poll();
 
             int creditAmount = maxCreditor.getValue();
-            int debtAmount = maxDebtor.getValue();
+            int debtAmount = Math.abs(maxDebtor.getValue());
 
             // amount, that has to be equalized
             int settledAmount = Math.min(creditAmount, debtAmount);

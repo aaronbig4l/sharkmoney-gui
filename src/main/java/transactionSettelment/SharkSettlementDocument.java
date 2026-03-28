@@ -63,10 +63,7 @@ public class SharkSettlementDocument {
         this.collectedPromises.put(peerId.toString(), new ArrayList<>(serializedPromises));
         this.submittedPeers.add(peerId.toString());
 
-        // check if all Peers submited
-        if (this.submittedPeers.containsAll(this.expectedPeers)) {
-            this.state = SettlementPartyState.VERIFYING;
-        }
+        this.updateState();
     }
 
     /**
@@ -77,16 +74,7 @@ public class SharkSettlementDocument {
     public void addPeerHash(CharSequence peerId, String hash) {
         this.computedHashes.put(peerId.toString(), hash);
 
-        // Check if all Peers added their generated Hash value
-        if (this.computedHashes.keySet().containsAll(this.expectedPeers)) {
-            // Check if all Hash values are equal
-            Set<String> uniqueHashes = new HashSet<>(this.computedHashes.values());
-            if (uniqueHashes.size() == 1) {
-                this.state = SettlementPartyState.COMPLETED; // Consensus found!
-            } else {
-                this.state = SettlementPartyState.CANCELLED; // Settlement Canceled, no Consensus found!
-            }
-        }
+        this.updateState();
     }
 
     public boolean isExpired() {
@@ -118,6 +106,15 @@ public class SharkSettlementDocument {
             }
             documentVariables.add(sb.toString());
         }
+        if (this.computedHashes.isEmpty()) {
+            documentVariables.add(EMPTY_PLACEHOLDER);
+        } else {
+            StringBuilder hashSb = new StringBuilder();
+            for (Map.Entry<CharSequence, String> entry : this.computedHashes.entrySet()) {
+                hashSb.append(entry.getKey()).append("=").append(entry.getValue()).append(LIST_DELIMITER);
+            }
+            documentVariables.add(hashSb.toString());
+        }
 
         documentVariables.add(this.state.name());
         documentVariables.add(String.valueOf(this.createdAt));
@@ -141,6 +138,8 @@ public class SharkSettlementDocument {
 
         String promisesData = documentVariables.get(i++).toString();
 
+        String hashesData = documentVariables.get(i++).toString();
+
         String stateStr = documentVariables.get(i++).toString();
         long cAt = Long.parseLong(documentVariables.get(i++).toString());
         long eAt = Long.parseLong(documentVariables.get(i++).toString());
@@ -156,7 +155,7 @@ public class SharkSettlementDocument {
         if (!promisesData.equals(EMPTY_PLACEHOLDER)) {
             StringTokenizer st = new StringTokenizer(promisesData, LIST_DELIMITER);
             while (st.hasMoreTokens()) {
-                String[] pair = st.nextToken().split("=");
+                String[] pair = st.nextToken().split("=", 2);
                 if (pair.length == 2) {
                     List<byte[]> pList = new ArrayList<>();
                     if (!pair[1].equals(EMPTY)) {
@@ -168,7 +167,55 @@ public class SharkSettlementDocument {
                 }
             }
         }
+        if (!hashesData.equals(EMPTY_PLACEHOLDER)) {
+            StringTokenizer st = new StringTokenizer(hashesData, LIST_DELIMITER);
+            while (st.hasMoreTokens()) {
+                String[] pair = st.nextToken().split("=", 2);
+                if (pair.length == 2) {
+                    party.computedHashes.put(pair[0], pair[1]);
+                }
+            }
+        }
+
+        party.updateState();
+
         return party;
+    }
+
+    /**
+     * Evaluiert und aktualisiert den Status der Settlement Party basierend auf den gesammelten Daten.
+     */
+    public void updateState() {
+        // 1. Wenn die Party bereits (z.B. durch Hash-Mismatch) fehlgeschlagen ist, bleibt sie es.
+        if (this.state == SettlementPartyState.CANCELLED) {
+            return;
+        }
+
+        // 2. Timeout-Prüfung: Ist die Zeit abgelaufen?
+        if (this.isExpired()) {
+            this.state = SettlementPartyState.CANCELLED;
+            return;
+        }
+
+        // 3. Haben wir von allen erwarteten Peers den finalen Hash?
+        if (this.computedHashes.keySet().containsAll(this.expectedPeers) && !this.expectedPeers.isEmpty()) {
+            Set<String> uniqueHashes = new HashSet<>(this.computedHashes.values());
+            if (uniqueHashes.size() == 1) {
+                this.state = SettlementPartyState.COMPLETED; // Konsens gefunden!
+            } else {
+                this.state = SettlementPartyState.CANCELLED; // Hashes stimmen nicht überein!
+            }
+            return;
+        }
+
+        // 4. Haben wir von allen erwarteten Peers die Promises, aber noch nicht die Hashes?
+        if (this.submittedPeers.containsAll(this.expectedPeers) && !this.expectedPeers.isEmpty()) {
+            this.state = SettlementPartyState.VERIFYING;
+            return;
+        }
+
+        // 5. Wenn nichts davon zutrifft, sammeln wir noch Daten.
+        this.state = SettlementPartyState.GATHERING;
     }
 
     public byte[] getGroupId() {

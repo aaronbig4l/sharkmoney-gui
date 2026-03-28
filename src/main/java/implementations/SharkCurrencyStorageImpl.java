@@ -5,6 +5,7 @@ import currency.classes.SharkPromiseState;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
+import transactionSettelment.SharkSettlementDocument;
 
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     private final Map<String, SharkPromise> sharkPromiseStoreSigned = new HashMap<>();
     private final Map<String, SharkGroupDocument> pendingInvites = new HashMap<>();
     private final Map<String, SharkGroupDocument> groupDocuments = new HashMap<>();
+    private final Map<String, SharkSettlementDocument> settlementDocuments = new HashMap<>();
     private Set<String> executedSettlements = new HashSet<>();
 
     @Override
@@ -103,17 +105,25 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         long currentTime = System.currentTimeMillis();
 
         // iterate all fully signed and not expired Promises
-        for (SharkPromise promise : groupPromises) {
-            boolean fullySinged = promise.getStateOfPromise() == SharkPromiseState.FULLY_SIGNED;
-            boolean notExpired = promise.getExpirationDate() > currentTime;
-            boolean hasSignature = promise.getCreditorSignature() != null && promise.getDebtorSignature() != null;
+        for (SharkPromise promise : this.sharkPromiseStoreSigned.values()) {
 
-            if(fullySinged && notExpired && hasSignature) {
-                groupPromises.add(promise);
+            if (Arrays.equals(promise.getGroupIDOfPromise(), groupId)) {
+                boolean fullySinged = promise.getStateOfPromise() == SharkPromiseState.FULLY_SIGNED;
+                boolean notExpired = promise.getExpirationDate() > currentTime;
+                boolean hasSignature = promise.getCreditorSignature() != null && promise.getDebtorSignature() != null;
+
+                if(fullySinged && notExpired && hasSignature) {
+                    groupPromises.add(promise);
+                }
             }
         }
 
         return groupPromises;
+    }
+
+    @Override
+    public List<SharkPromise> getAllPendingPromises() {
+        return new ArrayList<>(this.sharkPromiseStorePending.values());
     }
 
     //this method is needed because of hashingf purposes
@@ -134,6 +144,21 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public int getPendingPromiseStorageSize() {
         return this.sharkPromiseStorePending.size();
+    }
+
+    @Override
+    public void saveSettlementDocument(byte[] partyId, SharkSettlementDocument doc) {
+        this.settlementDocuments.put(Base64.getEncoder().encodeToString(partyId), doc);
+    }
+
+    @Override
+    public SharkSettlementDocument getSettlementDocument(byte[] partyId) {
+        return this.settlementDocuments.get(Base64.getEncoder().encodeToString(partyId));
+    }
+
+    @Override
+    public Map<String, SharkSettlementDocument> getAllSettlementDocuments() {
+        return this.settlementDocuments;
     }
 
     @Override

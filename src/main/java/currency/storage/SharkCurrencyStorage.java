@@ -3,8 +3,10 @@ package currency.storage;
 import currency.classes.SharkPromise;
 import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
+import transactionSettelment.SharkSettlementDocument;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This Interface provides methods for managing the storage within the
@@ -32,7 +34,8 @@ public interface SharkCurrencyStorage {
     boolean containsSignedPromise(CharSequence promiseId);
     List<SharkPromise> getSignedPromisesForGroup(byte[] groupId);
     
-
+    //PENDING PROMISE STORAGE METHODS
+    List<SharkPromise> getAllPendingPromises();
 
 
     //PENDING PROMISE STORAGE METHODS
@@ -42,6 +45,9 @@ public interface SharkCurrencyStorage {
     int getPendingPromiseStorageSize();
 
     // SETTLEMENT STORAGE METHODS
+    void saveSettlementDocument(byte[] partyId, SharkSettlementDocument doc);
+    SharkSettlementDocument getSettlementDocument(byte[] partyId);
+    Map<String, SharkSettlementDocument> getAllSettlementDocuments();
     void addExecutedSettlement(byte[] partyId);
     boolean hasSettlementBeenExecuted(byte[] partyId);
 }

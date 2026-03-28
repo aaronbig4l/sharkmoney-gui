@@ -197,8 +197,9 @@ public interface SharkCurrencyComponent extends SharkComponent {
     /**
      * Starts a Settlement Party to rewrite debts
      * @param groupId Id of an existing Group
+     * @return The generated ID of the settlement party
      */
-    void initiateSettlementParty(byte[] groupId);
+    byte[] initiateSettlementParty(byte[] groupId);
 
 
     /**

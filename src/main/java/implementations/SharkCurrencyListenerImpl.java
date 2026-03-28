@@ -37,6 +37,10 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
                         this.sharkCurrencyComponent.getPeerIdOfImpl().toString()));
         handlers.put(SharkCurrencyComponent.NEW_MEMBER_URI,
                 new SharkNewMemberHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
+
+        //Settlement Hanlder
+        handlers.put(SharkCurrencyComponent.SETTLEMENT_URI,
+                new SharkSettlementHandler(this.sharkCurrencyComponent));
     }
 
     @Override
