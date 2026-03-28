@@ -30,35 +30,35 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
             try {
                 // deserialize SharkSettlementDocument
                 SharkSettlementDocument sharkSettlementDocument = SharkSettlementDocument.deserialize(msgBytes);
-                if (sharkSettlementDocument == null) continue;
-
-                // Timeout Check
-                if (sharkSettlementDocument.isExpired()){
-                    System.out.println("Settlement Party is expired. ");
-                    continue;
-                }
+                if (sharkSettlementDocument == null || sharkSettlementDocument.isExpired() ||
+                    !sharkSettlementDocument.getExpectedPeers().contains(component.getPeerIdOfImpl().toString())) continue;
 
                 CharSequence myPeerId = component.getPeerIdOfImpl();
 
-                // Is the Peer in the group?
-                if(!sharkSettlementDocument.getExpectedPeers().contains(myPeerId.toString())) {
-                    continue;
-                }
-
-                // Do I have to add my Promises?
-                if (!sharkSettlementDocument.getSubmittedPeers().contains(myPeerId.toString())) {
+                // 1. Do I have to add Promises?
+                if (sharkSettlementDocument.getState() == SettlementPartyState.GATHERING && !sharkSettlementDocument.getSubmittedPeers().contains(myPeerId.toString())) {
                     System.out.println("Add my Promises to Settlement Party: " + myPeerId);
-
-                    List<byte[]> mySerializedPromises = component.getSerializedPromisesForGroup(sharkSettlementDocument.getGroupId());
-                    sharkSettlementDocument.addPeerPromises(myPeerId, mySerializedPromises);
-
+                    List<byte[]> myPromises = component.getSerializedPromisesForGroup(sharkSettlementDocument.getGroupId());
+                    sharkSettlementDocument.addPeerPromises(myPeerId, myPromises);
                     component.sendSettlementDocument(sharkSettlementDocument);
                 }
 
-                // Is the Party READY (all Peers submitted)?
-                if (sharkSettlementDocument.getState() == SettlementPartyState.READY) {
-                    System.out.println("All Peers added their Promises! Starting final Consensus-Calculation...");
-                    component.executeFinalSettlement(sharkSettlementDocument);
+                // 2. Do I have to calculate a Hash value and add it?
+                else if (sharkSettlementDocument.getState() == SettlementPartyState.VERIFYING && !sharkSettlementDocument.getComputedHashes().containsKey(myPeerId.toString())) {
+                    System.out.println("All Promises received. Calculating and adding my Hash...");
+                    component.calculateAndSubmitHash(sharkSettlementDocument);
+                }
+
+                // 3. Consensus match!
+                else if (sharkSettlementDocument.getState() == SettlementPartyState.COMPLETED) {
+                    if (!component.hasSettlementBeenExecuted(sharkSettlementDocument.getPartyId())) {
+                        System.out.println("CONSENSUS MATCH! Executing Final Settlement...");
+                        component.executeFinalSettlement(sharkSettlementDocument);
+                    }
+                }
+
+                else if (sharkSettlementDocument.getState() == SettlementPartyState.CANCELLED) {
+                    System.err.println("Settlement Party failed or Hashes mismatched.");
                 }
             } catch (Exception e) {
                 System.out.println("Shark Settlement Party Error: " + e.getMessage());

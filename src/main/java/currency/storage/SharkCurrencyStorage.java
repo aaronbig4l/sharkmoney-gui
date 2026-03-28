@@ -4,6 +4,8 @@ import currency.classes.SharkPromise;
 import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
 
+import java.util.List;
+
 /**
  * This Interface provides methods for managing the storage within the
  * ASAPCurrency Application
@@ -28,7 +30,7 @@ public interface SharkCurrencyStorage {
     SharkPromise getSharkSignedPromiseFromStorage(CharSequence promiseId);
     int getSignedPromiseStorageSize();
     boolean containsSignedPromise(CharSequence promiseId);
-
+    List<SharkPromise> getSignedPromisesForGroup(byte[] groupId);
     
 
 
@@ -38,4 +40,8 @@ public interface SharkCurrencyStorage {
     void removeSharkPendingPromiseFromStorage(CharSequence promiseId);
     SharkPromise getSharkPendingPromiseFromStorage(CharSequence promiseId);
     int getPendingPromiseStorageSize();
+
+    // SETTLEMENT STORAGE METHODS
+    void addExecutedSettlement(byte[] partyId);
+    boolean hasSettlementBeenExecuted(byte[] partyId);
 }

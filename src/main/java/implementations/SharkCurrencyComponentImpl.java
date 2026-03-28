@@ -16,13 +16,15 @@ import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.web3j.crypto.CipherException;
-import transactionSettelment.SharkSettlementDocument;
+import transactionSettelment.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.*;
@@ -387,13 +389,96 @@ public class SharkCurrencyComponentImpl
         this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, serializedDoc);
     }
 
-    public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) {
-        System.out.println("Return Serialized Promises...");
-        return null;
+    public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) throws ASAPSecurityException, IOException {
+        List<byte[]> serializedPromises = new ArrayList<>();
+
+        List<SharkPromise> promises = this.sharkCurrencyStorage.getSignedPromisesForGroup(groupId);
+        for (SharkPromise p : promises) {
+            byte[] promisAsByte = SharkPromiseSerializer.serializePromise(
+                    p, p.getCreditorID(), new HashSet<>(), false, false, this.sharkPKIComponent.getASAPKeyStore(), false, 0
+            );
+            serializedPromises.add(promisAsByte);
+        }
+        return serializedPromises;
     }
 
-    public void executeFinalSettlement(SharkSettlementDocument settlementDocument) {
-        System.out.println("Return Serialized Promises...");
+    /**
+     * Executes the minimization of Promises
+     * @param settlementDocument Settlement Document of the Settlement Party
+     */
+    public void executeFinalSettlement(SharkSettlementDocument settlementDocument) throws IOException, ASAPException, ClassNotFoundException {
+        Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
+
+        // 1. extract all collected Promises from the Peers
+        for (List<byte[]> promiseList : settlementDocument.getCollectedPromises().values()) {
+            for (byte[] promisBytes : promiseList) {
+                SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes,
+                        this.sharkPKIComponent.getASAPKeyStore());
+
+                CharSequence creditor = promise.getCreditorID();
+                CharSequence debtor = promise.getDebtorID();
+                int amount = promise.getAmount();
+
+                // Add to global net balances (creditor gets the amount plus, debtor the amount minus)
+                globalNetBalances.put(creditor, globalNetBalances.getOrDefault(creditor, 0) + amount);
+                globalNetBalances.put(debtor, globalNetBalances.getOrDefault(debtor, 0) - amount);
+            }
+        }
+
+        // 2. Start Settlement Algorithm
+        SettlementParty settlementParty = new SettlementParty(new GreedySettlementStrategy());
+        List<SettlementTransaction> optimizedTx = settlementParty.executeSettlement(globalNetBalances);
+
+        SharkCurrency currency = this.sharkCurrencyStorage.getGroupDocument(settlementDocument.getGroupId()).getAssignedCurrency();
+
+        // 3. Create new Promises
+        for (SettlementTransaction tx : optimizedTx) {
+            if (this.asapPeer.getPeerID().toString().equals(tx.getDebtorId().toString())) {
+                this.createPromise(tx.getAmount(), currency, settlementDocument.getGroupId(), tx.getCreditorId(), tx.getDebtorId(), false);
+            } else if (this.asapPeer.getPeerID().toString().equals(tx.getCreditorId().toString())) {
+                this.createPromise(tx.getAmount(), currency, settlementDocument.getGroupId(), tx.getCreditorId(), tx.getDebtorId(), true);
+            }
+        }
+
+        // 4. Mark in storage as finished
+        this.sharkCurrencyStorage.addExecutedSettlement(settlementDocument.getPartyId());
+    }
+
+    public void calculateAndSubmitHash(SharkSettlementDocument settlementDocument) throws Exception {
+        Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
+        for (List<byte[]> promiseList : settlementDocument.getCollectedPromises().values()) {
+            for (byte[] promisBytes : promiseList) {
+                SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes, this.sharkPKIComponent.getASAPKeyStore());
+                globalNetBalances.put(promise.getCreditorID(), globalNetBalances.getOrDefault(promise.getCreditorID(), 0) + promise.getAmount());
+                globalNetBalances.put(promise.getDebtorID(), globalNetBalances.getOrDefault(promise.getDebtorID(), 0) - promise.getAmount());
+            }
+        }
+
+        // 2. Optimize TX with Settlement Algorithm
+        SettlementParty settlementParty = new SettlementParty(new GreedySettlementStrategy());
+        List<SettlementTransaction> optimizedTx = settlementParty.executeSettlement(globalNetBalances);
+
+        // 3. Sort list for deterministic Hash
+        optimizedTx.sort(Comparator.comparing((SettlementTransaction tx) -> tx.getDebtorId().toString())
+                .thenComparing(tx -> tx.getCreditorId().toString()));
+
+        // 4. Generate Hash String
+        StringBuilder sb = new StringBuilder();
+        for (SettlementTransaction tx : optimizedTx) {
+            sb.append(tx.getDebtorId()).append(">").append(tx.getCreditorId()).append(":").append(tx.getAmount()).append(";");
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+        String finalHash = Base64.getEncoder().encodeToString(hashBytes);
+
+        // 5. Add Hash to Settlement Doc and Send
+        settlementDocument.addPeerHash(this.getPeerIdOfImpl(), finalHash);
+        this.sendSettlementDocument(settlementDocument);
+    }
+
+    public boolean hasSettlementBeenExecuted(byte[] partyId) {
+        return this.sharkCurrencyStorage.hasSettlementBeenExecuted(partyId);
     }
 
     @Override

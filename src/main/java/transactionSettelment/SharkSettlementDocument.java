@@ -24,6 +24,7 @@ public class SharkSettlementDocument {
     private final long createdAt;
     private final long expiresAt; // Timeout
     private Map<CharSequence, List<byte[]>> collectedPromises; // Maps a PeerID to a List of serialized SharkPromises
+    private Map<CharSequence, String> computedHashes; // Maps a PeerID to a generated Hash for the Settlement result
 
     public SharkSettlementDocument(byte[] partyId, byte[] groupId, CharSequence initiatorId,
                                    Set<CharSequence> expectedPeers, long timeoutMillis) {
@@ -36,6 +37,7 @@ public class SharkSettlementDocument {
         this.state = SettlementPartyState.GATHERING;
         this.createdAt = System.currentTimeMillis();
         this.expiresAt = this.createdAt + timeoutMillis;
+        this.computedHashes = new HashMap<>();
     }
 
     // private Constucutor to deserialize
@@ -49,6 +51,7 @@ public class SharkSettlementDocument {
         this.expectedPeers = new HashSet<>();
         this.submittedPeers = new HashSet<>();
         this.collectedPromises = new HashMap<>();
+        this.computedHashes = new HashMap<>();
     }
 
     /**
@@ -62,7 +65,27 @@ public class SharkSettlementDocument {
 
         // check if all Peers submited
         if (this.submittedPeers.containsAll(this.expectedPeers)) {
-            this.state = SettlementPartyState.READY;
+            this.state = SettlementPartyState.VERIFYING;
+        }
+    }
+
+    /**
+     * Adds the calculated Hash of a Peer and check Consensus
+     * @param peerId ID of the Peer
+     * @param hash generated Hash Value of the Settlement Algorithm Result
+     */
+    public void addPeerHash(CharSequence peerId, String hash) {
+        this.computedHashes.put(peerId.toString(), hash);
+
+        // Check if all Peers added their generated Hash value
+        if (this.computedHashes.keySet().containsAll(this.expectedPeers)) {
+            // Check if all Hash values are equal
+            Set<String> uniqueHashes = new HashSet<>(this.computedHashes.values());
+            if (uniqueHashes.size() == 1) {
+                this.state = SettlementPartyState.COMPLETED; // Consensus found!
+            } else {
+                this.state = SettlementPartyState.CANCELLED; // Settlement Canceled, no Consensus found!
+            }
         }
     }
 
@@ -182,5 +205,9 @@ public class SharkSettlementDocument {
 
     public Map<CharSequence, List<byte[]>> getCollectedPromises() {
         return collectedPromises;
+    }
+
+    public Map<CharSequence, String> getComputedHashes() {
+        return computedHashes;
     }
 }

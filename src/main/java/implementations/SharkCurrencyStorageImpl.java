@@ -1,6 +1,7 @@
 package implementations;
 
 import currency.classes.SharkPromise;
+import currency.classes.SharkPromiseState;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
@@ -14,6 +15,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     private final Map<String, SharkPromise> sharkPromiseStoreSigned = new HashMap<>();
     private final Map<String, SharkGroupDocument> pendingInvites = new HashMap<>();
     private final Map<String, SharkGroupDocument> groupDocuments = new HashMap<>();
+    private Set<String> executedSettlements = new HashSet<>();
 
     @Override
     public void saveGroupDocument(byte[] groupId, SharkGroupDocument doc) {
@@ -96,6 +98,24 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         return this.sharkPromiseStorePending.get(promiseId.toString());
     }
 
+    public List<SharkPromise> getSignedPromisesForGroup(byte[] groupId){
+        List<SharkPromise> groupPromises = new ArrayList<>();
+        long currentTime = System.currentTimeMillis();
+
+        // iterate all fully signed and not expired Promises
+        for (SharkPromise promise : groupPromises) {
+            boolean fullySinged = promise.getStateOfPromise() == SharkPromiseState.FULLY_SIGNED;
+            boolean notExpired = promise.getExpirationDate() > currentTime;
+            boolean hasSignature = promise.getCreditorSignature() != null && promise.getDebtorSignature() != null;
+
+            if(fullySinged && notExpired && hasSignature) {
+                groupPromises.add(promise);
+            }
+        }
+
+        return groupPromises;
+    }
+
     //this method is needed because of hashingf purposes
     //two identical byte[] array
     private String toKey(byte[] groupId) {
@@ -114,6 +134,19 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public int getPendingPromiseStorageSize() {
         return this.sharkPromiseStorePending.size();
+    }
+
+    @Override
+    public void addExecutedSettlement(byte[] partyId) {
+        if (partyId != null) {
+            this.executedSettlements.add(Base64.getEncoder().encodeToString(partyId));
+        }
+    }
+
+    @Override
+    public boolean hasSettlementBeenExecuted(byte[] partyId) {
+        if (partyId == null) return false;
+        return this.executedSettlements.contains(Base64.getEncoder().encodeToString(partyId));
     }
 
     public int getSignedPromiseStorageSize() {
