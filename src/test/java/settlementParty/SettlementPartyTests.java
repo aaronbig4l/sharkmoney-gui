@@ -139,6 +139,15 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         syncAliceBobClaraPeers();
         Thread.sleep(1000);
 
+        // Bob signs the new Promises
+        for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
+            this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
+        }
+
+        // Clara signs the new Promises
+        for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
+            this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
+        }
 
 
         syncAliceBobClaraPeers();
