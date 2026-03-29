@@ -85,9 +85,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                         component.executeFinalSettlement(localDoc);
                         component.sendSettlementDocument(localDoc);
                     }
-                }
-
-                else if (localDoc.getState() == SettlementPartyState.CANCELLED) {
+                } else if (localDoc.getState() == SettlementPartyState.CANCELLED) {
                     System.err.println("Settlement Party failed or Hashes mismatched.");
                 }
             } catch (Exception e) {

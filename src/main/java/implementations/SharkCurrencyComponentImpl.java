@@ -601,7 +601,7 @@ public class SharkCurrencyComponentImpl
 
             // Check if I am the Debtor
             if (promise.getDebtorID().toString().equals(this.getPeerIdOfImpl().toString())) {
-                String receiverAdress = groupDocument.getEthAdressForPeer(promise.getDebtorID());
+                String receiverAdress = groupDocument.getEthAdressForPeer(promise.getCreditorID());
 
                 // Check if Creditor has Eth Adress
                 if (receiverAdress == null || receiverAdress.isEmpty()) {

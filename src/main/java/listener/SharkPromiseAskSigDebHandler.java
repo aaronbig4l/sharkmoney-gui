@@ -31,6 +31,16 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
                 byte[] messageData = messages.getMessage(i, true);
                 SharkPromise promise = SharkPromiseSerializer
                         .deserializePromise(messageData, pki.getASAPKeyStore());
+
+                CharSequence promiseId = promise.getPromiseID();
+
+                // in the signed store, do NOT overwrite it with the older unsigned version.
+                if (this.currencyStorage.containsSignedPromise(promiseId)) {
+                    System.out.println("DEBUG Handler: askDeb skipping promise " + promiseId
+                            + " - already in signed storage");
+                    continue;
+                }
+
                     this.currencyStorage.addSharkPendingPromiseToStorage(promise);
                     System.out.println("DEBUG Handler: stored promise id=" + promise.getPromiseID());
                 } catch (ASAPException e) {

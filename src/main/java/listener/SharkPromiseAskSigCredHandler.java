@@ -26,6 +26,15 @@ public class SharkPromiseAskSigCredHandler implements SharkCurrencyMessageHandle
                 byte[] messageData = messages.getMessage(i, true);
                 SharkPromise promise = SharkPromiseSerializer
                         .deserializePromise(messageData, pki.getASAPKeyStore());
+
+                // in the signed store, do NOT overwrite it with the older unsigned version.
+                CharSequence promiseId = promise.getPromiseID();
+                if (this.currencyStorage.containsSignedPromise(promiseId)) {
+                    System.out.println("DEBUG Handler: askCred skipping promise " + promiseId
+                            + " - already in signed storage");
+                    continue;
+                }
+
                 this.currencyStorage.addSharkPendingPromiseToStorage(promise);
                 System.out.println("DEBUG Handler: askCred stored promise id=" + promise.getPromiseID());
                 System.out.println("DEBUG Handler: askCred the creditor is: " + promise.getCreditorID());

@@ -70,7 +70,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
                 false,
                 cryptoCurrencyName.toString(),
                 "A Layer-2 offline Sepolia Currency",
-                0.0001);
+                0.00002);
 
         ArrayList<CharSequence> whitelist = new ArrayList<>();
         whitelist.add(BOB_ID);
@@ -140,13 +140,17 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         }
 
         // Sign pending optimized Crypto-Promises
-        syncAliceBobClaraPeers();
         for (SharkPromise p : this.aliceStorage.getAllPendingPromises()) {
             this.aliceImpl.signPromiseAndSendBack(p.getPromiseID());
+            Thread.sleep(500);
+            syncAliceBobClaraPeers();
+            Thread.sleep(500);
         }
 
-        syncAliceBobClaraPeers();
-        Thread.sleep(1000);
+        for (int i = 0; i < 3; i++) {
+            syncAliceBobClaraPeers();
+            Thread.sleep(1000);
+        }
 
         // ==========================================
         // 4. Settlement Party Assertions
@@ -203,19 +207,19 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
                 DefaultBlockParameterName.LATEST).send().getBalance();
 
         // Get balance from Bob
-        BigInteger claraBalanceInWei = web3j.ethGetBalance(bobImpl.getWalletAddress(),
+        BigInteger claraBalanceInWei = web3j.ethGetBalance(claraImpl.getWalletAddress(),
                 DefaultBlockParameterName.LATEST).send().getBalance();
 
         // Check Crypto Balances
         System.out.println("**************************");
-        System.out.println("Alice Sepolia Balance: " + Convert.fromWei(aliceBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
-        System.out.println("Bob Sepolia Balance: " + Convert.fromWei(bobBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
-        System.out.println("Clara Sepolia Balance: " + Convert.fromWei(claraBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("Alice Sepolia Balance: " + Convert.fromWei(aliceBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH - Address: " + aliceImpl.getWalletAddress());
+        System.out.println("Bob Sepolia Balance: " + Convert.fromWei(bobBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH- Address: " + bobImpl.getWalletAddress());
+        System.out.println("Clara Sepolia Balance: " + Convert.fromWei(claraBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH - Address: " + claraImpl.getWalletAddress());
 
         // Bob and Clara has to make a Crypto TX to Alice
 
-        // Bob -> Alice = 10 * 0.0001 ETH = 0.001 ETH
-        // Clara -> Alice = 10 * 0.0001 ETH = 0.001 ETH
+        // Bob -> Alice = 10 * 0.00002 ETH = 0.0002 ETH
+        // Clara -> Alice = 10 * 0.00002 ETH = 0.0002 ETH
 
         this.bobImpl.executeCryptoPayments(groupId, this.web3j);
         this.claraImpl.executeCryptoPayments(groupId, this.web3j);
@@ -234,6 +238,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
 
         System.out.println("Alice Sepolia Balance after Transaction: " + Convert.fromWei(aliceBalanceAfterTransaction.toString(), Convert.Unit.ETHER) + " ETH");
         System.out.println("Bob Sepolia Balance after Transaction: " + Convert.fromWei(bobBalanceAfterTransaction.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("Clara Sepolia Balance after Transaction: " + Convert.fromWei(claraBalanceAfterTransaction.toString(), Convert.Unit.ETHER) + " ETH");
         System.out.println("**************************");
 
 
