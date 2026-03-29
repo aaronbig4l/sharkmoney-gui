@@ -1,7 +1,7 @@
 package settlementParty;
 
 import currency.classes.SharkCryptoCurrency;
-import currency.classes.SharkCurrency;
+
 import currency.classes.SharkPromise;
 import currency.classes.SharkPromiseSerializer;
 import group.SharkGroupDocument;

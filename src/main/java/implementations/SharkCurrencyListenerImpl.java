@@ -42,7 +42,7 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListener {
         handlers.put(SharkCurrencyComponent.SHARK_PROMISE_ASK_DEBT_SETTLED,
                 new SharkPromiseAskForDebtSettledHandler(storage));
         handlers.put(SharkCurrencyComponent.SHARK_PROMISE_RESPONSE_DEBT_SETTLED,
-                new SharkPromiseAskForDebtSettledHandler(storage));
+                new SharkPromiseResponseForDebtSettledHandler(storage, this.sharkCurrencyComponent));
 
         //Settlement Handler
         handlers.put(SharkCurrencyComponent.SETTLEMENT_URI,

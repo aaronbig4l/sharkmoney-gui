@@ -666,4 +666,138 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertArrayEquals(groupId, signedPromiseBob.getGroupIDOfPromise());
     }
 
+    @Test
+    public void askAndRespondForDebtSettledSuccessfully() throws Exception {
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = sharkGroupDocument.getAssignedCurrency().getCurrencyId();
+
+
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(10,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                ALICE_ID, // Creditor
+                BOB_ID,   // Debtor
+                true);    // asCreditor
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        Assertions.assertEquals(10, this.aliceImpl.getBalance(currencyId), "Alice sollte 10 Guthaben haben");
+        Assertions.assertEquals(-10, this.bobImpl.getBalance(currencyId), "Bob sollte 10 Schulden haben");
+        Assertions.assertTrue(this.aliceStorage.containsSignedPromise(promiseId), "Promise muss bei Alice im Storage sein");
+        Assertions.assertTrue(this.bobStorage.containsSignedPromise(promiseId), "Promise muss bei Bob im Storage sein");
+
+
+        this.bobImpl.askForDebtSettled(promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.aliceImpl.responseForDebtSettled(true, promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId), "Guthaben von Alice muss nach Begleichung 0 sein");
+        Assertions.assertEquals(0, this.bobImpl.getBalance(currencyId), "Schulden von Bob müssen nach Begleichung 0 sein");
+
+        Assertions.assertEquals(0, this.aliceImpl.getExtendedBalance(currencyId, bobSharkPeer.getPeerID()), "Verknüpfte Bilanz (Alice->Bob) muss 0 sein");
+        Assertions.assertEquals(0, this.bobImpl.getExtendedBalance(currencyId, aliceSharkPeer.getPeerID()), "Verknüpfte Bilanz (Bob->Alice) muss 0 sein");
+
+        Assertions.assertFalse(this.aliceStorage.containsSignedPromise(promiseId), "Alice muss das Promise nach Settlement aus dem Storage löschen");
+        Assertions.assertFalse(this.bobStorage.containsSignedPromise(promiseId), "Bob muss das Promise nach Settlement aus dem Storage löschen");
+    }
+
+
+    @Test
+    public void askAndRespondForDebtSettledRejected() throws Exception {
+
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = sharkGroupDocument.getAssignedCurrency().getCurrencyId();
+
+
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(10,
+                sharkGroupDocument.getAssignedCurrency(), groupId, ALICE_ID, BOB_ID, true);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.bobImpl.askForDebtSettled(promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        Assertions.assertEquals(1, this.aliceStorage.getToBeSettledPromises().size(),
+                "Alice muss die Anfrage zur Begleichung in ihrer Liste haben");
+
+
+        this.aliceImpl.responseForDebtSettled(false, promiseId);
+
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+
+        Assertions.assertEquals(10, this.aliceImpl.getBalance(currencyId), "Alice Guthaben darf nicht verringert werden");
+        Assertions.assertEquals(-10, this.bobImpl.getBalance(currencyId), "Bob Schulden dürfen nicht saldiert werden");
+
+
+        Assertions.assertTrue(this.aliceStorage.containsSignedPromise(promiseId), "Das Promise muss bei Alice weiterhin bestehen");
+        Assertions.assertTrue(this.bobStorage.containsSignedPromise(promiseId), "Das Promise muss bei Bob weiterhin bestehen");
+
+
+        Assertions.assertTrue(this.aliceStorage.getToBeSettledPromises().isEmpty(),
+                "Die settlementPromiseID-Liste muss nach der Beantwortung (auch bei Ablehnung) geleert sein");
+    }
+
+
+
 }

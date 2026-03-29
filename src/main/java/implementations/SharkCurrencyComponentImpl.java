@@ -15,6 +15,7 @@ import net.sharksystem.*;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.web3j.crypto.CipherException;
 import org.web3j.protocol.Web3j;
@@ -275,23 +276,108 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public CharSequence askFoDebtSettled(CharSequence promiseID) throws ASAPException, IOException {
+    public CharSequence askForDebtSettled(CharSequence promiseID) throws ASAPException, IOException {
+        // 1. Validierung des Promises
+        if (!this.sharkCurrencyStorage.containsSignedPromise(promiseID)) {
+            throw new ASAPException("This Promise {" + promiseID.toString() + "} does not exist or is not fully signed");
+        }
+
+        SharkPromise promise = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseID);
+        CharSequence receiverID = promise.getCreditorID();
+
+
+        ByteArrayOutputStream payloadStream = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(promiseID, payloadStream);
+        byte[] plainPayload = payloadStream.toByteArray();
+
+
+        byte[] encryptedPackage;
         try {
-            if(this.sharkCurrencyStorage.containsSignedPromise(promiseID)) {
+
+            encryptedPackage = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                    plainPayload,
+                    receiverID,
+                    this.getSharkPKIComponent().getASAPKeyStore()
+            );
+        } catch (ASAPSecurityException e) {
+            throw new ASAPException("Kryptographische Transformation der askForDebtSettled-Nachricht fehlgeschlagen", e);
+        }
 
 
+        byte flags = 0;
+        flags |= SharkPromise.ENCRYPTED_MASK;
 
+        ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
 
-            }
-            else {
-                throw new ASAPException("This Promise {" + promiseID.toString() +"} does not exist or is not Fullysigned");
-            }
-        }catch (
-                Exception e
-        ){};
+        ASAPSerialization.writeByteParameter(flags, messageStream);
+
+        ASAPSerialization.writeByteArray(encryptedPackage, messageStream);
+
+        byte[] finalNetworkPayload = messageStream.toByteArray();
+
+        this.asapPeer.sendASAPMessage(
+                SharkCurrencyComponent.CURRENCY_FORMAT,
+                SharkCurrencyComponent.SHARK_PROMISE_ASK_DEBT_SETTLED,
+                finalNetworkPayload
+        );
 
         return null;
+    }
 
+    @Override
+    public void responseForDebtSettled(boolean accept, CharSequence promiseID) throws ASAPException, IOException {
+        if (promiseID == null) {
+            throw new ASAPException("Promise ID is null");
+        }
+
+        SharkPromise promise = sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseID);
+        String debtorID = sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseID).getDebtorID().toString();
+
+        this.sharkCurrencyStorage.removeSharkToBeSettledPromiseFromStorage(promiseID);
+
+        if (debtorID.equals(this.asapPeer.getPeerID().toString())) {
+            this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseID);
+        }
+
+
+        ByteArrayOutputStream payloadStream = new ByteArrayOutputStream();
+        ASAPSerialization.writeBooleanParameter(accept, payloadStream);
+        ASAPSerialization.writeCharSequenceParameter(promiseID, payloadStream);
+        byte[] plainPayload = payloadStream.toByteArray();
+
+
+        byte[] encryptedPackage;
+        try {
+            encryptedPackage = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                    plainPayload,
+                    debtorID,
+                    this.getSharkPKIComponent().getASAPKeyStore()
+            );
+        } catch (ASAPSecurityException e) {
+            throw new ASAPException("Verschlüsselung fehlgeschlagen", e);
+        }
+
+
+        byte flags = 0;
+        flags |= SharkPromise.ENCRYPTED_MASK;
+
+        ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
+        ASAPSerialization.writeByteParameter(flags, messageStream);
+
+        ASAPSerialization.writeByteArray(encryptedPackage, messageStream);
+
+        byte[] finalNetworkPayload = messageStream.toByteArray();
+
+        if (accept) {
+            this.subtractBalance(promise);
+            this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseID);
+
+        }
+        this.asapPeer.sendASAPMessage(
+                SharkCurrencyComponent.CURRENCY_FORMAT,
+                SharkCurrencyComponent.SHARK_PROMISE_RESPONSE_DEBT_SETTLED,
+                finalNetworkPayload
+        );
     }
 
 
@@ -299,8 +385,6 @@ public class SharkCurrencyComponentImpl
     @Override
     public int getBalance(byte[] currencyId) throws SharkCurrencyException {
         if (currencyId == null) return 0;
-
-        // Konsistente Umwandlung in einen stabilen Key
         String key = encodeKey(currencyId);
         return this.promiseBalanceSimple.getOrDefault(key, 0);
     }
@@ -340,6 +424,33 @@ public class SharkCurrencyComponentImpl
 
         relationMap.merge(relation, transactionAmount, Integer::sum);
 
+    }
+    @Override
+    public void subtractBalance(SharkPromise promise) {
+        int transactionAmount;
+        CharSequence relation;
+
+        if (this.asapPeer.getPeerID().toString().equals(promise.getCreditorID().toString())) {
+
+            transactionAmount = -promise.getAmount();
+            relation = promise.getDebtorID();
+        } else {
+
+            transactionAmount = promise.getAmount();
+            relation = promise.getCreditorID();
+        }
+
+        byte[] currencyId = promise.getReferenceValue().getCurrencyId();
+        String key = java.util.Base64.getEncoder().encodeToString(currencyId);
+
+
+        this.promiseBalanceSimple.merge(key, transactionAmount, Integer::sum);
+
+
+        Map<CharSequence, Integer> relationMap = this.promiseBalanceExtended
+                .computeIfAbsent(key, k -> new HashMap<>());
+
+        relationMap.merge(relation, transactionAmount, Integer::sum);
     }
 
     @Override

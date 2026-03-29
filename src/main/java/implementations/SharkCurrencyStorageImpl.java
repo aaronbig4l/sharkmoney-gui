@@ -18,6 +18,7 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     private final Map<String, SharkGroupDocument> groupDocuments = new HashMap<>();
     private final Map<String, SharkSettlementDocument> settlementDocuments = new HashMap<>();
     private Set<String> executedSettlements = new HashSet<>();
+    private ArrayList<CharSequence> settlementPromiseID = new ArrayList<>();
 
     @Override
     public void saveGroupDocument(byte[] groupId, SharkGroupDocument doc) {
@@ -82,10 +83,15 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     public boolean containsSignedPromise(CharSequence promiseId) {
         return this.sharkPromiseStoreSigned.containsKey(promiseId.toString());
     }
-    
 
 
-
+    @Override
+    public List<CharSequence> getToBeSettledPromises() {
+        if (this.settlementPromiseID == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(this.settlementPromiseID);
+    }
 
     public void addSharkPendingPromiseToStorage(SharkPromise promise) {
         this.sharkPromiseStorePending.put(promise.getPromiseID().toString(), promise);
@@ -144,6 +150,20 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
     public int getPendingPromiseStorageSize() {
         return this.sharkPromiseStorePending.size();
+    }
+
+    @Override
+    public void addSharkToBeSettledPromiseToStorage(CharSequence promiseID) {
+        if (this.settlementPromiseID == null) {
+            this.settlementPromiseID = new ArrayList<>();
+        }
+        this.settlementPromiseID.add(promiseID);
+    }
+
+    @Override
+    public void removeSharkToBeSettledPromiseFromStorage(CharSequence promiseID) {
+        this.settlementPromiseID.remove(promiseID);
+
     }
 
     @Override

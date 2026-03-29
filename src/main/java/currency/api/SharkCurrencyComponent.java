@@ -35,7 +35,6 @@ public interface SharkCurrencyComponent extends SharkComponent {
     public final String NEW_MEMBER_URI = "//group-document//new-member";
     public final String SETTLEMENT_URI = "//group-document//settlement";
     public final String SHARK_PROMISE_ASK_DEBT_SETTLED = "//group-document//ask-debt-settled";
-
     public final String SHARK_PROMISE_RESPONSE_DEBT_SETTLED =  "recSignedDebtSettled//response-debt-settled";
 
     /**
@@ -160,7 +159,9 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @throws ASAPException
      * @throws IOException
      */
-    CharSequence askFoDebtSettled(CharSequence promiseID) throws ASAPException, IOException;
+    CharSequence askForDebtSettled(CharSequence promiseID) throws ASAPException, IOException;
+
+    void responseForDebtSettled(boolean accept,CharSequence promiseID) throws ASAPException, IOException;
 
     /**
      * Calculates the current balance for the local user in the specified currency.
@@ -189,6 +190,12 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @param promise
      */
     void addBalance(SharkPromise promise);
+
+    /**
+     * Subtract Balance from your Account
+     * @param promise
+     */
+    public void subtractBalance(SharkPromise promise);
 
 
     /**

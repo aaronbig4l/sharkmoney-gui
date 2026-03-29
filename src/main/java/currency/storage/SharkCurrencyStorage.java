@@ -37,12 +37,17 @@ public interface SharkCurrencyStorage {
     //PENDING PROMISE STORAGE METHODS
     List<SharkPromise> getAllPendingPromises();
 
+    public List<CharSequence> getToBeSettledPromises();
+
 
     //PENDING PROMISE STORAGE METHODS
     void addSharkPendingPromiseToStorage(SharkPromise promise);
     void removeSharkPendingPromiseFromStorage(CharSequence promiseId);
     SharkPromise getSharkPendingPromiseFromStorage(CharSequence promiseId);
     int getPendingPromiseStorageSize();
+
+    void addSharkToBeSettledPromiseToStorage(CharSequence promiseID);
+    void removeSharkToBeSettledPromiseFromStorage(CharSequence promiseId);
 
     // SETTLEMENT STORAGE METHODS
     void saveSettlementDocument(byte[] partyId, SharkSettlementDocument doc);
