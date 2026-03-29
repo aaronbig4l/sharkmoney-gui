@@ -7,7 +7,6 @@ import exepections.SharkCurrencyException;
 import listener.*;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.ASAPStorage;
 import net.sharksystem.pki.SharkPKIComponent;
 
 import java.io.IOException;
@@ -38,6 +37,10 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
                         this.sharkCurrencyComponent.getPeerIdOfImpl().toString()));
         handlers.put(SharkCurrencyComponent.NEW_MEMBER_URI,
                 new SharkNewMemberHandler(storage));
+
+        //Settlement Hanlder
+        handlers.put(SharkCurrencyComponent.SETTLEMENT_URI,
+                new SharkSettlementHandler(this.sharkCurrencyComponent));
     }
 
     @Override

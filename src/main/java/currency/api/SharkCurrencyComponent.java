@@ -37,6 +37,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
     public static final String CURRENCY_FORMAT = "application://x-asap-currency";
     public final String INVITE_CHANNEL_URI = "//group-document//invite";
     public final String NEW_MEMBER_URI = "//group-document//new-member";
+    public final String SETTLEMENT_URI = "//group-document//settlement";
 
     /**
      * Establishes a new currency group with specific configuration.
@@ -192,6 +193,13 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @throws SharkCurrencyException if permissions are missing, the promise doesn't exist, or cryptographic operations fail.
      */
     void transferPromiseToAnotherPeer(CharSequence promiseId, CharSequence newPeerId) throws SharkCurrencyException;
+
+    /**
+     * Starts a Settlement Party to rewrite debts
+     * @param groupId Id of an existing Group
+     * @return The generated ID of the settlement party
+     */
+    byte[] initiateSettlementParty(byte[] groupId);
 
 
     /**

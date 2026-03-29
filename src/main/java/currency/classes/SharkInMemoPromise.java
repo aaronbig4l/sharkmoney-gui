@@ -196,6 +196,7 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
 
     private static long getDefaultExpirationDate() {
         Calendar until = Calendar.getInstance();
+        until.add(Calendar.YEAR, 1); // expires by default in 1 Year
         return until.getTimeInMillis();
     }
 }

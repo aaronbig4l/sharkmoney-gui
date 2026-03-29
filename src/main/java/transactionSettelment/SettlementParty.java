@@ -13,28 +13,7 @@ public class SettlementParty {
         this.strategy = strategy;
     }
 
-    public List<SettlementTransaction> executeSettlement(Map<CharSequence, Map<CharSequence, Integer>> allPeerBalances) {
-        Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
-
-        // 1. calculate the net balance for every Peer
-        for(Map.Entry<CharSequence, Map<CharSequence, Integer>> entry : allPeerBalances.entrySet()) {
-            CharSequence currentPeerId = entry.getKey();
-            Map<CharSequence, Integer> peersLocalPerspective = entry.getValue();
-
-            int netBalance = 0;
-
-            // add all Balances (positive or negative) from the perspective of the currentPeerId
-            if (peersLocalPerspective != null) {
-                for (Integer balance : peersLocalPerspective.values()) {
-                    if(balance != null){
-                        netBalance += balance;
-                    }
-                }
-            }
-
-            globalNetBalances.put(currentPeerId, netBalance);
-        }
-
+    public List<SettlementTransaction> executeSettlement(Map<CharSequence, Integer> globalNetBalances) {
         // 2. Consensus-Check: The Sum of all Balances in a closed group has to be equal to 0
         int totalNetworkBalance = 0;
         for (Integer balance : globalNetBalances.values()) {
