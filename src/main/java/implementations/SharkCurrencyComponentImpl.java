@@ -8,8 +8,8 @@ import group.SharkGroupDocument;
 import currency.api.SharkCurrencyComponent;
 import group.GroupSignings;
 import exepections.SharkCurrencyException;
-import listener.SharkCurrencyListenerManagerNEW;
-import listener.SharkCurrencyListenerNEW;
+import listener.SharkCurrencyListenerManager;
+import listener.SharkCurrencyListener;
 import net.sharksystem.*;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
@@ -34,12 +34,12 @@ import java.util.*;
  * WORK IN PROGRESS!!!!!
  */
 public class SharkCurrencyComponentImpl
-        extends SharkCurrencyListenerManagerNEW
+        extends SharkCurrencyListenerManager
         implements SharkCurrencyComponent, ASAPMessageReceivedListener {
 
     private final SharkPKIComponent sharkPKIComponent;
     private ASAPPeer asapPeer;
-    private SharkCurrencyListenerNEW sharkCurrencyListenerNEW;
+    private SharkCurrencyListener sharkCurrencyListenerNEW;
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
@@ -680,7 +680,7 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public void subscribeSharkCurrencyListener(SharkCurrencyListenerNEW listener) {
+    public void subscribeSharkCurrencyListener(SharkCurrencyListener listener) {
         this.sharkCurrencyListenerNEW = listener;
         this.addSharkCurrencyListener(listener);
     }

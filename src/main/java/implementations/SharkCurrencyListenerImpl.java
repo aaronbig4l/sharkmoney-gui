@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
+public class SharkCurrencyListenerImpl implements SharkCurrencyListener {
 
     private final SharkCurrencyComponentImpl sharkCurrencyComponent;
     private final Map<String, SharkCurrencyMessageHandler> handlers = new HashMap<>();

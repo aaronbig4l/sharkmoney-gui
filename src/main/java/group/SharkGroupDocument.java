@@ -9,12 +9,10 @@ import net.sharksystem.utils.SerializationHelper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.cert.CertificateRevokedException;
 import java.util.*;
 
 public class SharkGroupDocument {
 
-    public static final String DOCUMENT_FORMAT = "//group-document//";
     private static final String EMPTY_PLACEHOLDER = "NULL";
     private static final String LIST_DELIMITER = ":::";
     private final byte[] groupId;
@@ -25,7 +23,7 @@ public class SharkGroupDocument {
     private final boolean balanceVisible;
     private GroupSignings groupDocState;
     private final Map<String,byte[]> currentMembers = new HashMap<>(); //<PeerId, Signature>
-    private final Map<String, String> memberEthAdresses = new HashMap(); // <PeerId, Eth Adress>
+    private final Map<String, String> memberEthAdresses = new HashMap<>(); // <PeerId, Eth Adress>
 
     /**
      * Public constructor setting a new GroupId

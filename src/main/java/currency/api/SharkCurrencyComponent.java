@@ -6,15 +6,11 @@ import currency.classes.SharkCurrency;
 import currency.classes.SharkPromise;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
-import exepections.SharkPromiseException;
 import listener.SharkCurrencyListener;
-import listener.SharkCurrencyListenerManagerNEW;
-import listener.SharkCurrencyListenerNEW;
 import net.sharksystem.ASAPFormats;
 import net.sharksystem.SharkComponent;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.asap.ASAPStorage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -223,7 +219,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * subscribes a listener to this component
      * @param listener the listener that will be subscribed
      */
-    void subscribeSharkCurrencyListener(SharkCurrencyListenerNEW listener);
+    void subscribeSharkCurrencyListener(SharkCurrencyListener listener);
 
     /**
      * Get the Ethereum Wallet Address of the Peer

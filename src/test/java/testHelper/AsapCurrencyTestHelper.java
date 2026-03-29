@@ -5,9 +5,8 @@ import currency.api.SharkCurrencyComponentFactory;
 import currency.classes.SharkCurrency;
 import currency.classes.SharkLocalCurrency;
 import currency.storage.SharkCurrencyStorage;
-import exepections.SharkCurrencyException;
 import implementations.SharkCurrencyListenerImpl;
-import listener.SharkCurrencyListenerNEW;
+import listener.SharkCurrencyListener;
 import net.sharksystem.SharkException;
 import net.sharksystem.SharkPeer;
 import net.sharksystem.SharkTestPeerFS;
@@ -107,7 +106,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 (SharkCurrencyComponentImpl) aliceSharkPeer.getComponent(SharkCurrencyComponent.class);
         AsapCurrencyTestHelper.testNumber++;
 
-        SharkCurrencyListenerNEW aliceListener = new SharkCurrencyListenerImpl(this.aliceCurrencyComponent);
+        SharkCurrencyListener aliceListener = new SharkCurrencyListenerImpl(this.aliceCurrencyComponent);
         this.aliceCurrencyComponent.subscribeSharkCurrencyListener(aliceListener);
         this.aliceStorage=this.aliceCurrencyComponent.getSharkCurrencyStorage();
     }
@@ -132,7 +131,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 (SharkCurrencyComponentImpl) bobSharkPeer.getComponent(SharkCurrencyComponent.class);
         AsapCurrencyTestHelper.testNumber++;
 
-        SharkCurrencyListenerNEW bobListener = new SharkCurrencyListenerImpl(this.bobCurrencyComponent);
+        SharkCurrencyListener bobListener = new SharkCurrencyListenerImpl(this.bobCurrencyComponent);
         this.bobCurrencyComponent.subscribeSharkCurrencyListener(bobListener);
         this.bobStorage=this.bobCurrencyComponent.getSharkCurrencyStorage();
     }
@@ -156,7 +155,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 (SharkCurrencyComponentImpl) claraSharkPeer.getComponent(SharkCurrencyComponent.class);
         AsapCurrencyTestHelper.testNumber++;
 
-        SharkCurrencyListenerNEW claraListener = new SharkCurrencyListenerImpl(this.claraCurrencyComponent);
+        SharkCurrencyListener claraListener = new SharkCurrencyListenerImpl(this.claraCurrencyComponent);
         this.claraCurrencyComponent.subscribeSharkCurrencyListener(claraListener);
         this.claraStorage=this.claraCurrencyComponent.getSharkCurrencyStorage();
     }
@@ -180,7 +179,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 (SharkCurrencyComponentImpl) davidSharkPeer.getComponent(SharkCurrencyComponent.class);
         AsapCurrencyTestHelper.testNumber++;
 
-        SharkCurrencyListenerNEW davidListener = new SharkCurrencyListenerImpl(this.davidCurrencyComponent);
+        SharkCurrencyListener davidListener = new SharkCurrencyListenerImpl(this.davidCurrencyComponent);
         this.davidCurrencyComponent.subscribeSharkCurrencyListener(davidListener);
         this.davidStorage=this.davidCurrencyComponent.getSharkCurrencyStorage();
     }

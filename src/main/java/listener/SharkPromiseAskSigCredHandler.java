@@ -5,7 +5,6 @@ import currency.classes.SharkPromiseSerializer;
 import currency.storage.SharkCurrencyStorage;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.ASAPStorage;
 import net.sharksystem.pki.SharkPKIComponent;
 
 import java.io.IOException;
