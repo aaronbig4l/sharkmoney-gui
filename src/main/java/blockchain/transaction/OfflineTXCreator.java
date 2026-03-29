@@ -17,7 +17,7 @@ public class OfflineTXCreator {
      * @param nonce Nonce value of the transaction
      * @param gasPrice price willing to pay per unit of gas consumed
      * @param gasLimit maximal limit on the number of gas units that this transaction may consume
-     * @return transaction as Hex-String (which will be gossiped with ASAP)
+     * @return transaction as Hex-String
      */
     public static String createSignedOfflineTX(Credentials credentials,
                                                String toAddress,
