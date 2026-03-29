@@ -267,6 +267,28 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
+    public CharSequence askFoDebtSettled(CharSequence promiseID) throws ASAPException, IOException {
+        try {
+            if(this.sharkCurrencyStorage.containsSignedPromise(promiseID)) {
+
+
+
+
+            }
+            else {
+                throw new ASAPException("This Promise {" + promiseID.toString() +"} does not exist or is not Fullysigned");
+            }
+        }catch (
+                Exception e
+        ){};
+
+        return null;
+
+    }
+
+
+
+    @Override
     public int getBalance(byte[] currencyId) throws SharkCurrencyException {
         if (currencyId == null) return 0;
 

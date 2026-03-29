@@ -34,6 +34,9 @@ public interface SharkCurrencyComponent extends SharkComponent {
     public final String INVITE_CHANNEL_URI = "//group-document//invite";
     public final String NEW_MEMBER_URI = "//group-document//new-member";
     public final String SETTLEMENT_URI = "//group-document//settlement";
+    public final String SHARK_PROMISE_ASK_DEBT_SETTLED = "//group-document//ask-debt-settled";
+
+    public final String SHARK_PROMISE_RESPONSE_DEBT_SETTLED =  "recSignedDebtSettled//response-debt-settled";
 
     /**
      * Establishes a new currency group with specific configuration.
@@ -149,6 +152,15 @@ public interface SharkCurrencyComponent extends SharkComponent {
 
 
     void signPromiseAndSendBack(CharSequence promiseId);
+
+
+    /**
+     * This method is if you want to settle a Debt from a Promise
+     * @param promiseID the promise what you want to settle
+     * @throws ASAPException
+     * @throws IOException
+     */
+    CharSequence askFoDebtSettled(CharSequence promiseID) throws ASAPException, IOException;
 
     /**
      * Calculates the current balance for the local user in the specified currency.

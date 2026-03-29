@@ -31,14 +31,20 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListener {
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB,
                 new SharkPromiseAskSigDebHandler(storage));
 
+
+
         //Group handler
         handlers.put(SharkCurrencyComponent.INVITE_CHANNEL_URI,
                 new SharkGroupInviteHandler(storage,
                         this.sharkCurrencyComponent.getPeerIdOfImpl().toString()));
         handlers.put(SharkCurrencyComponent.NEW_MEMBER_URI,
                 new SharkNewMemberHandler(storage));
+        handlers.put(SharkCurrencyComponent.SHARK_PROMISE_ASK_DEBT_SETTLED,
+                new SharkPromiseAskForDebtSettledHandler(storage));
+        handlers.put(SharkCurrencyComponent.SHARK_PROMISE_RESPONSE_DEBT_SETTLED,
+                new SharkPromiseAskForDebtSettledHandler(storage));
 
-        //Settlement Hanlder
+        //Settlement Handler
         handlers.put(SharkCurrencyComponent.SETTLEMENT_URI,
                 new SharkSettlementHandler(this.sharkCurrencyComponent));
     }
