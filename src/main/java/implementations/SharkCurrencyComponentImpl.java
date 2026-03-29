@@ -1,5 +1,6 @@
 package implementations;
 
+import blockchain.transaction.OfflineTXCreator;
 import blockchain.wallet.WalletManager;
 import currency.classes.*;
 import currency.storage.SharkCurrencyStorage;
@@ -16,12 +17,19 @@ import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.web3j.crypto.CipherException;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.utils.Convert;
 import transactionSettelment.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.MessageDigest;
@@ -547,6 +555,90 @@ public class SharkCurrencyComponentImpl
                 System.out.println("CONSENSUS MATCH! Executing Final Settlement...");
                 this.executeFinalSettlement(settlementDocument);
             }
+        }
+    }
+
+    public void executeCryptoPayments(byte[] groupId, Web3j web3j) throws Exception {
+        SharkGroupDocument groupDocument = this.sharkCurrencyStorage.getGroupDocument(groupId);
+        SharkCurrency currency = groupDocument.getAssignedCurrency();
+
+        // 1. Check if currency is a SharkCryptoCurrency
+        if (!(currency instanceof SharkCryptoCurrency)) {
+            throw new IllegalArgumentException("Payment on Blockchain failed: Currency is not instance of SharkCryptoCurrency");
+        }
+        SharkCryptoCurrency cryptoCurrency = (SharkCryptoCurrency) currency;
+
+        // 2. Check if conncection to a Network exists
+        try {
+            String clientVersion = web3j.web3ClientVersion().send().getWeb3ClientVersion();
+            if (clientVersion == null || clientVersion.isEmpty()) {
+                throw new Exception("Empty Response from the Web3-Client");
+            }
+            System.out.println("Successful connection to Blockchain");
+        } catch (Exception e) {
+            throw new Exception("Error: No Connection to the Blockchain");
+        }
+
+        // 3. Get exchangeRate (in ETH) to convert to Wei
+        double exchangeRate = cryptoCurrency.getExchangeRate();
+        BigDecimal ethAmount = BigDecimal.valueOf(exchangeRate);
+        BigInteger weiPerUnit = org.web3j.utils.Convert.toWei(ethAmount, Convert.Unit.ETHER).toBigInteger();
+
+        // 4. Prepare nonce and gas-params
+        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
+                this.getWalletAddress(), DefaultBlockParameterName.LATEST).send();
+        BigInteger currentNonce = ethGetTransactionCount.getTransactionCount();
+        BigInteger gasPrice = web3j.ethGasPrice().send().getGasPrice();
+        BigInteger gasLimit = BigInteger.valueOf(21000); // Standard value
+
+        // 5. Convert promises to TX on Blockchain
+        List<byte[]> finalPromises = this.getSerializedPromisesForGroup(groupId);
+        int transactionsSent = 0;
+
+        for (byte[] pByte : finalPromises) {
+            SharkPromise promise = SharkPromiseSerializer.deserializePromise(
+                    pByte, this.sharkPKIComponent.getASAPKeyStore());
+
+            // Check if I am the Debtor
+            if (promise.getDebtorID().toString().equals(this.getPeerIdOfImpl().toString())) {
+                String receiverAdress = groupDocument.getEthAdressForPeer(promise.getDebtorID());
+
+                // Check if Creditor has Eth Adress
+                if (receiverAdress == null || receiverAdress.isEmpty()) {
+                    throw new RuntimeException("No Eth address for this peer "
+                            + promise.getCreditorID() + " found in the Group Document.");
+                }
+
+                // Calculate amount of Crypto TX (promise amount * weiPerUnit)
+                BigInteger amountInWei = BigInteger.valueOf(promise.getAmount()).multiply(weiPerUnit);
+
+                // Create TX
+                String signedTxHex = OfflineTXCreator.createSignedOfflineTX(
+                        this.getWallet().getCredentials(),
+                        receiverAdress,
+                        amountInWei,
+                        currentNonce,
+                        gasPrice,
+                        gasLimit
+                );
+
+                // Send TX
+                EthSendTransaction response = web3j.ethSendRawTransaction(signedTxHex).send();
+                if (response.hasError()) {
+                    throw new Exception("Blockchain Error while sending TX: " + response.getTransactionHash());
+                }
+                System.out.println("Successfull Transaction! TX Hash: " + response.getTransactionHash());
+
+                // increase nonce
+                currentNonce = currentNonce.add(BigInteger.ONE);
+                transactionsSent++;
+
+                Thread.sleep(2000); // wait before sending new TX
+            }
+        }
+
+        if (transactionsSent == 0) {
+            System.out.println("No Transactions have been sent");
         }
     }
 

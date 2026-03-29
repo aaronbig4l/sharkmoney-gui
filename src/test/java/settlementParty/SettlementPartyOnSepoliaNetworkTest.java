@@ -13,11 +13,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Convert;
 import testHelper.AsapCurrencyTestHelper;
 import transactionSettelment.SettlementPartyState;
 import transactionSettelment.SharkSettlementDocument;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +70,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
                 false,
                 cryptoCurrencyName.toString(),
                 "A Layer-2 offline Sepolia Currency",
-                0.001);
+                0.0001);
 
         ArrayList<CharSequence> whitelist = new ArrayList<>();
         whitelist.add(BOB_ID);
@@ -92,7 +95,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         // 2. Exchange Promises (Crypto Promises)
         // ==========================================
 
-        // Alice owes Bob 10 (0,01 Sepolia ETH)
+        // Alice owes Bob 10
         CharSequence p1 = this.bobCurrencyComponent.createPromise(10,
                 sharkGroupDocument.getAssignedCurrency(),
                 groupId,
@@ -182,6 +185,61 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
 
         Assertions.assertTrue(foundBobToAlice, "Promise (Bob pays Alice 10) not found");
         Assertions.assertTrue(foundClaraToAlice, "Promise (Clara pays Alice 10) not found");
+
+        // ==========================================
+        // 5. Blockchain TX + Assertions
+        // ==========================================
+
+        // Check connection to Sepolia Network
+        String clientVersion = web3j.web3ClientVersion().send().getWeb3ClientVersion();
+        Assertions.assertTrue(clientVersion.contains("Geth"), "Verbindung zu Sepolia fehlgeschlagen.");
+
+        // Get balance from Alice
+        BigInteger aliceBalanceInWei = web3j.ethGetBalance(aliceImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        // Get balance from Bob
+        BigInteger bobBalanceInWei = web3j.ethGetBalance(bobImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        // Get balance from Bob
+        BigInteger claraBalanceInWei = web3j.ethGetBalance(bobImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        // Check Crypto Balances
+        System.out.println("**************************");
+        System.out.println("Alice Sepolia Balance: " + Convert.fromWei(aliceBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("Bob Sepolia Balance: " + Convert.fromWei(bobBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("Clara Sepolia Balance: " + Convert.fromWei(claraBalanceInWei.toString(), Convert.Unit.ETHER) + " ETH");
+
+        // Bob and Clara has to make a Crypto TX to Alice
+
+        // Bob -> Alice = 10 * 0.0001 ETH = 0.001 ETH
+        // Clara -> Alice = 10 * 0.0001 ETH = 0.001 ETH
+
+        this.bobImpl.executeCryptoPayments(groupId, this.web3j);
+        this.claraImpl.executeCryptoPayments(groupId, this.web3j);
+
+        // Wait 30s before TX
+        Thread.sleep(30000);
+
+        BigInteger aliceBalanceAfterTransaction = web3j.ethGetBalance(aliceImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        BigInteger bobBalanceAfterTransaction = web3j.ethGetBalance(bobImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        BigInteger claraBalanceAfterTransaction = web3j.ethGetBalance(claraImpl.getWalletAddress(),
+                DefaultBlockParameterName.LATEST).send().getBalance();
+
+        System.out.println("Alice Sepolia Balance after Transaction: " + Convert.fromWei(aliceBalanceAfterTransaction.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("Bob Sepolia Balance after Transaction: " + Convert.fromWei(bobBalanceAfterTransaction.toString(), Convert.Unit.ETHER) + " ETH");
+        System.out.println("**************************");
+
+
+        Assertions.assertTrue(aliceBalanceAfterTransaction.compareTo(aliceBalanceInWei) > 0); // Alice amount increased
+        Assertions.assertTrue(bobBalanceAfterTransaction.compareTo(bobBalanceInWei) < 0); // Bobs amount decreased
+        Assertions.assertTrue(claraBalanceAfterTransaction.compareTo(claraBalanceInWei) < 0); // Claras amount decreased
     }
 
     /**
