@@ -71,14 +71,12 @@ public class SharkPromiseResponseForDebtSettledHandler implements SharkCurrencyM
 
             if (isAccepted) {
                 if (this.currencyStorage.containsSignedPromise(promiseID)) {
-                    // Das Promise auslesen, um die Balance-Aktualisierung durchzuführen
+
                     SharkPromise settledPromise = this.currencyStorage.getSharkSignedPromiseFromStorage(promiseID);
 
 
-                    // 1. Kontostände in der Component synchronisieren
                     this.currencyComponent.subtractBalance(settledPromise);
 
-                    // 2. Promise aus dem Storage löschen
                     this.currencyStorage.removeSharkSignedPromiseFromStorage(promiseID);
                 }
             }

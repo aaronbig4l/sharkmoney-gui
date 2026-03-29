@@ -277,7 +277,7 @@ public class SharkCurrencyComponentImpl
 
     @Override
     public CharSequence askForDebtSettled(CharSequence promiseID) throws ASAPException, IOException {
-        // 1. Validierung des Promises
+
         if (!this.sharkCurrencyStorage.containsSignedPromise(promiseID)) {
             throw new ASAPException("This Promise {" + promiseID.toString() + "} does not exist or is not fully signed");
         }
