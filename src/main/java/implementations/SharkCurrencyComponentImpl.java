@@ -219,11 +219,12 @@ public class SharkCurrencyComponentImpl
             }
             CharSequence creditorId = promise.getCreditorID();
             CharSequence debtorId = promise.getDebtorID();
-            boolean asCreditor = this.asapPeer.getPeerID() == creditorId;
+            boolean asCreditor = this.asapPeer.getPeerID().toString().equals(creditorId.toString());
             ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
             CharSequence sender;
             Set<CharSequence> receiver = new HashSet<>();
             if(asCreditor) {
+                System.out.println("AS CREDITOR HERE");
                 SharkPromiseManagement.signAsCreditor(ks, promise);
                 sender=creditorId;
                 receiver.add(debtorId);

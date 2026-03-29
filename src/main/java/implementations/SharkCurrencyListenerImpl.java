@@ -2,6 +2,7 @@ package implementations;
 
 import currency.api.SharkCurrencyComponent;
 import currency.classes.SharkPromise;
+import currency.storage.SharkCurrencyStorage;
 import exepections.SharkCurrencyException;
 import listener.*;
 import net.sharksystem.asap.ASAPException;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO: wenn wir fertig sind mit den neuen listenern dürfen wir nicht vergessen die zu adden
 public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
 
     private final SharkCurrencyComponentImpl sharkCurrencyComponent;
@@ -22,21 +22,22 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListenerNEW {
     public SharkCurrencyListenerImpl(SharkCurrencyComponent sharkCurrencyComponent) {
 
         this.sharkCurrencyComponent = (SharkCurrencyComponentImpl) sharkCurrencyComponent;
+        SharkCurrencyStorage storage = sharkCurrencyComponent.getSharkCurrencyStorage();
 
         //Promise handler
         handlers.put(SharkPromise.SHARK_PROMISE_RECEIVE_SIGNED_SIG,
-                new SharkPromiseRevSigPromHandler(sharkCurrencyComponent.getSharkCurrencyStorage(), this.sharkCurrencyComponent));
+                new SharkPromiseRevSigPromHandler(storage, this.sharkCurrencyComponent));
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED,
-                new SharkPromiseAskSigCredHandler());
+                new SharkPromiseAskSigCredHandler(storage));
         handlers.put(SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB,
-                new SharkPromiseAskSigDebHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
+                new SharkPromiseAskSigDebHandler(storage));
 
         //Group handler
         handlers.put(SharkCurrencyComponent.INVITE_CHANNEL_URI,
-                new SharkGroupInviteHandler(sharkCurrencyComponent.getSharkCurrencyStorage(),
+                new SharkGroupInviteHandler(storage,
                         this.sharkCurrencyComponent.getPeerIdOfImpl().toString()));
         handlers.put(SharkCurrencyComponent.NEW_MEMBER_URI,
-                new SharkNewMemberHandler(sharkCurrencyComponent.getSharkCurrencyStorage()));
+                new SharkNewMemberHandler(storage));
     }
 
     @Override

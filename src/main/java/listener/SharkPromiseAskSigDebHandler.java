@@ -39,6 +39,5 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
                 throw new RuntimeException(e);
             }
         }
-
     }
 }

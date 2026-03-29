@@ -604,4 +604,66 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(promiseID,
                 this.bobStorage.getSharkSignedPromiseFromStorage(promiseID).getPromiseID());
     }
+
+    @Test
+    public void aliceAsksBobAsCredAndHeAccepts() throws SharkException, IOException, InterruptedException {
+
+        // Alice created a group with bob in it (he accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                BOB_ID, //creditor
+                ALICE_ID, //debtor
+                false);
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(1000);
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+        Thread.sleep(1000);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+
+        //Assertions
+        SharkPromise signedPromiseAlice
+                = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
+        SharkPromise signedPromiseBob
+                = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
+
+        Assertions.assertNull(this.aliceStorage.getSharkPendingPromiseFromStorage(promiseId));
+        Assertions.assertNull(this.bobStorage.getSharkPendingPromiseFromStorage(promiseId));
+        Assertions.assertEquals(promiseId, signedPromiseAlice.getPromiseID());
+        Assertions.assertEquals(promiseId, signedPromiseBob.getPromiseID());
+        Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
+                ,signedPromiseAlice.getStateOfPromise());
+        Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
+                ,signedPromiseBob.getStateOfPromise());
+        Assertions.assertNotNull(signedPromiseAlice.getCreditorSignature());
+        Assertions.assertNotNull(signedPromiseAlice.getDebtorSignature());
+        Assertions.assertNotNull(signedPromiseBob.getCreditorSignature());
+        Assertions.assertNotNull(signedPromiseBob.getDebtorSignature());
+        Assertions.assertTrue(signedPromiseAlice.getCreditorSignature().length > 0);
+        Assertions.assertTrue(signedPromiseAlice.getDebtorSignature().length > 0);
+        Assertions.assertTrue(signedPromiseBob.getCreditorSignature().length > 0);
+        Assertions.assertTrue(signedPromiseBob.getDebtorSignature().length > 0);
+        Assertions.assertEquals(2, signedPromiseAlice.getAmount());
+        Assertions.assertEquals(2, signedPromiseBob.getAmount());
+        Assertions.assertArrayEquals(groupId, signedPromiseAlice.getGroupIDOfPromise());
+        Assertions.assertArrayEquals(groupId, signedPromiseBob.getGroupIDOfPromise());
+    }
+
 }
