@@ -1,12 +1,18 @@
 package transactionSettelment;
 import java.util.*;
 
+/**
+ * An implementation of the SettlementStrategy interface using a Greedy Algorithm approach.
+ * This Algorithms calculates the net balances of all Peers and resolves the debts by
+ * continuously matching the Peer with the highest debt against the Peer with the highest credit,
+ * reducing the amount of direct transactions.
+ */
 public class GreedySettlementStrategy implements SettlementStrategy{
     @Override
     public List<SettlementTransaction> calculateSettlement(Map<CharSequence, Integer> netBalances) {
         List<SettlementTransaction> simplifiedDebts = new ArrayList<>();
 
-        // PriorityQueues sorted by biggest amount (biggest first) and alphabetically (when same amount)
+        // Priority queue for creditors: sorted by balance descending, then alphabetically
         PriorityQueue<Map.Entry<CharSequence, Integer>> creditors = new PriorityQueue<>(
                 (e1, e2) -> {
                     int cmp = Integer.compare(e2.getValue(), e1.getValue());
@@ -14,6 +20,8 @@ public class GreedySettlementStrategy implements SettlementStrategy{
                     return cmp;
                 }
         );
+
+        // Priority queue for debtors: sorted by balance ascending (biggest negative first), then alphabetically
         PriorityQueue<Map.Entry<CharSequence, Integer>> debtors = new PriorityQueue<>(
                 (e1, e2) -> {
                     int cmp = Integer.compare(e1.getValue(), e2.getValue());
@@ -31,7 +39,7 @@ public class GreedySettlementStrategy implements SettlementStrategy{
             }
         }
 
-        // work greedily
+        // greedily pair the largest creditor with the largest debtor until all debts are settled
         while (!creditors.isEmpty() && !debtors.isEmpty()) {
             Map.Entry<CharSequence, Integer> maxCreditor = creditors.poll();
             Map.Entry<CharSequence, Integer> maxDebtor = debtors.poll();
@@ -39,16 +47,17 @@ public class GreedySettlementStrategy implements SettlementStrategy{
             int creditAmount = maxCreditor.getValue();
             int debtAmount = Math.abs(maxDebtor.getValue());
 
-            // amount, that has to be equalized
+            // the amount to settle is the smaller of the two to avoid over-payment
             int settledAmount = Math.min(creditAmount, debtAmount);
 
             simplifiedDebts.add(new SettlementTransaction(maxDebtor.getKey(), maxCreditor.getKey(), settledAmount));
 
-            // Add rest amounts back to Queues
+            // if the creditor still has remaining credit, add it back and reduce his balance
             if (creditAmount > settledAmount) {
                 maxCreditor.setValue(creditAmount - settledAmount);
                 creditors.add(maxCreditor);
             }
+            // if the debtor still has remaining debt, reduce it with the settled amount
             if (debtAmount > settledAmount) {
                 maxDebtor.setValue(-(debtAmount - settledAmount));
                 debtors.add(maxDebtor);

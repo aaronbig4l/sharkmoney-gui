@@ -373,7 +373,7 @@ public class SharkCurrencyComponentImpl
             List<byte[]> serializedPromises = this.getSerializedPromisesForGroup(groupId);
             sharkSettlementDocument.addPeerPromises(this.asapPeer.getPeerID(), serializedPromises);
 
-            // Send Document
+            // Save and broadcast document to all peers
             this.getSharkCurrencyStorage().saveSettlementDocument(partyId, sharkSettlementDocument);
             this.sendSettlementDocument(sharkSettlementDocument);
             System.out.println("Settlement Party initiated successfully!");
@@ -386,13 +386,18 @@ public class SharkCurrencyComponentImpl
     }
 
     /**
-     * Sends a Settlement Document to the ASAP Network
+     * Broadcasts a Settlement Document over the ASAP Network
     */
     public void sendSettlementDocument(SharkSettlementDocument sharkSettlementDocument) throws IOException, ASAPException {
         byte[] serializedDoc = sharkSettlementDocument.serialize();
         this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, serializedDoc);
     }
 
+    /**
+     * Collects all fully signed promises belonging to a group.
+     * @param groupId ID of the group whose promises should be collected
+     * @return a list of serialized promise byte arrays
+     */
     public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) throws ASAPSecurityException, IOException {
         List<byte[]> serializedPromises = new ArrayList<>();
 
@@ -407,8 +412,10 @@ public class SharkCurrencyComponentImpl
     }
 
     /**
-     * Executes the minimization of Promises
-     * @param settlementDocument Settlement Document of the Settlement Party
+     * The final step of the settlement. Executes only after the consensus of a party (matching hashes) is reached.
+     * It clears old debts from the storage and creates new, optimize promises.
+     *
+     * @param settlementDocument SharkSettlementDocument of the Settlement Party
      */
     public void executeFinalSettlement(SharkSettlementDocument settlementDocument) throws IOException, ASAPException, ClassNotFoundException {
         Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
@@ -421,7 +428,8 @@ public class SharkCurrencyComponentImpl
                 SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes, this.sharkPKIComponent.getASAPKeyStore());
 
                 String pId = promise.getPromiseID().toString();
-                // Nur verarbeiten, wenn wir diese Promise-ID nicht schon hatten!
+
+                // Only process if we don't already have this PromiseID
                 if (!processedPromises.contains(pId)) {
                     processedPromises.add(pId);
 
@@ -455,27 +463,30 @@ public class SharkCurrencyComponentImpl
                         tx.getDebtorId(),
                         false);
             }
-            /*
-            else if (this.asapPeer.getPeerID().toString().equals(tx.getCreditorId().toString())) {
-                this.createPromise(tx.getAmount(), currency, settlementDocument.getGroupId(), tx.getCreditorId(), tx.getDebtorId(), true);
-            }
-             */
         }
 
         // 4. Mark in storage as finished
         this.sharkCurrencyStorage.addExecutedSettlement(settlementDocument.getPartyId());
     }
 
+    /**
+     * Computes the local peer's settlement result hash and submits it to the
+     * SharkSettlementDocument. This methode is called during the VERIFYING phase
+     * after all peers have submited their promises.
+     * @param settlementDocument the SharkSettlementDocument in VERIFYING state
+     * @throws Exception if deserialization, the settlement algorithm or hashing fails
+     */
     public void calculateAndSubmitHash(SharkSettlementDocument settlementDocument) throws Exception {
         Map<CharSequence, Integer> globalNetBalances = new HashMap<>();
         Set<String> processedPromises = new HashSet<>();
 
+        // 1. Deserialize all collected promises and compute the net balances
         for (List<byte[]> promiseList : settlementDocument.getCollectedPromises().values()) {
             for (byte[] promisBytes : promiseList) {
                 SharkPromise promise = SharkPromiseSerializer.deserializePromise(promisBytes, this.sharkPKIComponent.getASAPKeyStore());
 
                 String pId = promise.getPromiseID().toString();
-                // Nur verarbeiten, wenn wir diese Promise-ID nicht schon hatten!
+                // Deduplicate by ID since multiple peers may carry the same promise
                 if (!processedPromises.contains(pId)) {
                     processedPromises.add(pId);
 
@@ -489,11 +500,11 @@ public class SharkCurrencyComponentImpl
         SettlementParty settlementParty = new SettlementParty(new GreedySettlementStrategy());
         List<SettlementTransaction> optimizedTx = settlementParty.executeSettlement(globalNetBalances);
 
-        // 3. Sort list for deterministic Hash
+        // 3. Sort deterministically so all peers can produce the same hashes
         optimizedTx.sort(Comparator.comparing((SettlementTransaction tx) -> tx.getDebtorId().toString())
                 .thenComparing(tx -> tx.getCreditorId().toString()));
 
-        // 4. Generate Hash String
+        // 4. Compute the SHA-256 Hash Value
         StringBuilder sb = new StringBuilder();
         for (SettlementTransaction tx : optimizedTx) {
             sb.append(tx.getDebtorId()).append(">").append(tx.getCreditorId()).append(":").append(tx.getAmount()).append(";");
@@ -503,12 +514,12 @@ public class SharkCurrencyComponentImpl
         byte[] hashBytes = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
         String finalHash = Base64.getEncoder().encodeToString(hashBytes);
 
-        // 5. Add Hash to Settlement Doc, save and send
+        // 5. Submit the Hash to the Settlement Document, persist and send
         settlementDocument.addPeerHash(this.getPeerIdOfImpl(), finalHash);
         this.sharkCurrencyStorage.saveSettlementDocument(settlementDocument.getPartyId(), settlementDocument); // <--- DAS MUSS HIER REIN
         this.sendSettlementDocument(settlementDocument);
 
-        // Check if Party state is completet
+        // Check if Party state is completed and execute the final settlement
         if (settlementDocument.getState() == SettlementPartyState.COMPLETED) {
             if (!this.hasSettlementBeenExecuted(settlementDocument.getPartyId())) {
                 System.out.println("CONSENSUS MATCH! Executing Final Settlement...");

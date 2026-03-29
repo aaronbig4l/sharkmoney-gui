@@ -8,23 +8,32 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Represents the shared state document of a Settlement Party in the Shark Network.
+ * A SharkSettlementDocument is created by the initializing peer and then gossiped
+ * across the group. Each peer contributes their promises of the group.
+ * Once all promises are collected, a hash of their locally computed settlement result
+ * will be added and compared with all other participating peers.
+ * When the hashes match, consensus is reached.
+ */
 public class SharkSettlementDocument {
 
+    // Serialization constants
     private static final String EMPTY_PLACEHOLDER = "NULL";
     private static final String EMPTY = "EMPTY";
     private static final String LIST_DELIMITER = ":::";
     private static final String SET_DELIMITER = ",";
 
-    private final byte[] partyId;
-    private final byte[] groupId;
-    private final CharSequence initiatorId;
-    private Set<CharSequence> expectedPeers;
-    private Set<CharSequence> submittedPeers;
-    private SettlementPartyState state;
-    private final long createdAt;
-    private final long expiresAt; // Timeout
-    private Map<CharSequence, List<byte[]>> collectedPromises; // Maps a PeerID to a List of serialized SharkPromises
-    private Map<CharSequence, String> computedHashes; // Maps a PeerID to a generated Hash for the Settlement result
+    private final byte[] partyId; // ID to identify the settlement party instance
+    private final byte[] groupId; // GroupID this settlement belongs
+    private final CharSequence initiatorId; // The peer who initialized this settlement party
+    private Set<CharSequence> expectedPeers; // Set of Peers that are expected to participate (usually all group members)
+    private Set<CharSequence> submittedPeers; // Set of Peers that habe already submitted their Promises
+    private SettlementPartyState state; // current lifecycle of this settlement party
+    private final long createdAt; // timestamp when the party was created
+    private final long expiresAt; // timestamp at which the Settlement Party expires
+    private Map<CharSequence, List<byte[]>> collectedPromises; // Maps each PeerID to a List of serialized SharkPromises
+    private Map<CharSequence, String> computedHashes; // Maps each PeerID to the SHA Hash they computed over the settlement algorithms result
 
     public SharkSettlementDocument(byte[] partyId, byte[] groupId, CharSequence initiatorId,
                                    Set<CharSequence> expectedPeers, long timeoutMillis) {
@@ -40,7 +49,7 @@ public class SharkSettlementDocument {
         this.computedHashes = new HashMap<>();
     }
 
-    // private Constucutor to deserialize
+    // private Constucutor used to deserialize
     private SharkSettlementDocument(byte[] partyId, byte[] groupId, CharSequence initiatorId,
                                     long createdAt, long expiresAt) {
         this.partyId = partyId;
@@ -55,7 +64,8 @@ public class SharkSettlementDocument {
     }
 
     /**
-     * Adds the Promises from a Peer to the Document
+     * Adds the Promises from a Peer during the GATHERING phase to the Document.
+     * Marks the peer as having submitted their data and triggers a state update.
      * @param peerId Peer who is adding the data
      * @param serializedPromises serialized Promises
      */
@@ -67,9 +77,11 @@ public class SharkSettlementDocument {
     }
 
     /**
-     * Adds the calculated Hash of a Peer and check Consensus
-     * @param peerId ID of the Peer
-     * @param hash generated Hash Value of the Settlement Algorithm Result
+     * Adds the settlement result hash of a peer during the VERIFYING phase.
+     * Triggers a state update which may transition to the party COMPLETED or
+     * CANCELLED state, depending on the hash consensus.
+     * @param peerId ID of the Peer submitting their hash
+     * @param hash Hash Value of the peer's computed settlement result
      */
     public void addPeerHash(CharSequence peerId, String hash) {
         this.computedHashes.put(peerId.toString(), hash);
@@ -77,11 +89,20 @@ public class SharkSettlementDocument {
         this.updateState();
     }
 
+    /**
+     * Returns whether this settlement party has exceeded its timeout.
+     * @return true if the party has expired, otherwise false
+     */
     public boolean isExpired() {
         return System.currentTimeMillis() > expiresAt;
     }
 
 
+    /**
+     * Serializes this document into a byte array for transport over the ASAP Protocol.
+     * @return the serialized byte array
+     * @throws IOException if serialization fails
+     */
     public byte[] serialize() throws IOException {
         List<CharSequence> documentVariables = new ArrayList<>();
 
@@ -124,6 +145,14 @@ public class SharkSettlementDocument {
 
     }
 
+    /**
+     * Deserializes a SharkSettlementDocument from a byte array.
+     * Triggers a Document update after deserialization to ensure the
+     * state is up to date.
+     * @param data the serialized byte array
+     * @return the reconstructed SharkSettlementDocument, or null if data null
+     * @throws IOException Exception if deserialization fails
+     */
     public static SharkSettlementDocument deserialize(byte[] data) throws IOException {
         if (data == null) return null;
         List<CharSequence> documentVariables = SerializationHelper.string2CharSequenceList(SerializationHelper.bytes2str(data));
@@ -183,21 +212,21 @@ public class SharkSettlementDocument {
     }
 
     /**
-     * Evaluiert und aktualisiert den Status der Settlement Party basierend auf den gesammelten Daten.
+     * Evaluated the current collected data and updates the party's state accordingly
      */
     public void updateState() {
-        // 1. Wenn die Party bereits (z.B. durch Hash-Mismatch) fehlgeschlagen ist, bleibt sie es.
+        // 1. Check if state is CANCELED
         if (this.state == SettlementPartyState.CANCELLED) {
             return;
         }
 
-        // 2. Timeout-Prüfung: Ist die Zeit abgelaufen?
+        // 2. Timeout-Check
         if (this.isExpired()) {
             this.state = SettlementPartyState.CANCELLED;
             return;
         }
 
-        // 3. Haben wir von allen erwarteten Peers den finalen Hash?
+        // 3. Check if all peers submitted their result hash
         if (this.computedHashes.keySet().containsAll(this.expectedPeers) && !this.expectedPeers.isEmpty()) {
             Set<String> uniqueHashes = new HashSet<>(this.computedHashes.values());
             if (uniqueHashes.size() == 1) {
@@ -208,13 +237,13 @@ public class SharkSettlementDocument {
             return;
         }
 
-        // 4. Haben wir von allen erwarteten Peers die Promises, aber noch nicht die Hashes?
+        // 4. Check if all peers submitted their promises but the hashes are still missing
         if (this.submittedPeers.containsAll(this.expectedPeers) && !this.expectedPeers.isEmpty()) {
             this.state = SettlementPartyState.VERIFYING;
             return;
         }
 
-        // 5. Wenn nichts davon zutrifft, sammeln wir noch Daten.
+        // 5. Still waiting for promises
         this.state = SettlementPartyState.GATHERING;
     }
 

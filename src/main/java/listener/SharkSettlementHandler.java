@@ -13,6 +13,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handler responsible for processing incoming SharkSettlementDocuments.
+ * It manages the local state transitions of a settlement party by merging
+ * incoming data and triggering the appropriate actions.
+ */
 public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
 
     private final SharkCurrencyComponentImpl component;
@@ -29,7 +34,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
             byte[] msgBytes = msgIterator.next();
 
             try {
-                // deserialize SharkSettlementDocument
+                // deserialize the incoming SharkSettlementDocument
                 SharkSettlementDocument incomingDoc = SharkSettlementDocument.deserialize(msgBytes);
                 CharSequence myPeerId = component.getPeerIdOfImpl();
 
@@ -38,17 +43,16 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
 
                 // Check if SettlementDoc already exists
                 SharkSettlementDocument localDoc = component.getSharkCurrencyStorage().getSettlementDocument(incomingDoc.getPartyId());
-
                 if (localDoc == null) {
                     localDoc = incomingDoc;
                 } else {
-                    // MERGE PROMISES: Fehlen uns Promises, die der andere schon gesammelt hat?
+                    // Merge Promises: Are we missing Promises that the others already collected?
                     for (Map.Entry<CharSequence, List<byte[]>> entry : incomingDoc.getCollectedPromises().entrySet()) {
                         if (!localDoc.getSubmittedPeers().contains(entry.getKey().toString())) {
                             localDoc.addPeerPromises(entry.getKey(), entry.getValue());
                         }
                     }
-                    // MERGE HASHES: Fehlen uns Hashes, die der andere schon gesammelt hat?
+                    // Merge Hashes: Are we missing Hashes that the other already collected?
                     for (Map.Entry<CharSequence, String> entry : incomingDoc.getComputedHashes().entrySet()) {
                         if (!localDoc.getComputedHashes().containsKey(entry.getKey().toString())) {
                             localDoc.addPeerHash(entry.getKey(), entry.getValue());
@@ -56,7 +60,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                     }
                 }
 
-                // save sharksettlement Doc
+                // Save SharkSettlementDocument
                 component.getSharkCurrencyStorage().saveSettlementDocument(localDoc.getPartyId(), localDoc);
 
                 // 1. Do I have to add Promises?
@@ -74,7 +78,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                     component.sendSettlementDocument(localDoc);
                 }
 
-                // 3. Consensus match!
+                // 3. Consensus match: execute final settlement (deleting old promises, creating new ones)
                 if (localDoc.getState() == SettlementPartyState.COMPLETED) {
                     if (!component.hasSettlementBeenExecuted(localDoc.getPartyId())) {
                         System.out.println("CONSENSUS MATCH! Executing Final Settlement...");
