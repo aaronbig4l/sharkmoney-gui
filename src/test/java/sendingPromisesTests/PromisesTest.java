@@ -1,7 +1,6 @@
 package sendingPromisesTests;
 
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import currency.classes.*;
 import exepections.SharkCurrencyException;
 import exepections.SharkPromiseException;
@@ -10,7 +9,6 @@ import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
 
@@ -369,8 +367,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
         ArrayList<CharSequence> whitelist = new ArrayList<>(List.of(BOB_ID));
 
-        byte[] groupIdA = this.aliceCurrencyComponent.establishGroup(currencyA, whitelist, false, true);
-        byte[] groupIdB = this.aliceCurrencyComponent.establishGroup(currencyB, whitelist, false, true);
+        byte[] groupIdA = this.aliceCurrencyComponent.establishGroup(currencyA, whitelist, false, false, true);
+        byte[] groupIdB = this.aliceCurrencyComponent.establishGroup(currencyB, whitelist, false, false, true);
         Thread.sleep(1000);
 
 
@@ -798,6 +796,35 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                 "Die settlementPromiseID-Liste muss nach der Beantwortung (auch bei Ablehnung) geleert sein");
     }
 
+    @Test
+    public void bobTriesToSendInCentralizedGroupButIsNotCreator() throws SharkException, IOException, InterruptedException {
+        byte[] groupId = this.aliceCreatesCentralizedEncryptedGroupWithBobSetUp();
 
+        SharkPKIComponent alicePKI
+                = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI
+                = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        Exception bobGettingCentralizedException = assertThrows(SharkPromiseException.class, () -> {
+            this.bobCurrencyComponent.createPromise(2,
+                    this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency(),
+                    groupId,
+                    ALICE_ID, //creditor
+                    BOB_ID, //debtor
+                    true);
+        });
+
+        Assertions.assertTrue(bobGettingCentralizedException
+                .getMessage()
+                .contains("Trying to create a promise in a centralized group. You are not the owner of this group."));
+        Assertions.assertEquals(0,this.aliceStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0,this.bobStorage.getPendingPromiseStorageSize());
+
+    }
 
 }

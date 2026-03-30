@@ -31,6 +31,7 @@ public class SharkCurrencySerializationTest {
                 creatorId,
                 currency,
                 whitelist,
+                false,
                 true,
                 false,
                 GroupSignings.SIGNED_BY_SOME
