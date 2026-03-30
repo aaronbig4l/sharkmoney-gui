@@ -18,10 +18,10 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CurrencyGroupTestsUnencrypted extends AsapCurrencyTestHelper {
+public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
 
-    public CurrencyGroupTestsUnencrypted() {
-        super(CurrencyGroupTestsUnencrypted.class.getSimpleName());
+    public CurrencyUnencryptedGroupTests() {
+        super(CurrencyUnencryptedGroupTests.class.getSimpleName());
     }
 
     @BeforeEach
@@ -29,7 +29,7 @@ public class CurrencyGroupTestsUnencrypted extends AsapCurrencyTestHelper {
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyGroupTestsUnencrypted.class.getSimpleName(),
+                CurrencyUnencryptedGroupTests.class.getSimpleName(),
                 testName
         );
     }

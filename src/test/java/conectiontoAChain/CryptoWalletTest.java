@@ -1,6 +1,6 @@
 package conectiontoAChain;
 
-import currencyGroupTests.CurrencyGroupTests;
+import currencyGroupTests.CurrencyUnencryptedGroupTests;
 import net.sharksystem.SharkException;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
@@ -16,7 +16,7 @@ public class CryptoWalletTest extends  AsapCurrencyTestHelper{
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyGroupTests.class.getSimpleName(),
+                CurrencyUnencryptedGroupTests.class.getSimpleName(),
                 testName
         );
     }

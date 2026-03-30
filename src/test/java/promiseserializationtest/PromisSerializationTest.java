@@ -1,13 +1,7 @@
 package promiseserializationtest;
 
 import currency.classes.*;
-import currencyGroupTests.CurrencyGroupTests;
 import org.junit.Test;
-import org.junit.jupiter.api.*;
-import testHelper.AsapCurrencyTestHelper;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 

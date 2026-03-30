@@ -48,7 +48,6 @@ public class SharkCurrencyComponentImpl
 
     private final SharkPKIComponent sharkPKIComponent;
     private ASAPPeer asapPeer;
-    private SharkCurrencyListener sharkCurrencyListenerNEW;
     private SharkCurrencyStorage sharkCurrencyStorage;
     private WalletManager wallet;
 
@@ -806,8 +805,26 @@ public class SharkCurrencyComponentImpl
         }
         dos.flush();
 
-        byte[] signatureAndIDAsContent = baos.toByteArray();
-        this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, NEW_MEMBER_URI, signatureAndIDAsContent);
+        byte[] content = baos.toByteArray();
+        byte flags = 0;
+        if(sharkGroupDocument.isEncrypted()) {
+            Set<String> receiver = sharkGroupDocument.getCurrentMembers().keySet();
+            content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                    content,
+                    receiver.iterator().next(), //receiver
+                    this.sharkPKIComponent.getASAPKeyStore());
+            flags += SharkGroupDocument.ENCRYPTED_MASK;
+            baos = new ByteArrayOutputStream();
+            ASAPSerialization.writeByteParameter(flags, baos);
+            ASAPSerialization.writeByteArray(content, baos);
+            content = baos.toByteArray();
+        }
+        ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
+        ASAPSerialization.writeByteParameter(flags, finalBaos);
+        ASAPSerialization.writeByteArray(content, finalBaos);
+        content = finalBaos.toByteArray();
+
+        this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, NEW_MEMBER_URI, content);
     }
 
     @Override
@@ -871,9 +888,23 @@ public class SharkCurrencyComponentImpl
              daos.write(docBytes);
 
              byte[] fullContentOfInvite = baos.toByteArray();
-             CharSequence inviteURI = INVITE_CHANNEL_URI;
-            System.out.println("DEBUG: Sending invite to: ");
-             this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, inviteURI, fullContentOfInvite);
+             byte flags = 0;
+             if(sharkGroupDocument.isEncrypted()) {
+                 fullContentOfInvite = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                         fullContentOfInvite,
+                         peerId, //receiver
+                         this.sharkPKIComponent.getASAPKeyStore());
+                 flags += SharkGroupDocument.ENCRYPTED_MASK;
+                 baos = new ByteArrayOutputStream();
+                 ASAPSerialization.writeByteParameter(flags, baos);
+                 ASAPSerialization.writeByteArray(fullContentOfInvite, baos);
+                 fullContentOfInvite = baos.toByteArray();
+             }
+            ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
+            ASAPSerialization.writeByteParameter(flags, finalBaos);
+            ASAPSerialization.writeByteArray(fullContentOfInvite, finalBaos);
+            fullContentOfInvite = finalBaos.toByteArray();
+            this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, INVITE_CHANNEL_URI, fullContentOfInvite);
 
         } catch(ASAPException | IOException e) {
             throw new SharkCurrencyException(e.getLocalizedMessage());
@@ -906,7 +937,6 @@ public class SharkCurrencyComponentImpl
 
     @Override
     public void subscribeSharkCurrencyListener(SharkCurrencyListener listener) {
-        this.sharkCurrencyListenerNEW = listener;
         this.addSharkCurrencyListener(listener);
     }
 

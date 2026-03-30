@@ -17,10 +17,10 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.util.*;
 
-public class CurrencyGroupTestsEncrypted extends AsapCurrencyTestHelper {
+public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
 
-    public CurrencyGroupTestsEncrypted() {
-        super(CurrencyGroupTestsEncrypted.class.getSimpleName());
+    public CurrencyEncryptedGroupTests() {
+        super(CurrencyEncryptedGroupTests.class.getSimpleName());
     }
 
     @BeforeEach
@@ -28,7 +28,7 @@ public class CurrencyGroupTestsEncrypted extends AsapCurrencyTestHelper {
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyGroupTestsEncrypted.class.getSimpleName(),
+                CurrencyEncryptedGroupTests.class.getSimpleName(),
                 testName
         );
     }
