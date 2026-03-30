@@ -5,17 +5,12 @@ import group.SharkGroupDocument;
 import currency.classes.SharkCurrency;
 import currency.classes.SharkLocalCurrency;
 import exepections.SharkCurrencyException;
-
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
-
 import net.sharksystem.pki.SharkPKIComponent;
-
-
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
-
 
 import java.io.IOException;
 
@@ -23,10 +18,10 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CurrencyGroupTests extends AsapCurrencyTestHelper {
+public class CurrencyGroupTestsUnencrypted extends AsapCurrencyTestHelper {
 
-    public CurrencyGroupTests() {
-        super(CurrencyGroupTests.class.getSimpleName());
+    public CurrencyGroupTestsUnencrypted() {
+        super(CurrencyGroupTestsUnencrypted.class.getSimpleName());
     }
 
     @BeforeEach
@@ -34,7 +29,7 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyGroupTests.class.getSimpleName(),
+                CurrencyGroupTestsUnencrypted.class.getSimpleName(),
                 testName
         );
     }
@@ -47,6 +42,7 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
         stopPeerSafely(this.davidSharkPeer);
     }
 
+    /// UNENCRYPTED GROUPS ///
     @Test
     public void aliceCreatesAGroupWithLocalCurrency()
             throws SharkException, IOException {
@@ -349,15 +345,7 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
 
 
     @Test
-    public void
-
-
-
-
-
-
-
-    sendGroupInviteTo3PeersAndAllAccept() throws SharkException, IOException, InterruptedException {
+    public void sendGroupInviteTo3PeersAndAllAccept() throws SharkException, IOException, InterruptedException {
         this.setUpScenarioEstablishCurrency_4_DavidAndClaraAndBobAndAlice();
 
         // 1. Alice arranges a new local Currency
@@ -612,11 +600,10 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
         whitelist.add(BOB_ID);
         whitelist.add(CLARA_ID);
 
-        // TODO: Encrypten der Einladungen für Whitelisted Gruppen immer, oder? Muss noch gemacht werden, da David das GroupDoc lesen kann!
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
-                true,
+                false,
                 true);
 
         Thread.sleep(1000);
@@ -710,12 +697,6 @@ public class CurrencyGroupTests extends AsapCurrencyTestHelper {
                 "Clara should not have pending invites");
         Assertions.assertFalse(this.davidStorage.hasPendingInvites(),
                 "David should not have pending invites");
-    }
-
-
-    @Test
-    public void sendEncryptedInvitation(){
-
     }
 
     @Test

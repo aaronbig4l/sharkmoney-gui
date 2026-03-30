@@ -13,6 +13,8 @@ import java.util.*;
 
 public class SharkGroupDocument {
 
+    public static final int ENCRYPTED_MASK = 0x2;
+
     private static final String EMPTY_PLACEHOLDER = "NULL";
     private static final String LIST_DELIMITER = ":::";
     private final byte[] groupId;
