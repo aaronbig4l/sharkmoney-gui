@@ -18,6 +18,7 @@ public class SharkGroupDocument {
     private static final String EMPTY_PLACEHOLDER = "NULL";
     private static final String LIST_DELIMITER = ":::";
     private final byte[] groupId;
+    private final boolean centralized;
     private final CharSequence groupCreator;
     private final SharkCurrency assignedCurrency;
     private final ArrayList<CharSequence> whitelistMember;
@@ -33,6 +34,7 @@ public class SharkGroupDocument {
     public SharkGroupDocument(CharSequence groupCreator,
                               SharkCurrency assignedCurrency,
                               ArrayList<CharSequence> whitelistMember,
+                              boolean centralized,
                               boolean encrypted,
                               boolean balanceVisible,
                               GroupSignings groupDocState) {
@@ -51,6 +53,7 @@ public class SharkGroupDocument {
         }
         this.groupCreator = groupCreator;
         this.assignedCurrency = assignedCurrency;
+        this.centralized = centralized;
         this.encrypted = encrypted;
         this.balanceVisible = balanceVisible;
         this.groupDocState = (groupDocState != null) ? groupDocState : GroupSignings.SIGNED_BY_NONE;
@@ -63,6 +66,7 @@ public class SharkGroupDocument {
     private SharkGroupDocument(byte[] groupId,CharSequence groupCreator,
                                SharkCurrency assignedCurrency,
                                ArrayList<CharSequence> whitelistMember,
+                               boolean centralized,
                                boolean encrypted,
                                boolean balanceVisible,
                                GroupSignings groupDocState) {
@@ -81,6 +85,7 @@ public class SharkGroupDocument {
         }
         this.groupCreator = groupCreator;
         this.assignedCurrency = assignedCurrency;
+        this.centralized = centralized;
         this.encrypted = encrypted;
         this.balanceVisible = balanceVisible;
         this.groupDocState = (groupDocState != null) ? groupDocState : GroupSignings.SIGNED_BY_NONE;
@@ -168,6 +173,7 @@ public class SharkGroupDocument {
         documentVariables.add(serializeList(this.whitelistMember));
 
         // 5. Booleans & State
+        documentVariables.add(String.valueOf(this.centralized));
         documentVariables.add(String.valueOf(this.encrypted));
         documentVariables.add(String.valueOf(this.balanceVisible));
         documentVariables.add(this.groupDocState.name());
@@ -209,8 +215,11 @@ public class SharkGroupDocument {
 
         // String zerlegen
         List<CharSequence> documentVariables = SerializationHelper.string2CharSequenceList(dataString);
-
-        if (documentVariables.size() < 8) {
+        System.out.println("DEBUG documentVariables.size(): " + documentVariables.size());
+        for(int i = 0; i < documentVariables.size(); i++) {
+            System.out.println("DEBUG  [" + i + "] = " + documentVariables.get(i));
+        }
+        if (documentVariables.size() < 9) {
             throw new IllegalArgumentException("Illegal Format for SharkGroupDocument: " + documentVariables.size() + " Parts. Expected 8.");
         }
 
@@ -247,6 +256,7 @@ public class SharkGroupDocument {
         ArrayList<CharSequence> whitelist = deserializeList(listData);
 
         // 5. Booleans
+        boolean cen = parseBoolean(documentVariables.get(idx++));
         boolean enc = parseBoolean(documentVariables.get(idx++));
         boolean bal = parseBoolean(documentVariables.get(idx++));
 
@@ -258,7 +268,7 @@ public class SharkGroupDocument {
         } catch (IllegalArgumentException e) {
             // ignore
         }
-        SharkGroupDocument doc = new SharkGroupDocument(gId, cId, currency, whitelist, enc, bal, state);
+        SharkGroupDocument doc = new SharkGroupDocument(gId, cId, currency, whitelist, cen, enc, bal, state);
 
         // 7. Member-Map wiederherstellen (Letzter Part)
         String membersData = documentVariables.get(idx++).toString();
@@ -288,7 +298,7 @@ public class SharkGroupDocument {
             }
         }
 
-        if(doc==null || doc.groupId.length<=0) {
+        if(doc.groupId.length == 0) {
             throw new SharkCurrencyException("Error in group-document serialization");
         }
 
@@ -311,7 +321,7 @@ public class SharkGroupDocument {
 
     private static ArrayList<CharSequence> deserializeList(CharSequence data) {
         ArrayList<CharSequence> list = new ArrayList<>();
-        if (data == null || data.toString().equals(EMPTY_PLACEHOLDER.toString())) {
+        if (data == null || data.toString().equals(EMPTY_PLACEHOLDER)) {
             return list;
         }
         StringTokenizer tokenizer = new StringTokenizer(data.toString(), LIST_DELIMITER);
@@ -353,11 +363,12 @@ public class SharkGroupDocument {
     public byte[] getGroupId() { return groupId; }
     public CharSequence getGroupCreator() { return groupCreator; }
     public SharkCurrency getAssignedCurrency() { return assignedCurrency; }
+    public boolean isCentralized() { return centralized; }
     public boolean isEncrypted() { return encrypted; }
     public GroupSignings getGroupDocState() { return groupDocState; }
     public boolean isBalanceVisible() { return balanceVisible; }
     public Map<String, byte[]> getCurrentMembers() { return currentMembers; }
-    public ArrayList getWhitelistMember() { return whitelistMember; }
+    public ArrayList<CharSequence> getWhitelistMember() { return whitelistMember; }
     public String getEthAdressForPeer(CharSequence peerId) { return this.memberEthAdresses.get(peerId.toString()); }
     public Map<String, String> getMemberEthAdresses() { return this.memberEthAdresses; }
 }
