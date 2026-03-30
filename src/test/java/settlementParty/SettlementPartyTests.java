@@ -326,6 +326,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 bobsWGCurrency,
                 whitelist,
                 false,
+                false,
                 true
         );
 

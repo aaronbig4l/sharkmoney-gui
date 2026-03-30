@@ -77,7 +77,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         whitelist.add(CLARA_ID);
 
         // Alice etabliert die Crypto-Gruppe
-        byte[] groupId = this.aliceCurrencyComponent.establishGroup(asapSepoliaCurrency, whitelist, true, true);
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(asapSepoliaCurrency, whitelist, false, true, true);
 
         // Bob und Clara einladen
         this.aliceCurrencyComponent.invitePeerToGroup(groupId, "Join my Sepolia Group!", BOB_ID);

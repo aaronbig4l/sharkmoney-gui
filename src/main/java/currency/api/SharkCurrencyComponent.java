@@ -46,12 +46,13 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * * @param currency       The currency object containing name and metadata.
      *
      * @param whitelisted    It stands the different peers, which are allowed to communicate with each other
+     * @param centralized    If true, only the groupCreator can create promises. Other members may only transfer them
      * @param encrypted      If true, the communication within this group will be encrypted.
      * @param balanceVisible If true, members are allowed to see the balances of others (application logic).
      * @throws SharkCurrencyException If the group/channel cannot be established.
      * @return the groupId
      */
-    byte[] establishGroup(SharkCurrency currency, ArrayList<CharSequence> whitelisted, boolean encrypted, boolean balanceVisible)
+    byte[] establishGroup(SharkCurrency currency, ArrayList<CharSequence> whitelisted, boolean centralized, boolean encrypted, boolean balanceVisible)
             throws SharkCurrencyException;
 
 
@@ -62,12 +63,13 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * - If 'encrypted' is true, the channel messages should be encrypted (requires exchange of keys).
      * * @param currency       The currency object containing name and metadata.
      *
+     * @param centralized    If true, only the groupCreator can create promises. Other members may only transfer them
      * @param encrypted      If true, the communication within this group will be encrypted.
      * @param balanceVisible If true, members are allowed to see the balances of others (application logic).
      * @throws SharkCurrencyException If the group/channel cannot be established.
      * @return the groupId
      */
-    byte[] establishGroup(SharkCurrency currency, boolean encrypted, boolean balanceVisible)
+    byte[] establishGroup(SharkCurrency currency, boolean centralized, boolean encrypted, boolean balanceVisible)
             throws SharkCurrencyException;
 
     /**
@@ -81,12 +83,15 @@ public interface SharkCurrencyComponent extends SharkComponent {
      *
      * @param inviteMembers  List of group members who will automatically be invited
      * @param whitelisted    It stands the different peers, which are allowed to communicate with each other
+     * @param centralized    If true, only the groupCreator can create promises. Other members may only transfer them
      * @param encrypted      If true, the communication within this group will be encrypted.
      * @param balanceVisible If true, members are allowed to see the balances of others (application logic).
      * @throws SharkCurrencyException If the group/channel cannot be established.
      * @return the groupId
      */
-    byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, ArrayList<CharSequence> whitelisted, boolean encrypted, boolean balanceVisible)
+    byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, ArrayList<CharSequence> whitelisted,
+                          boolean centralized,
+                          boolean encrypted, boolean balanceVisible)
             throws SharkCurrencyException;
 
     /**
@@ -98,12 +103,15 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * * @param currency       The currency object containing name and metadata.
      *
      * @param inviteMembers  List of group members who will automatically be invited
+     * @param centralized    If true, only the groupCreator can create promises. Other members may only transfer them
      * @param encrypted      If true, the communication within this group will be encrypted.
      * @param balanceVisible If true, members are allowed to see the balances of others (application logic).
      * @throws SharkCurrencyException If the group/channel cannot be established.
      * @return the groupId
      */
-    byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, boolean encrypted, boolean balanceVisible)
+    byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency,
+                          boolean centralized,
+                          boolean encrypted, boolean balanceVisible)
             throws SharkCurrencyException;
 
     /**
