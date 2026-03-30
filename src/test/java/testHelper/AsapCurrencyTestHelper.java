@@ -10,6 +10,7 @@ import listener.SharkCurrencyListener;
 import net.sharksystem.SharkException;
 import net.sharksystem.SharkPeer;
 import net.sharksystem.SharkTestPeerFS;
+import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
 import net.sharksystem.testhelper.SharkPKITesthelper;
 import net.sharksystem.testhelper.SharkPeerTestHelper;
@@ -202,6 +203,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 true,
                 true);
 
@@ -240,12 +242,14 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         byte[] groupIdAlice = this.aliceCurrencyComponent.establishGroup(
                 aliceCurrency,
                 whitelist,
+                false,
                 true,
                 true);
         Thread.sleep(1000);
         byte[] groupIdBoB = this.bobCurrencyComponent.establishGroup(
                 bobCurrency,
                 whitelist,
+                false,
                 true,
                 true
         );
@@ -274,6 +278,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 true,
                 true);
 
@@ -302,6 +307,50 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         return groupId;
     }
 
+    protected byte[] aliceCreatesCentralizedEncryptedGroupWithBobSetUp() throws SharkException, InterruptedException, IOException {
+
+        setUpScenarioEstablishCurrency_2_BobAndAlice();
+        Thread.sleep(500);
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        CharSequence currencyName = "AliceTalerForPromiseTest_D";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                false,
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                true,
+                true,
+                true);
+
+        Thread.sleep(1000);
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(1000);
+        this.bobImpl.acceptInviteAndSign(currencyName);
+        Thread.sleep(1000);
+        this.runEncounter(this.bobSharkPeer,this.aliceSharkPeer,true);
+        Thread.sleep(1000);
+
+        return groupId;
+    }
 
     protected static void stopPeerSafely(SharkPeer peer) {
         if (peer != null) {
