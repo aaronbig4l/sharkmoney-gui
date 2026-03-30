@@ -1,11 +1,15 @@
 package listener;
 
+import currency.classes.SharkPromise;
 import currency.storage.SharkCurrencyStorage;
 import group.SharkGroupDocument;
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPStorage;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.pki.SharkPKIComponent;
 
 import java.io.ByteArrayInputStream;
@@ -35,8 +39,29 @@ public class SharkGroupInviteHandler implements SharkCurrencyMessageHandler {
                 byte[] inviteData = messages.getMessage(i, true);
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(inviteData);
-                DataInputStream dais = new DataInputStream(bais);
+                byte flags = ASAPSerialization.readByte(bais);
+                byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
+                boolean encrypted = (flags & SharkPromise.ENCRYPTED_MASK) != 0;
+                if (encrypted) {
+                    // decrypt
+                    ASAPKeyStore ks = pki.getASAPKeyStore();
+                    bais = new ByteArrayInputStream(tmpMessage);
+                    ASAPCryptoAlgorithms.EncryptedMessagePackage
+                            encryptedMessagePackage = ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
 
+                    // for me?
+                    if (!ks.isOwner(encryptedMessagePackage.getReceiver())) {
+                        throw new ASAPException("SharkPromise Message: message not for me. Current user: "
+                                + ks.getOwner()
+                                + ", recipient: "
+                                + encryptedMessagePackage.getReceiver());
+                    }
+                    // replace message with decrypted message
+                    tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
+                            encryptedMessagePackage, ks);
+                }
+                bais = new ByteArrayInputStream(tmpMessage);
+                DataInputStream dais = new DataInputStream(bais);
                 String receiver = dais.readUTF();
                 if (!this.thisPeersId.equals(receiver)) {
                     System.out.println("DEBUG: rejected group invite, because Im not the receiver: "
