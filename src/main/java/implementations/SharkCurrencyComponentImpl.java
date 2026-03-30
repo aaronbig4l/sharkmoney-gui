@@ -59,9 +59,10 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public byte[] establishGroup(SharkCurrency currency, ArrayList<CharSequence> whitelistMember, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
+    public byte[] establishGroup(SharkCurrency currency, ArrayList<CharSequence> whitelistMember, boolean centralized, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
         this.checkComponentRunning();
-        SharkGroupDocument sharkGroupDocument = new SharkGroupDocument(this.asapPeer.getPeerID(), currency, whitelistMember , encrypted, balanceVisible, GroupSignings.SIGNED_BY_NONE);
+        SharkGroupDocument sharkGroupDocument
+                = new SharkGroupDocument(this.asapPeer.getPeerID(), currency, whitelistMember, centralized, encrypted, balanceVisible, GroupSignings.SIGNED_BY_NONE);
         try{
             // 1. Get Name of the Currency URI
             byte[] groupId = sharkGroupDocument.getGroupId();
@@ -97,14 +98,13 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public byte[] establishGroup(SharkCurrency currency, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
+    public byte[] establishGroup(SharkCurrency currency, boolean centralized, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
         // pass the method to the other establishGroup methode with null for whitelisted
-        byte[] groupId = this.establishGroup(currency, null, encrypted, balanceVisible);
-        return groupId;
+        return this.establishGroup(currency, null, centralized, encrypted, balanceVisible);
     }
 
     @Override
-    public byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, ArrayList<CharSequence> whitelisted, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
+    public byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, ArrayList<CharSequence> whitelisted, boolean centralized, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
 
         // 0. Check method call validity
         this.checkComponentRunning();
@@ -121,7 +121,7 @@ public class SharkCurrencyComponentImpl
     }
 
     @Override
-    public byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
+    public byte[] establishGroup(ArrayList<CharSequence> inviteMembers, SharkCurrency currency, boolean centralized, boolean encrypted, boolean balanceVisible) throws SharkCurrencyException {
         return null;
     }
 
@@ -167,14 +167,22 @@ public class SharkCurrencyComponentImpl
             throw new SharkPromiseException("Amount for promises must be positive");
         }
 
+        SharkGroupDocument sharkGroupDocument;
+
         if(this.sharkCurrencyStorage.getGroupDocument(groupId)==null) {
             throw new SharkPromiseException("You are not in a group with given ID: "
                     + Arrays.toString(groupId));
+        } else {
+            sharkGroupDocument = this.sharkCurrencyStorage.getGroupDocument(groupId);
         }
-        boolean containsCred = this.sharkCurrencyStorage
-                .getGroupDocument(groupId).getCurrentMembers().containsKey(creditorId.toString());
-        boolean containsDeb = this.sharkCurrencyStorage
-                .getGroupDocument(groupId).getCurrentMembers().containsKey(debtorId.toString());
+
+        if(sharkGroupDocument.isCentralized() &&!this.asapPeer.getPeerID().toString()
+                .equals(sharkGroupDocument.getGroupCreator().toString())) {
+            throw new SharkPromiseException("Trying to create a promise in a centralized group. You are not the owner of this group.");
+        }
+
+        boolean containsCred = sharkGroupDocument.getCurrentMembers().containsKey(creditorId.toString());
+        boolean containsDeb = sharkGroupDocument.getCurrentMembers().containsKey(debtorId.toString());
         if(!containsCred || !containsDeb) {
             throw new SharkPromiseException("Creditor and Debitor must be in the same group with given ID: "
                     + Arrays.toString(groupId));
@@ -814,10 +822,6 @@ public class SharkCurrencyComponentImpl
                     receiver.iterator().next(), //receiver
                     this.sharkPKIComponent.getASAPKeyStore());
             flags += SharkGroupDocument.ENCRYPTED_MASK;
-            baos = new ByteArrayOutputStream();
-            ASAPSerialization.writeByteParameter(flags, baos);
-            ASAPSerialization.writeByteArray(content, baos);
-            content = baos.toByteArray();
         }
         ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
         ASAPSerialization.writeByteParameter(flags, finalBaos);
@@ -895,10 +899,6 @@ public class SharkCurrencyComponentImpl
                          peerId, //receiver
                          this.sharkPKIComponent.getASAPKeyStore());
                  flags += SharkGroupDocument.ENCRYPTED_MASK;
-                 baos = new ByteArrayOutputStream();
-                 ASAPSerialization.writeByteParameter(flags, baos);
-                 ASAPSerialization.writeByteArray(fullContentOfInvite, baos);
-                 fullContentOfInvite = baos.toByteArray();
              }
             ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
             ASAPSerialization.writeByteParameter(flags, finalBaos);

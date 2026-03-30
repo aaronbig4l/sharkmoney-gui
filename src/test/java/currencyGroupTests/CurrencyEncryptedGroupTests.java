@@ -74,6 +74,7 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 true,
                 true);
 

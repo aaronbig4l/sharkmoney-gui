@@ -62,6 +62,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(dummyCurrency,
                 new ArrayList<>(),
                 false,
+                false,
                 true);
         SharkGroupDocument testDoc = this.aliceStorage.getGroupDocument(groupId);
         byte[] aliceSignature = testDoc.getCurrentMembers().get(ALICE_ID);
@@ -113,6 +114,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                         dummyCurrency,
                         new ArrayList<>(),
                         false,
+                        false,
                         true));
         String expectedMessage = "Can not invite peers that are not on the whitelist.";
         String actualMessage = exception.getMessage();
@@ -140,6 +142,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 false,
                 true);
 
@@ -212,6 +215,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 false,
                 true);
 
@@ -302,6 +306,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrency,
                 whitelist,
                 false,
+                false,
                 true);
 
         Thread.sleep(2000);
@@ -365,6 +370,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 false,
                 true);
 
@@ -494,6 +500,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrency,
                 whitelist,
                 false,
+                false,
                 true);
 
         // Zeit zum sicheren establishen der Gruppe
@@ -603,6 +610,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrency,
                 whitelist,
+                false,
                 false,
                 true);
 
@@ -728,11 +736,13 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrencyA,
                 whitelist,
                 false,
+                false,
                 true);
 
         byte[] groupIdB = this.aliceCurrencyComponent.establishGroup(
                 dummyCurrencyB,
                 whitelist,
+                false,
                 false,
                 true);
 
@@ -940,11 +950,13 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrencyA,
                 whitelistAlice,
                 false,
+                false,
                 true);
 
         byte[] groupIdB = this.bobCurrencyComponent.establishGroup(
                 dummyCurrencyB,
                 whitelistBob,
+                false,
                 false,
                 true);
 
@@ -1152,11 +1164,13 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrencyA,
                 whitelistAlice,
                 false,
+                false,
                 true);
 
         byte[] groupIdB = this.bobCurrencyComponent.establishGroup(
                 dummyCurrencyB,
                 whitelistBob,
+                false,
                 false,
                 true);
 
@@ -1325,6 +1339,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         byte[] groupId = this.aliceCurrencyComponent.establishGroup(dummyCryptoCurrency,
                 new ArrayList<>(),
                 false,
+                false,
                 true);
         SharkGroupDocument testDoc = this.aliceStorage.getGroupDocument(groupId);
         byte[] aliceSignature = testDoc.getCurrentMembers().get(ALICE_ID);
@@ -1372,7 +1387,8 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         ArrayList<CharSequence> whitelist = new ArrayList<>();
         whitelist.add(BOB_ID);
 
-        byte[] groupId = this.aliceCurrencyComponent.establishGroup(dummyCryptoCurrency, whitelist, false, true);
+        byte[] groupId
+                = this.aliceCurrencyComponent.establishGroup(dummyCryptoCurrency, whitelist,false,false, true);
         Thread.sleep(2000);
 
         // 2. Send invitation and simulate encounter
@@ -1421,13 +1437,15 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         ArrayList<CharSequence> whitelistAlice = new ArrayList<>();
         whitelistAlice.add(BOB_ID);
         whitelistAlice.add(CLARA_ID);
-        byte[] groupIdA = this.aliceCurrencyComponent.establishGroup(localCurrency, whitelistAlice, false, true);
+        byte[] groupIdA
+                = this.aliceCurrencyComponent.establishGroup(localCurrency, whitelistAlice, false, false, true);
 
         // Group B (Crypro): David (Creator), Bob, Clara
         ArrayList<CharSequence> whitelistDavid = new ArrayList<>();
         whitelistDavid.add(BOB_ID);
         whitelistDavid.add(CLARA_ID);
-        byte[] groupIdB = this.davidCurrencyComponent.establishGroup(cryptoCurrency, whitelistDavid, false, true);
+        byte[] groupIdB
+                = this.davidCurrencyComponent.establishGroup(cryptoCurrency, whitelistDavid, false, false, true);
 
         Thread.sleep(2000); // Zeit zum Speichern
 
@@ -1503,4 +1521,78 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
             this.davidStorage.getGroupDocument(groupIdA);
         }, "David is not allowed to have access to Alices group");
     }
+
+    @Test
+    public void successfullCentralizedGroupInviteReceived() throws SharkException, InterruptedException, IOException {
+
+        // 0. Set up Alice and Bob
+        this.setUpScenarioEstablishCurrency_2_BobAndAlice();
+
+        // 1. Alice arranges a new local Currency
+        CharSequence currencyName = "AliceTalerXYZ";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                false,
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        // 2. Alice creates a new Group and whitelists Bob
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                true,
+                false,
+                true);
+
+        Thread.sleep(2000);
+
+        // 3. Encounter including message exchange starts, Alice will send a group invite to Bob the builder
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+
+        // 4. Encounter
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(2000);
+
+        // 5.(Assertions)
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] aliceSignature = aliceDoc.getCurrentMembers().get(ALICE_ID);
+        boolean verifiedAliceSig = ASAPCryptoAlgorithms.verify(
+                groupId,
+                aliceSignature,
+                ALICE_ID,
+                ((SharkPKIComponent) aliceSharkPeer
+                        .getComponent(SharkPKIComponent.class))
+                        .getASAPKeyStore());
+
+        Assertions
+                .assertNotNull(aliceDoc, "Alice document is null.");
+        //bob does not have the document stored -> Exception when asking for it
+        Assertions
+                .assertThrows(SharkCurrencyException.class, () -> {
+                    this.bobStorage.getGroupDocument(groupId);
+                });
+
+        Assertions
+                .assertArrayEquals(groupId, this.aliceStorage.getGroupDocument(groupId).getGroupId());
+
+        Assertions
+                .assertEquals(1,this.bobStorage.getPendingInviteSize());
+
+        //bob should have the invite pending
+        Assertions
+                .assertArrayEquals(groupId, this.bobStorage
+                        .getPendingInvite(currencyName.toString()).getGroupId());
+        //we expect 1 member. Just alice because bob didn't do anything yet
+        Assertions
+                .assertEquals(1,
+                        aliceDoc.getCurrentMembers().size());
+        //Alice signature has to be verified
+        Assertions
+                .assertTrue(verifiedAliceSig, "Alice signature is not verified");
+    }
+
 }
