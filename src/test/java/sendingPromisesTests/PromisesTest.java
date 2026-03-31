@@ -827,4 +827,15 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     }
 
+    @Test
+    public void centralizedGroupWith3PeersAndTransferAPromise() throws SharkException, IOException, InterruptedException {
+        //TODO
+    }
+
+    @Test
+    public void centralizedGroupWith3PeersAndTransferAPromiseButDontHaveThePromise() throws SharkException, IOException, InterruptedException {
+        //TODO
+    }
+
+
 }
