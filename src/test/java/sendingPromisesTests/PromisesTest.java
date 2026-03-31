@@ -49,17 +49,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         // Alice created a group with bob in it (he accepted). This method returns the groupID
         byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
 
-        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
-
-        // let Bob accept ALice credentials and create a certificate
-        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
-        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
-
-        // Alice accepts Bob Public Key
-        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
-        alicePKI.acceptAndSignCredential(bobCredentialMessage);
-
         CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
                 this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency(),
                 groupId,

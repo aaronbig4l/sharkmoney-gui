@@ -39,27 +39,8 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // 1. SETUP: Start Peers and establish Group
         // ==========================================
 
-        // Alice created a group with bob in it (he accepted). This method returns the groupID
-        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
-
-        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
-
-        // let Bob and Clara accept ALice credentials and create a certificate
-        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
-        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
-        claraPKI.acceptAndSignCredential(aliceCredentialMessage);
-
-        // Alice and Clara accepts Bob Public Key
-        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
-        alicePKI.acceptAndSignCredential(bobCredentialMessage);
-        claraPKI.acceptAndSignCredential(bobCredentialMessage);
-
-        // Alice and Bob accepts Clara Public Key
-        CredentialMessageInMemo claraCredentialMessage = new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey());
-        alicePKI.acceptAndSignCredential(claraCredentialMessage);
-        bobPKI.acceptAndSignCredential(claraCredentialMessage);
+        // Alice created a group with Bob and Clara in it (they accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesGroupWithBobAndClaraSetUp();
 
         // ==========================================
         // 2. Exchange Promises
@@ -224,20 +205,8 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // ==========================================
         // 1. SETUP: Start Peers and establish Group
         // ==========================================
-        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
+        byte[] groupId = this.aliceCreatesGroupWithBobAndClaraSetUp();
         SharkGroupDocument groupDoc = this.aliceStorage.getGroupDocument(groupId);
-
-        // PKI Credentials
-        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
-
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
 
         // ==========================================
         // 2. Exchange Promises
@@ -307,7 +276,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // ==========================================
 
         // Setup first Group
-        byte[] groupId1 = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
+        byte[] groupId1 = this.aliceCreatesGroupWithBobAndClaraSetUp();
         SharkGroupDocument groupDoc1 = this.aliceStorage.getGroupDocument(groupId1);
 
         // Setup second Group

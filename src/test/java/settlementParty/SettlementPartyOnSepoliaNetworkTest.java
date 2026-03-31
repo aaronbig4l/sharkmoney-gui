@@ -67,7 +67,6 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         // Crypto Currency Group
         CharSequence cryptoCurrencyName = "ASAP Sepolia";
         SharkCryptoCurrency asapSepoliaCurrency = new SharkCryptoCurrency(
-                false,
                 cryptoCurrencyName.toString(),
                 "A Layer-2 offline Sepolia Currency",
                 0.00002);
@@ -77,7 +76,12 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         whitelist.add(CLARA_ID);
 
         // Alice etabliert die Crypto-Gruppe
-        byte[] groupId = this.aliceCurrencyComponent.establishGroup(asapSepoliaCurrency, whitelist, false, true, true);
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                asapSepoliaCurrency,
+                whitelist,
+                false,
+                false,
+                true);
 
         // Bob und Clara einladen
         this.aliceCurrencyComponent.invitePeerToGroup(groupId, "Join my Sepolia Group!", BOB_ID);
