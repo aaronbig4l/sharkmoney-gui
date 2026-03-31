@@ -362,8 +362,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
         alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
 
-        SharkCurrency currencyA = new SharkLocalCurrency(false, "Urlaubskasse", "Spec A");
-        SharkCurrency currencyB = new SharkLocalCurrency(false, "WG_Kasse", "Spec B");
+        SharkCurrency currencyA = new SharkLocalCurrency("Urlaubskasse", "Spec A");
+        SharkCurrency currencyB = new SharkLocalCurrency("WG_Kasse", "Spec B");
 
         ArrayList<CharSequence> whitelist = new ArrayList<>(List.of(BOB_ID));
 

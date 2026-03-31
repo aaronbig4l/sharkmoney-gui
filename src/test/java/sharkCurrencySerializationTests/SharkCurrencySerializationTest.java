@@ -19,7 +19,7 @@ public class SharkCurrencySerializationTest {
         // 1. ARRANGE
         // Hinweis: groupId wird im Konstruktor zufällig generiert, daher setzen wir sie hier nicht manuell.
         String creatorId = "alice";
-        SharkCurrency currency = new SharkLocalCurrency(false, "AliceCoin", "TestSpec");
+        SharkCurrency currency = new SharkLocalCurrency("AliceCoin", "TestSpec");
 
         // Liste erstellen
         ArrayList<CharSequence> whitelist = new ArrayList<>();

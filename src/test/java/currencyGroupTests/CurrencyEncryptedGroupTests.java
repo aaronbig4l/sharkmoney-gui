@@ -17,6 +17,8 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
 
     public CurrencyEncryptedGroupTests() {
@@ -60,9 +62,8 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         alicePKI.acceptAndSignCredential(bobCredentialMessage);
 
         // 1. Alice arranges a new local Currency
-        CharSequence currencyName = "AliceTalerC";
+        CharSequence currencyName = "AliceTalerEncryptedA";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -77,8 +78,7 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
                 false,
                 true,
                 true);
-
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         // 3. Encounter including message exchange starts, Alice will send a group invite to Bob the builder
         this.aliceCurrencyComponent
@@ -125,4 +125,79 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         Assertions
                 .assertTrue(verifiedAliceSig, "Alice signature is not verified");
     }
+
+    @Test
+    public void groupInviteEncryptedTo3butOnly1HasKey() throws SharkException, IOException, InterruptedException {
+
+        // 0. Set up Alice, Bob and Clara
+        this.setUpScenarioEstablishCurrency_3_ClaraAndBobAndAlice();
+
+        // ONLY Clara and Alice exchange credentials, Bob is being left out
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+        CredentialMessageInMemo aliceCredentialMessage
+                = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        claraPKI.acceptAndSignCredential(aliceCredentialMessage);
+        CredentialMessageInMemo claraCredentialMessage
+                = new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(claraCredentialMessage);
+
+        // 1. Alice arranges a new local Currency
+        CharSequence currencyName = "AliceTalerEncryptedB";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        // 2. Alice creates a new Group and whitelists Bob and Clara
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+        whitelist.add(CLARA_ID);
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                false,
+                true,
+                true);
+        Thread.sleep(1000);
+
+        // 3. She sends to bob and clara, bobs invite should fail
+        Exception bobNoKeyException = assertThrows(SharkCurrencyException.class, () -> {
+            this.aliceCurrencyComponent
+                    .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+        });
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Clara, join my group!", CLARA_ID);
+
+        // 4. Encounter
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(2000);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(2000);
+
+        // 5.(Assertions)
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] aliceSignature = aliceDoc.getCurrentMembers().get(ALICE_ID);
+        boolean verifiedAliceSig = ASAPCryptoAlgorithms.verify(
+                groupId,
+                aliceSignature,
+                ALICE_ID,
+                ((SharkPKIComponent) aliceSharkPeer
+                        .getComponent(SharkPKIComponent.class))
+                        .getASAPKeyStore());
+
+        Assertions.assertEquals(1,this.claraStorage.getPendingInviteSize());
+        Assertions.assertFalse(this.bobStorage.hasPendingInvites());
+        Assertions.assertTrue(verifiedAliceSig);
+        Assertions.assertTrue(bobNoKeyException
+                .getMessage()
+                .contains("no certificate issued for this peer found: " + BOB_ID));
+        Assertions
+                .assertArrayEquals(groupId, this.claraStorage
+                        .getPendingInvite(currencyName.toString()).getGroupId());
+        Assertions
+                .assertEquals(1,
+                        aliceDoc.getCurrentMembers().size());
+    }
+
 }

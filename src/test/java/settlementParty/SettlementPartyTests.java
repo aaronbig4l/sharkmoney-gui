@@ -313,7 +313,6 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // Setup second Group
         CharSequence currencyName = "Bobs WG Kasse";
         SharkCurrency bobsWGCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );

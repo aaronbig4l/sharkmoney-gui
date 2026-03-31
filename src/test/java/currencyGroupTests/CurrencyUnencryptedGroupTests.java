@@ -53,7 +53,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerA";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,                // global limit
                 currencyName.toString(),        // Name
                 "A test Currency"               // Spec
         );
@@ -96,7 +95,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerB";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,                // global limit
                 currencyName.toString(),        // Name
                 "A test Currency"               // Spec
         );
@@ -130,7 +128,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerC";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -203,7 +200,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerD";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -293,7 +289,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerF";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -356,7 +351,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerG";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -485,7 +479,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerH";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -597,7 +590,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerI";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -714,14 +706,12 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges two new local Currencies
         CharSequence currencyNameA = "AliceTaler1A";
         SharkCurrency dummyCurrencyA = new SharkLocalCurrency(
-                false,
                 currencyNameA.toString(),
                 "A test Currency"
         );
 
         CharSequence currencyNameB = "AliceTaler1B";
         SharkCurrency dummyCurrencyB = new SharkLocalCurrency(
-                false,
                 currencyNameB.toString(),
                 "A test Currency"
         );
@@ -923,14 +913,12 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice and Bob arranges a local Currencies
         CharSequence currencyNameA = "Alice Cash1";
         SharkCurrency dummyCurrencyA = new SharkLocalCurrency(
-                false,
                 currencyNameA.toString(),
                 "A test Currency"
         );
 
         CharSequence currencyNameB = "Bobs Abwaschcoin1";
         SharkCurrency dummyCurrencyB = new SharkLocalCurrency(
-                false,
                 currencyNameB.toString(),
                 "A test Currency"
         );
@@ -1138,14 +1126,12 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice and Bob arranges a local Currencies
         CharSequence currencyNameA = "Alice Cash2";
         SharkCurrency dummyCurrencyA = new SharkLocalCurrency(
-                false,
                 currencyNameA.toString(),
                 "A test Currency"
         );
 
         CharSequence currencyNameB = "Bobs Abwaschcoin2";
         SharkCurrency dummyCurrencyB = new SharkLocalCurrency(
-                false,
                 currencyNameB.toString(),
                 "A test Currency"
         );
@@ -1329,7 +1315,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new Crypto Currency (0.005 ETH per Unit)
         CharSequence currencyName = "AliceTalerCryptoA";
         SharkCurrency dummyCryptoCurrency = new SharkCryptoCurrency(
-                false,                // global limit
                 currencyName.toString(),        // Name
                 "A crypto based test Currency",               // Spec
                 0.005
@@ -1379,7 +1364,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice creates Crypto currency and Group
         CharSequence currencyName = "AliceTalerCryptoB";
         SharkCryptoCurrency dummyCryptoCurrency = new SharkCryptoCurrency(
-                false,
                 currencyName.toString(),
                 "A crypto based test Currency",
                 0.05);
@@ -1421,13 +1405,11 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice and David create a Group (one lokal and one crypto based)
         CharSequence localCurrencyName = "AliceTalerLocal";
         SharkCurrency localCurrency = new SharkLocalCurrency(
-                false,
                 localCurrencyName.toString(),
                 "A local test coin");
 
         CharSequence cryptoCurrencyName = "DavidCryptoBasedCoin";
         SharkCryptoCurrency cryptoCurrency = new SharkCryptoCurrency(
-                false,
                 cryptoCurrencyName.toString(),
                 "A crypto based test coin",
                 0.02);
@@ -1531,7 +1513,6 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
         // 1. Alice arranges a new local Currency
         CharSequence currencyName = "AliceTalerXYZ";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );

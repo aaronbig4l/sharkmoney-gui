@@ -192,7 +192,6 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
 
         CharSequence currencyName = "AliceTalerForPromiseTest_A";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -227,11 +226,9 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         CharSequence aliceCurrencyName = "AliceTalerForPromiseTest_B";
         CharSequence bobCurrencycName = "BobTalerForPromiseTest_B";
         SharkCurrency aliceCurrency = new SharkLocalCurrency(
-                false,
                 aliceCurrencyName.toString(),
                 "A test Currency" );
         SharkCurrency bobCurrency = new SharkLocalCurrency(
-                false,
                 bobCurrencycName.toString(),
                 "A test Currency");
 
@@ -266,7 +263,6 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         Thread.sleep(500);
         CharSequence currencyName = "AliceTalerForPromiseTest_C";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );
@@ -324,7 +320,6 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
 
         CharSequence currencyName = "AliceTalerForPromiseTest_D";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
-                false,
                 currencyName.toString(),
                 "A test Currency"
         );

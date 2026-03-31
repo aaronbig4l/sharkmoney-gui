@@ -13,7 +13,7 @@ public class PromisSerializationTest {
     public void serializeAndDeserializePromise() throws Exception {
         // 1. Arrange: Create the promise
 
-        SharkCurrency sharkCurrency = new SharkLocalCurrency(false, "USD", "USD");
+        SharkCurrency sharkCurrency = new SharkLocalCurrency("USD", "USD");
 
         byte [] groupID ={1,1,1,1,1,1};
         byte [] atest = {1,1,0,1,0,1};
@@ -39,12 +39,12 @@ public class PromisSerializationTest {
 
     @Test
     public void serializeAndDeserializePromiseWithExcludeSignature() throws Exception {
-        SharkCurrency sharkCurrency = new SharkLocalCurrency(false, "USD", "USD");
+        SharkCurrency sharkCurrency = new SharkLocalCurrency("USD", "USD");
 
         byte [] groupID ={1,1,1,1,1,1};
         byte [] atest = {1,1,0,1,0,1};
         byte [] btest = {1,1,0,1,0,1,1,1,1,1,1,1,1};
-        SharkPromise originalPromise = new SharkInMemoPromise( "Test" ,4, sharkCurrency, groupID ,false , false, 5000, "Alice", "BOB", atest , btest );
+        SharkPromise originalPromise = new SharkInMemoPromise( "Test",4, sharkCurrency, groupID ,false , false, 5000, "Alice", "BOB", atest , btest );
         // Set a dummy signature to test the filtering behavior
         byte[] dummySignature = new byte[]{1, 2, 3, 4};
         originalPromise.setCreditorSignature(dummySignature);
