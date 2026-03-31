@@ -33,26 +33,25 @@ public interface SharkCurrencyStorage {
     int getSignedPromiseStorageSize();
     boolean containsSignedPromise(CharSequence promiseId);
     List<SharkPromise> getSignedPromisesForGroup(byte[] groupId);
-    
+
     //PENDING PROMISE STORAGE METHODS
     List<SharkPromise> getAllPendingPromises();
-
-    public List<CharSequence> getToBeSettledPromises();
-
-
-    //PENDING PROMISE STORAGE METHODS
     void addSharkPendingPromiseToStorage(SharkPromise promise);
     void removeSharkPendingPromiseFromStorage(CharSequence promiseId);
     SharkPromise getSharkPendingPromiseFromStorage(CharSequence promiseId);
     int getPendingPromiseStorageSize();
 
+    // SETTLEMENT STORAGE METHODS
     void addSharkToBeSettledPromiseToStorage(CharSequence promiseID);
     void removeSharkToBeSettledPromiseFromStorage(CharSequence promiseId);
-
-    // SETTLEMENT STORAGE METHODS
+    List<CharSequence> getToBeSettledPromises();
     void saveSettlementDocument(byte[] partyId, SharkSettlementDocument doc);
     SharkSettlementDocument getSettlementDocument(byte[] partyId);
     Map<String, SharkSettlementDocument> getAllSettlementDocuments();
     void addExecutedSettlement(byte[] partyId);
     boolean hasSettlementBeenExecuted(byte[] partyId);
+
+    // PROMISE CREATION TRACKER
+    void putPromiseCreation(byte[] groupId);
+    int getCreationCounter(byte[] groupId);
 }
