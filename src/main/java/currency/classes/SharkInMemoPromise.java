@@ -182,7 +182,6 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
         if (allowedToChangeDebtor) {
             this.debtorID=peerId;
         }
-
     }
 
     /**

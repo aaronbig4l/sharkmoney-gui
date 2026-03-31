@@ -11,6 +11,8 @@ import java.io.IOException;
  */
 public interface SharkCurrency {
 
+    int MAX_PROMISES_UPPER_BOUND = 1_000_000;
+
     /**
      * Returns the ID of the currency.
      * @return the ID of the currency
@@ -40,5 +42,13 @@ public interface SharkCurrency {
      * @return the byte series of this currency object
      */
     byte[] toByte() throws SharkCurrencyException, IOException, ASAPException, Exception;
+
+    /**
+     * Returns the maximum amount of promises everyone in this group can create,
+     * if 0 -> no global limit
+     * if below 0 -> error
+     * @return int amount
+     */
+    int getMaxPromiseAmount();
 
 }

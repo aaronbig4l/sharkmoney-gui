@@ -16,24 +16,48 @@ public class SharkLocalCurrency implements SharkCurrency, Serializable {
 
     private static final long serialVersionUID = 2L;
 
-    private boolean globalLimit;
-    private String currencyName;
-    private String specification;
-    private  byte[] id;
+    private final String currencyName;
+    private final String specification;
+    private final byte[] id;
+    private final int maxPromises;
 
 
-    public SharkLocalCurrency(boolean globalLimit, String currencyName, String specification) {
-        this.globalLimit = globalLimit;
-        this.currencyName = currencyName;
-        this.specification = specification;
-        this.id = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+    public SharkLocalCurrency(String currencyName, String specification) {
+        this(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8),
+                0, currencyName, specification);
     }
 
-    private SharkLocalCurrency(byte[] id, boolean globalLimit, String currencyName, String specification) {
+    public SharkLocalCurrency(int maxPromises, String currencyName, String specification) {
+        this(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8),
+                validateMaxPromises(maxPromises), currencyName, specification);
+    }
+
+    private SharkLocalCurrency(byte[] id, int maxPromises, String currencyName, String specification) {
+        checkParameters(maxPromises,currencyName,specification);
         this.id = id;
-        this.globalLimit = globalLimit;
+        this.maxPromises = maxPromises;
         this.currencyName = currencyName;
         this.specification = specification;
+    }
+
+    private static int validateMaxPromises(int maxPromises) {
+        if(maxPromises < 1 || maxPromises > MAX_PROMISES_UPPER_BOUND) {
+            throw new IllegalArgumentException(
+                    "maxPromises must be between 1 and "+MAX_PROMISES_UPPER_BOUND+", got: " + maxPromises);
+        }
+        return maxPromises;
+    }
+
+    private static void checkParameters(int maxPromises, String currencyName, String specification) {
+        if(maxPromises<0||maxPromises>MAX_PROMISES_UPPER_BOUND) {
+            throw new IllegalArgumentException("maxPromises must be between 1 and " + MAX_PROMISES_UPPER_BOUND +", got: " + maxPromises);
+        }
+        if(currencyName.length()>30|| currencyName.isEmpty()) {
+            throw new IllegalArgumentException("The name of the Currency must be between 1 and 30 characters long, got: " + currencyName.length());
+        }
+        if(specification.length()>100) {
+            throw new IllegalArgumentException("The specification of the Currency can't be longer than 100 character, got: " + specification.length());
+        }
     }
 
     public byte[] toByte() throws ASAPException, IOException {
@@ -42,7 +66,7 @@ public class SharkLocalCurrency implements SharkCurrency, Serializable {
         currencyVariables.add(new String(this.id, StandardCharsets.UTF_8));
         currencyVariables.add(this.currencyName);
         currencyVariables.add(this.specification);
-        currencyVariables.add(String.valueOf(this.globalLimit));
+        currencyVariables.add(String.valueOf(this.maxPromises));
 
         if(currencyVariables.size()==4) {
             String serializedString = SerializationHelper.collection2String(currencyVariables);
@@ -62,19 +86,12 @@ public class SharkLocalCurrency implements SharkCurrency, Serializable {
             throw new SharkCurrencyException("Invalid currency format: expected 4 parts, got " + currencyVariables.size());
         }
 
-
-
         byte[] id = SerializationHelper.characterSequence2bytes(currencyVariables.get(0));
         String name = currencyVariables.get(1).toString();
         String spec = currencyVariables.get(2).toString();
-        boolean limit = parseBoolean(currencyVariables.get(3));
+        int maxProm = Integer.parseInt(currencyVariables.get(3).toString());
 
-        return new SharkLocalCurrency(id, limit, name, spec);
-    }
-
-    private static boolean parseBoolean(CharSequence cs) {
-        if (cs == null || cs.length() != 4) return false;
-        return cs.toString().equalsIgnoreCase("true");
+        return new SharkLocalCurrency(id, maxProm, name, spec);
     }
 
     @Override
@@ -94,6 +111,9 @@ public class SharkLocalCurrency implements SharkCurrency, Serializable {
 
     @Override
     public Boolean hasGlobalLimit() {
-        return this.globalLimit;
+        return this.maxPromises > 0;
     }
+
+    @Override
+    public int getMaxPromiseAmount() { return this.maxPromises; }
 }

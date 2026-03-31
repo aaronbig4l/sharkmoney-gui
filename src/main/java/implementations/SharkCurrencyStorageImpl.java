@@ -12,6 +12,8 @@ import java.util.*;
 
 public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
+    private final Map<String, Integer> promiseCreationTracker = new HashMap<>();
+
     private final Map<String, SharkPromise> sharkPromiseStorePending = new HashMap<>();
     private final Map<String, SharkPromise> sharkPromiseStoreSigned = new HashMap<>();
     private final Map<String, SharkGroupDocument> pendingInvites = new HashMap<>();
@@ -192,6 +194,19 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     public boolean hasSettlementBeenExecuted(byte[] partyId) {
         if (partyId == null) return false;
         return this.executedSettlements.contains(Base64.getEncoder().encodeToString(partyId));
+    }
+
+    @Override
+    public void putPromiseCreation(byte[] groupId) {
+        String gId = Base64.getEncoder().encodeToString(groupId);
+        this.promiseCreationTracker
+                .put(gId,this.promiseCreationTracker.getOrDefault(gId, 0)+1);
+    }
+
+    @Override
+    public int getCreationCounter(byte[] groupId) {
+        String gId = Base64.getEncoder().encodeToString(groupId);
+        return this.promiseCreationTracker.getOrDefault(gId, 0);
     }
 
     public int getSignedPromiseStorageSize() {

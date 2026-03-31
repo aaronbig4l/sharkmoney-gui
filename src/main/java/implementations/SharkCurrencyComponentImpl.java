@@ -167,8 +167,9 @@ public class SharkCurrencyComponentImpl
             throw new SharkPromiseException("Amount for promises must be positive");
         }
 
-        SharkGroupDocument sharkGroupDocument;
+        String pId = this.asapPeer.getPeerID().toString();
 
+        SharkGroupDocument sharkGroupDocument;
         if(this.sharkCurrencyStorage.getGroupDocument(groupId)==null) {
             throw new SharkPromiseException("You are not in a group with given ID: "
                     + Arrays.toString(groupId));
@@ -176,7 +177,13 @@ public class SharkCurrencyComponentImpl
             sharkGroupDocument = this.sharkCurrencyStorage.getGroupDocument(groupId);
         }
 
-        if(sharkGroupDocument.isCentralized() &&!this.asapPeer.getPeerID().toString()
+        SharkCurrency sharkCurrency = sharkGroupDocument.getAssignedCurrency();
+        if(sharkCurrency.hasGlobalLimit() && this.sharkCurrencyStorage
+                .getCreationCounter(groupId)+1>sharkCurrency.getMaxPromiseAmount()) {
+            throw new SharkPromiseException("You have reached the global Promise creation limit");
+        }
+
+        if(sharkGroupDocument.isCentralized() &&!pId
                 .equals(sharkGroupDocument.getGroupCreator().toString())) {
             throw new SharkPromiseException("Trying to create a promise in a centralized group. You are not the owner of this group.");
         }
@@ -198,6 +205,7 @@ public class SharkCurrencyComponentImpl
             promise.updateState();
             receiver.add(promise.getDebtorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
+            this.sharkCurrencyStorage.putPromiseCreation(groupId);
             this.sendPromise(promiseId,
                     true,
                     promise.getCreditorID(),
