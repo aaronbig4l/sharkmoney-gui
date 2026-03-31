@@ -55,13 +55,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 ALICE_ID, //debtor
                 true);
 
-        Thread.sleep(500);
+        Thread.sleep(100);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.aliceImpl.signPromiseAndSendBack(promiseAliceToBob);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // Bob owes Clara 50
         CharSequence promiseBobToClara = this.claraCurrencyComponent.createPromise(50,
@@ -71,13 +71,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 BOB_ID, //debtor
                 true);
 
-        Thread.sleep(500);
+        Thread.sleep(100);
         this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.bobImpl.signPromiseAndSendBack(promiseBobToClara);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // Clara owes Alice 30
         CharSequence promiseClaraToAlice = this.aliceCurrencyComponent.createPromise(30,
@@ -86,17 +86,17 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 ALICE_ID, //creditor
                 CLARA_ID, //debtor
                 true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.claraImpl.signPromiseAndSendBack(promiseClaraToAlice);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         syncAliceBobClaraPeers();
 
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // ==========================================
         // 3. Settlement Party
@@ -107,7 +107,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // Gossip Loop: The document has different States GATHERING -> VERIFYING -> COMPLETED, therefore we simulate a Loop for exchanging the Doc
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000); // Pause to let them calculate the Hashes
+            Thread.sleep(100); // Pause to let them calculate the Hashes
 
             // Show the SharkSettlementDoc live
             SharkSettlementDocument currentDoc = this.aliceStorage.getSettlementDocument(partyId);
@@ -119,7 +119,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Synchronize all new creates Promises and sign them
         syncAliceBobClaraPeers();
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
@@ -133,7 +133,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
 
         syncAliceBobClaraPeers();
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // ==========================================
         // 4. Assertions
@@ -249,11 +249,11 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000);
+            Thread.sleep(100);
         }
 
         syncAliceBobClaraPeers();
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // ==========================================
         // 4. Assertions
@@ -298,28 +298,15 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 true
         );
 
-
-        // PKI Credentials
-        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
-        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
-
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
-
         // Alice and Clara join Group 2
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.bobCurrencyComponent.invitePeerToGroup(groupId2, "Hi Alice, join my group!", ALICE_ID);
         this.bobCurrencyComponent.invitePeerToGroup(groupId2, "Hi Clara, join my group!", CLARA_ID);
         syncAliceBobClaraPeers();
         this.aliceCurrencyComponent.acceptInviteAndSign(currencyName);
-        Thread.sleep(500);
+        Thread.sleep(100);
         this.claraCurrencyComponent.acceptInviteAndSign(currencyName);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         syncAliceBobClaraPeers();
 
         SharkGroupDocument groupDoc2 = bobImpl.getSharkCurrencyStorage().getGroupDocument(groupId2);
@@ -388,7 +375,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000);
+            Thread.sleep(100);
         }
 
         // Alice signs the new Promises
@@ -402,7 +389,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         }
 
         syncAliceBobClaraPeers();
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         // ==========================================
         // 4. Assertions
@@ -475,16 +462,16 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
     private void syncAliceBobClaraPeers() throws Exception {
         // Hinweg
         runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         // Rückweg (Damit Antworten auf demselben Weg direkt zurückkommen)
         runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
     }
 }

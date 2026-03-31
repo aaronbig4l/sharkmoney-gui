@@ -224,7 +224,7 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
                 false,
                 true);
 
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.aliceCurrencyComponent
                 .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
         this.aliceCurrencyComponent
@@ -233,18 +233,17 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
         // 5.1 Accept Invitation
         this.bobImpl.acceptInviteAndSign(currencyName);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.claraImpl.acceptInviteAndSign(currencyName);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(1000);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         //5.2 more encounters (we need better solution for this xd)
         this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
         this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(2000);
+        Thread.sleep(100);
 
         return groupId;
     }

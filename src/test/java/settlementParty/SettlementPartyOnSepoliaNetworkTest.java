@@ -137,24 +137,27 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
 
         byte[] partyId = this.aliceImpl.initiateSettlementParty(groupId);
 
+
         // Gossip Loop
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000);
+            Thread.sleep(100);
         }
+
 
         // Sign pending optimized Crypto-Promises
         for (SharkPromise p : this.aliceStorage.getAllPendingPromises()) {
             this.aliceImpl.signPromiseAndSendBack(p.getPromiseID());
-            Thread.sleep(500);
+            Thread.sleep(100);
             syncAliceBobClaraPeers();
-            Thread.sleep(500);
+            Thread.sleep(100);
         }
 
         for (int i = 0; i < 3; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000);
+            Thread.sleep(100);
         }
+
 
         // ==========================================
         // 4. Settlement Party Assertions
@@ -228,7 +231,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         this.bobImpl.executeCryptoPayments(groupId, this.web3j);
         this.claraImpl.executeCryptoPayments(groupId, this.web3j);
 
-        // Wait 30s before TX
+        // Wait 20s before TX
         Thread.sleep(30000);
 
         BigInteger aliceBalanceAfterTransaction = web3j.ethGetBalance(aliceImpl.getWalletAddress(),
@@ -256,15 +259,15 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
      */
     private void syncAliceBobClaraPeers() throws Exception {
         runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(500);
+        Thread.sleep(100);
         runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
     }
 }
