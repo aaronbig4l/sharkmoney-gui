@@ -456,6 +456,173 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         Assertions.assertTrue(foundClaraToBob, "Error: New Promise (Clara pays Bob 20) not found");
     }
 
+    @Test
+    public void testCompleteSettlementCycleWithEncryptedGroup() throws Exception {
+        // ==========================================
+        // 1. SETUP: Start Peers and establish Group
+        // ==========================================
+
+        // Alice created a group with Bob and Clara in it (they accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
+
+        // ==========================================
+        // 2. Exchange Promises
+        // ==========================================
+
+        // Alice owes Bob 100
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        CharSequence promiseAliceToBob = this.bobCurrencyComponent.createPromise(100,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                BOB_ID, //creditor
+                ALICE_ID, //debtor
+                true);
+
+        Thread.sleep(100);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(100);
+        this.aliceImpl.signPromiseAndSendBack(promiseAliceToBob);
+        Thread.sleep(100);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(100);
+
+        // Bob owes Clara 50
+        CharSequence promiseBobToClara = this.claraCurrencyComponent.createPromise(50,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                CLARA_ID, //creditor
+                BOB_ID, //debtor
+                true);
+
+        Thread.sleep(100);
+        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(100);
+        this.bobImpl.signPromiseAndSendBack(promiseBobToClara);
+        Thread.sleep(100);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(100);
+
+        // Clara owes Alice 30
+        CharSequence promiseClaraToAlice = this.aliceCurrencyComponent.createPromise(30,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                ALICE_ID, //creditor
+                CLARA_ID, //debtor
+                true);
+        Thread.sleep(100);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(100);
+        this.claraImpl.signPromiseAndSendBack(promiseClaraToAlice);
+        Thread.sleep(100);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(100);
+
+        syncAliceBobClaraPeers();
+
+        Thread.sleep(100);
+
+        // ==========================================
+        // 3. Settlement Party
+        // ==========================================
+
+        byte[] partyId = this.aliceImpl.initiateSettlementParty(groupId);
+
+        // Gossip Loop: The document has different States GATHERING -> VERIFYING -> COMPLETED, therefore we simulate a Loop for exchanging the Doc
+        for (int i = 1; i <= 5; i++) {
+            syncAliceBobClaraPeers();
+            Thread.sleep(100); // Pause to let them calculate the Hashes
+
+            // Show the SharkSettlementDoc live
+            SharkSettlementDocument currentDoc = this.aliceStorage.getSettlementDocument(partyId);
+            if (currentDoc != null) {
+                System.out.println("Runde " + i + " | Status Alice: " + currentDoc.getState()
+                        + " | Gesammelte Hashes: " + currentDoc.getComputedHashes().size());
+            }
+        }
+
+        // Synchronize all new creates Promises and sign them
+        syncAliceBobClaraPeers();
+        Thread.sleep(100);
+
+        // Bob signs the new Promises
+        for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
+            this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
+        }
+
+        // Clara signs the new Promises
+        for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
+            this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
+        }
+
+
+        syncAliceBobClaraPeers();
+        Thread.sleep(100);
+
+        // ==========================================
+        // 4. Assertions
+        // ==========================================
+
+        // check if every group member has a Settlement Document
+        SharkSettlementDocument finalDocAlice = this.aliceStorage.getSettlementDocument(partyId);
+        Assertions.assertNotNull(finalDocAlice, "Settlement Document not found for Alice!");
+        SharkSettlementDocument finalDocBob = this.bobStorage.getSettlementDocument(partyId);
+        Assertions.assertNotNull(finalDocBob, "Settlement Document not found for Bob!");
+        SharkSettlementDocument finalDocClara = this.claraStorage.getSettlementDocument(partyId);
+        Assertions.assertNotNull(finalDocClara, "Settlement Document not found for Clara!");
+
+        // check if every Peer commited a Hash
+        Assertions.assertEquals(3, finalDocAlice.getComputedHashes().size());
+        Assertions.assertEquals(3, finalDocBob.getComputedHashes().size());
+        Assertions.assertEquals(3, finalDocClara.getComputedHashes().size());
+
+        // check if settlement docs are completed
+        Assertions.assertEquals(SettlementPartyState.COMPLETED, finalDocAlice.getState());
+        Assertions.assertEquals(SettlementPartyState.COMPLETED, finalDocBob.getState());
+        Assertions.assertEquals(SettlementPartyState.COMPLETED, finalDocClara.getState());
+
+        // Alice has a net balance of -70
+        // Bob has a net balance of +50
+        // Clara has a net balance of +20
+
+        // Expected Result of the Greedy Algorithm
+        // 1. Alice -> Bob = 50
+        // 2. Alice -> Clara = 20
+        // we reduced 3 Promises to just 2
+
+        boolean foundAliceToBob = false;
+        boolean foundAliceToClara = false;
+
+        List<byte[]> serializedPromises = this.aliceImpl.getSerializedPromisesForGroup(groupId); // get all Serialized Promises
+        List<SharkPromise> allFinalPromises = new ArrayList<>();
+
+        // deserialize Promises
+        for (byte[] pBytes : serializedPromises) {
+            SharkPromise promise = SharkPromiseSerializer.deserializePromise(
+                    pBytes,
+                    this.aliceImpl.getSharkPKIComponent().getASAPKeyStore()
+            );
+            allFinalPromises.add(promise);
+        }
+
+        for (SharkPromise p : allFinalPromises) {
+            System.out.println("Debtor: " + p.getDebtorID() + " | Creditor: " + p.getCreditorID() + " | Amount: " + p.getAmount());
+
+            if (p.getDebtorID().toString().equals(ALICE_ID.toString()) &&
+                    p.getCreditorID().toString().equals(BOB_ID.toString()) &&
+                    p.getAmount() == 50) {
+                foundAliceToBob = true;
+            }
+            if (p.getDebtorID().toString().equals(ALICE_ID.toString()) &&
+                    p.getCreditorID().toString().equals(CLARA_ID.toString()) &&
+                    p.getAmount() == 20) {
+                foundAliceToClara = true;
+            }
+        }
+
+        Assertions.assertTrue(foundAliceToBob, "Error: New Promise (Alice pays Bob 50) not found");
+        Assertions.assertTrue(foundAliceToClara, "Error: New Promise (Alice pays Clara 20) not found");
+    }
+
     /**
      * Help methode to run an encounter between Alice, Bob and Clara
      */

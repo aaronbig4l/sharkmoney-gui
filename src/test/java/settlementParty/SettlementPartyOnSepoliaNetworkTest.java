@@ -231,8 +231,8 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         this.bobImpl.executeCryptoPayments(groupId, this.web3j);
         this.claraImpl.executeCryptoPayments(groupId, this.web3j);
 
-        // Wait 20s before TX
-        Thread.sleep(30000);
+        // Wait 25s before TX
+        Thread.sleep(25000);
 
         BigInteger aliceBalanceAfterTransaction = web3j.ethGetBalance(aliceImpl.getWalletAddress(),
                 DefaultBlockParameterName.LATEST).send().getBalance();
