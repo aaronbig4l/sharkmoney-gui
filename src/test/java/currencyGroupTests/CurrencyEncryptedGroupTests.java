@@ -200,4 +200,118 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
                         aliceDoc.getCurrentMembers().size());
     }
 
+    @Test
+    public void successfullEncryptedGroupInviteMultipleMembers() throws SharkException, IOException, InterruptedException {
+        // 0. Set up Alice, Bob, Clara and David
+        this.setUpScenarioEstablishCurrency_4_DavidAndClaraAndBobAndAlice();
+
+        // Everyone exchange credentials
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent davidPKI = (SharkPKIComponent) this.davidSharkPeer.getComponent(SharkPKIComponent.class);
+
+        CredentialMessageInMemo aliceCredentialMessage
+                = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+        claraPKI.acceptAndSignCredential(aliceCredentialMessage);
+        davidPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        CredentialMessageInMemo bobCredentialMessage
+                = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+        claraPKI.acceptAndSignCredential(bobCredentialMessage);
+        davidPKI.acceptAndSignCredential(bobCredentialMessage);
+
+        CredentialMessageInMemo claraCredentialMessage
+                = new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(claraCredentialMessage);
+        bobPKI.acceptAndSignCredential(claraCredentialMessage);
+        davidPKI.acceptAndSignCredential(claraCredentialMessage);
+
+        CredentialMessageInMemo davidCredentialMessage
+                = new CredentialMessageInMemo(DAVID_ID, DAVID_NAME, System.currentTimeMillis(), davidPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(davidCredentialMessage);
+        bobPKI.acceptAndSignCredential(davidCredentialMessage);
+        claraPKI.acceptAndSignCredential(davidCredentialMessage);
+
+        // 1. Alice arranges a new local Currency
+        CharSequence currencyName = "AliceTalerEncryptedC";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        // 2. Alice creates a new Group and whitelists Bob and Clara
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+        whitelist.add(CLARA_ID);
+        whitelist.add(DAVID_ID);
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                false,
+                true,
+                true);
+
+        Thread.sleep(100);
+
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+        Thread.sleep(100);
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi Clara, join my group!", CLARA_ID);
+        Thread.sleep(100);
+        this.aliceCurrencyComponent
+                .invitePeerToGroup(groupId, "Hi David, join my group!", DAVID_ID);
+
+        // 4. Encounter
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.aliceSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(100);
+
+        // Aceept Invites
+        this.bobImpl.acceptInviteAndSign(currencyName);
+        this.claraImpl.acceptInviteAndSign(currencyName);
+        this.davidImpl.acceptInviteAndSign(currencyName);
+
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.davidSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.claraSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(100);
+        this.runEncounter(this.bobSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(100);
+
+        // 5.(Assertions)
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        SharkGroupDocument bobDoc = this.bobStorage.getGroupDocument(groupId);
+
+        // Not null?
+        Assertions.assertNotNull(aliceDoc, "Alice Group Doc should exist!");
+        Assertions.assertNotNull(bobDoc, "Bobs Group Doc should exist!");
+
+        // Group Member size equals 4 (Alice, Bob, Clara, David)?
+        Assertions.assertEquals(4, aliceDoc.getCurrentMembers().size(), "The Group should include 4 Member (Alice Doc)");
+        Assertions.assertEquals(4, bobDoc.getCurrentMembers().size(), "The Group should include 4 Member (Bob Doc)");
+
+        // No pending invites?
+        Assertions.assertFalse(this.bobStorage.hasPendingInvites(), "Bob should have no more pending invites...");
+        Assertions.assertFalse(this.claraStorage.hasPendingInvites(), "Clara should have no more pending invites...");
+        Assertions.assertFalse(this.davidStorage.hasPendingInvites(), "David should have no more pending invites...");
+
+        // Verify Alices Signature
+        byte[] aliceSignature = aliceDoc.getCurrentMembers().get(ALICE_ID);
+        boolean verifiedAliceSig = ASAPCryptoAlgorithms.verify(groupId, aliceSignature, ALICE_ID, alicePKI.getASAPKeyStore());
+        Assertions.assertTrue(verifiedAliceSig, "Alices Signature has to be verified");
+    }
+
 }
