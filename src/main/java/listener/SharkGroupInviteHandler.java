@@ -51,10 +51,11 @@ public class SharkGroupInviteHandler implements SharkCurrencyMessageHandler {
 
                     // for me?
                     if (!ks.isOwner(encryptedMessagePackage.getReceiver())) {
-                        throw new ASAPException("SharkPromise Message: message not for me. Current user: "
+                        System.out.println("SharkPromise Message: message not for me. Current user: "
                                 + ks.getOwner()
                                 + ", recipient: "
                                 + encryptedMessagePackage.getReceiver());
+                        continue;
                     }
                     // replace message with decrypted message
                     tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
@@ -84,10 +85,6 @@ public class SharkGroupInviteHandler implements SharkCurrencyMessageHandler {
                         .savePendingInvite(sharkGroupDocument
                                 .getAssignedCurrency()
                                 .getCurrencyName(), sharkGroupDocument, optionalMessage);
-
-                System.out.println("DEBUG: Parsed invite from " + sender);
-                System.out.println("  - Currency: " + sharkGroupDocument.getAssignedCurrency().getCurrencyName());
-                System.out.println("  - Message: " + (optionalMessage != null ? optionalMessage : "(none)"));
             }
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);

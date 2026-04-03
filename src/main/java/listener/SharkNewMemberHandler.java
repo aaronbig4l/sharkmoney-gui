@@ -29,7 +29,7 @@ public class SharkNewMemberHandler implements SharkCurrencyMessageHandler{
     public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence sender) {
 
         try {
-            System.out.println("DEBUG: received a new member message from: " + sender + " message size is: " + messages.size());
+            System.out.println("DEBUG: I "+pki.getOwnerID()+" received a new member message, message size is: " + messages.size());
             //--------Read all data from the message ------------------------
             for (int i = 0; i < messages.size(); i++) {
                 byte[] messageData = messages.getMessage(i, true);
@@ -47,10 +47,11 @@ public class SharkNewMemberHandler implements SharkCurrencyMessageHandler{
 
                     // for me?
                     if (!ks.isOwner(encryptedMessagePackage.getReceiver())) {
-                        throw new ASAPException("SharkPromise Message: message not for me. Current user: "
+                        System.out.println("SharkPromise Message: message not for me. Current user: "
                                 + ks.getOwner()
                                 + ", recipient: "
                                 + encryptedMessagePackage.getReceiver());
+                        continue;
                     }
                     // replace message with decrypted message
                     tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
@@ -69,6 +70,7 @@ public class SharkNewMemberHandler implements SharkCurrencyMessageHandler{
                     continue;
                 }
                 String peerID = dis.readUTF();
+                System.out.println("DEBUG: received from " + peerID);
                 int sigLength = dis.readInt();
                 byte[] signature = new byte[sigLength];
                 dis.readFully(signature);
