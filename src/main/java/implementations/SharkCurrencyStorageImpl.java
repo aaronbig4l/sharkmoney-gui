@@ -12,6 +12,8 @@ import java.util.*;
 
 public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
 
+    private final String ownerId;
+
     private final Map<String, Integer> promiseCreationTracker = new HashMap<>();
 
     private final Map<String, SharkPromise> sharkPromiseStorePending = new HashMap<>();
@@ -21,6 +23,15 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
     private final Map<String, SharkSettlementDocument> settlementDocuments = new HashMap<>();
     private Set<String> executedSettlements = new HashSet<>();
     private ArrayList<CharSequence> settlementPromiseID = new ArrayList<>();
+
+    public SharkCurrencyStorageImpl(String ownerId) {
+        this.ownerId=ownerId;
+    }
+
+    @Override
+    public String getOwner() {
+        return this.ownerId;
+    }
 
     @Override
     public void saveGroupDocument(byte[] groupId, SharkGroupDocument doc) {

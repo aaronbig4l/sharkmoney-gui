@@ -33,6 +33,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
     public static final String CURRENCY_FORMAT = "application://x-asap-currency";
     public final String INVITE_CHANNEL_URI = "//group-document//invite";
     public final String NEW_MEMBER_URI = "//group-document//new-member";
+    public final String MEMBER_UPDATE_URI = "//group-document//member-update";
     public final String SETTLEMENT_URI = "//group-document//settlement";
     public final String SHARK_PROMISE_ASK_DEBT_SETTLED = "//group-document//ask-debt-settled";
     public final String SHARK_PROMISE_RESPONSE_DEBT_SETTLED =  "recSignedDebtSettled//response-debt-settled";
@@ -259,4 +260,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
      * @return ethereum wallet
      */
     WalletManager getWallet();
+
+    void sendGroupDocumentUpdate(byte[] groupId, CharSequence peerId) throws SharkCurrencyException, IOException, ASAPException;
+
 }

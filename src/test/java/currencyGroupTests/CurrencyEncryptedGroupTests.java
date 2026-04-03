@@ -251,7 +251,7 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
                 dummyCurrency,
                 whitelist,
                 false,
-                true,
+                true, //Changed
                 true);
 
         Thread.sleep(100);
@@ -267,11 +267,11 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
 
         // 4. Encounter
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(200);
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(200);
         this.runEncounter(this.aliceSharkPeer, this.davidSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(200);
 
         // Aceept Invites
         this.bobImpl.acceptInviteAndSign(currencyName);
@@ -279,17 +279,22 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         this.davidImpl.acceptInviteAndSign(currencyName);
 
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(1000);
         this.runEncounter(this.davidSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
+        this.runEncounter(this.aliceSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
         this.runEncounter(this.claraSharkPeer, this.davidSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.davidSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(1000);
+
 
         // 5.(Assertions)
         SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);

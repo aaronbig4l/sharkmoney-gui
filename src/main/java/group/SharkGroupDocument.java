@@ -359,6 +359,12 @@ public class SharkGroupDocument {
         return s.toString();
     }
 
+    public void correctMembers(HashMap<String, byte[]> missing) {
+        if (missing == null || missing.isEmpty()) return;
+        System.out.println("DEBUG: members before: " + this.currentMembers.keySet());
+        missing.forEach(this.currentMembers::putIfAbsent);
+    }
+
     // --- Getter ---
     public byte[] getGroupId() { return groupId; }
     public CharSequence getGroupCreator() { return groupCreator; }

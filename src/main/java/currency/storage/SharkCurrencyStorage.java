@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public interface SharkCurrencyStorage {
 
+    String getOwner();
+
     //GROUP-DOCUMENT STORAGE METHODS
     void saveGroupDocument(byte[] groupId, SharkGroupDocument doc);
     SharkGroupDocument getGroupDocument(byte[] groupId) throws SharkCurrencyException;

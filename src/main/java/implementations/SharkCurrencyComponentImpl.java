@@ -784,20 +784,21 @@ public class SharkCurrencyComponentImpl
         }
 
         byte[] groupId = sharkGroupDocument.getGroupId();
+        CharSequence meId = this.asapPeer.getPeerID();
 
-        if (!sharkGroupDocument.getWhitelistMember().isEmpty() && !sharkGroupDocument.getWhitelistMember().contains(this.asapPeer.getPeerID().toString())){
+        if (!sharkGroupDocument.getWhitelistMember().isEmpty() && !sharkGroupDocument.getWhitelistMember().contains(meId.toString())){
             this.sharkCurrencyStorage.removePendingInvite(currencyName.toString());
-            throw new SharkCurrencyException("Fehler beim Akzeptieren: Der Peer " + asapPeer.getPeerID().toString() + " befindet sich nicht in der Whitelist.");
+            throw new SharkCurrencyException("Fehler beim Akzeptieren: Der Peer " + meId.toString() + " befindet sich nicht in der Whitelist.");
         }
 
         //sign doc and add yourself
         ASAPKeyStore ks = this.sharkPKIComponent.getASAPKeyStore();
         byte[] signature = ASAPCryptoAlgorithms
                 .sign(sharkGroupDocument.getGroupId(), ks);
-        sharkGroupDocument.addMember(this.asapPeer.getPeerID(), signature);
+        sharkGroupDocument.addMember(meId, signature);
 
         if(sharkGroupDocument.getAssignedCurrency() instanceof SharkCryptoCurrency) {
-            sharkGroupDocument.addMemberEthAdress(this.asapPeer.getPeerID(), this.getWalletAddress());
+            sharkGroupDocument.addMemberEthAdress(meId, this.getWalletAddress());
         }
 
         //safe doc to your storage
@@ -806,15 +807,20 @@ public class SharkCurrencyComponentImpl
         //remove the pending invite since you accepted
         this.sharkCurrencyStorage.removePendingInvite(currencyName.toString());
 
-        //package your member data for notifying the members
+        Map<String, byte[]> members = this.sharkCurrencyStorage
+                .getGroupDocument(groupId).getCurrentMembers();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
-        String peerID = this.asapPeer.getPeerID().toString();
-        dos.writeInt(groupId.length);
-        dos.write(groupId);
-        dos.writeUTF(peerID);
-        dos.writeInt(signature.length);
-        dos.write(signature);
+        dos.writeUTF(meId.toString()); //1
+        dos.writeInt(groupId.length); //2
+        dos.write(groupId); //2
+        dos.writeInt(members.size());
+        for (Map.Entry<String, byte[]> entry : members.entrySet()) {
+            dos.writeUTF(entry.getKey());
+            byte[] sig = entry.getValue();
+            dos.writeInt(sig.length);
+            dos.write(sig);
+        }
         if(sharkGroupDocument.getAssignedCurrency() instanceof SharkCryptoCurrency) {
             dos.writeBoolean(true); // Flag: there is a ETH-Adress
             dos.writeUTF(this.getWalletAddress());
@@ -826,12 +832,29 @@ public class SharkCurrencyComponentImpl
         byte[] content = baos.toByteArray();
         byte flags = 0;
         if(sharkGroupDocument.isEncrypted()) {
-            Set<String> receiver = sharkGroupDocument.getCurrentMembers().keySet();
-            content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
-                    content,
-                    receiver.iterator().next(), //receiver
-                    this.sharkPKIComponent.getASAPKeyStore());
-            flags += SharkGroupDocument.ENCRYPTED_MASK;
+            byte[] finalContent = content;
+            sharkGroupDocument.getCurrentMembers().keySet().forEach(member -> {
+                if(meId.toString().equals(member)) {
+                    return;
+                }
+                try {
+                    byte encFlags = 0;
+                    byte[] encryptedContent = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                            finalContent,
+                            member, //receiver
+                            ks); //keystore
+                    encFlags += SharkGroupDocument.ENCRYPTED_MASK;
+                    ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
+                    ASAPSerialization.writeByteParameter(encFlags, finalBaos);
+                    ASAPSerialization.writeByteArray(encryptedContent, finalBaos);
+                    encryptedContent = finalBaos.toByteArray();
+                    System.out.println("DEBUG: SENDING FROM "+ks.getOwner()+" TO " + member);
+                    this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, NEW_MEMBER_URI, encryptedContent);
+                } catch (IOException | ASAPException e) {
+                    System.err.println("Failed to send to " + member);
+                }
+            });
+            return;
         }
         ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
         ASAPSerialization.writeByteParameter(flags, finalBaos);
@@ -853,7 +876,7 @@ public class SharkCurrencyComponentImpl
         try {
             // Initialize storage for peer to listen to the ASAPCurrency application
             this.asapPeer.getASAPStorage(SharkCurrencyComponent.CURRENCY_FORMAT);
-            this.sharkCurrencyStorage = new SharkCurrencyStorageImpl();
+            this.sharkCurrencyStorage = new SharkCurrencyStorageImpl(asapPeer.getPeerID().toString());
             this.asapPeer.addASAPMessageReceivedListener(SharkCurrencyComponent.CURRENCY_FORMAT, this);
 
             // Initialize Ethereum Wallet for the Peer in Storage (using the Peer ID as password for now)
@@ -966,4 +989,30 @@ public class SharkCurrencyComponentImpl
     private String encodeKey(byte[] id){
         return Base64.getEncoder().encodeToString(id);
     }
+
+    @Override
+    public void sendGroupDocumentUpdate(byte[] groupId, CharSequence peerId) throws SharkCurrencyException, IOException, ASAPException {
+        SharkGroupDocument doc = this.sharkCurrencyStorage.getGroupDocument(groupId);
+        byte[] docBytes = doc.sharkDocumentToByte();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeInt(docBytes.length);
+        dos.write(docBytes);
+        dos.flush();
+
+        byte[] content = baos.toByteArray();
+        byte flags = 0;
+        if(doc.isEncrypted()) {
+            content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                    content, peerId, this.sharkPKIComponent.getASAPKeyStore());
+            flags += SharkGroupDocument.ENCRYPTED_MASK;
+        }
+        ByteArrayOutputStream finalBaos = new ByteArrayOutputStream();
+        ASAPSerialization.writeByteParameter(flags, finalBaos);
+        ASAPSerialization.writeByteArray(content, finalBaos);
+
+        this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, MEMBER_UPDATE_URI, finalBaos.toByteArray());
+    }
+
 }
