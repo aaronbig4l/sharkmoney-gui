@@ -395,6 +395,74 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         return groupId;
     }
 
+    protected byte[] aliceCreatesCentralizedEncryptedGroupWithBobAndClaraSetUp() throws SharkException, InterruptedException, IOException {
+        setUpScenarioEstablishCurrency_3_ClaraAndBobAndAlice();
+        Thread.sleep(500);
+
+        CharSequence currencyName = "AliceTalerForPromiseTest_C";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+                currencyName.toString(),
+                "A test Currency"
+        );
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+        claraPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+        claraPKI.acceptAndSignCredential(bobCredentialMessage);
+
+        CredentialMessageInMemo claraCredentialMessage = new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(claraCredentialMessage);
+        bobPKI.acceptAndSignCredential(claraCredentialMessage);
+
+        ArrayList<CharSequence> whitelist = new ArrayList<>();
+        whitelist.add(BOB_ID);
+        whitelist.add(CLARA_ID);
+
+        byte[] groupId = this.aliceCurrencyComponent.establishGroup(
+                dummyCurrency,
+                whitelist,
+                true, // centralized
+                true, // encrypted
+                true);
+
+        Thread.sleep(500);
+
+
+        this.aliceCurrencyComponent.invitePeerToGroup(groupId, "Hi Bob, join my group!", BOB_ID);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+
+        Thread.sleep(1000);
+        this.bobImpl.acceptInviteAndSign(currencyName);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.aliceCurrencyComponent.invitePeerToGroup(groupId, "Hi Clara, join my group!", CLARA_ID);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(1000);
+        this.claraImpl.acceptInviteAndSign(currencyName);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+
+
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+
+        return groupId;
+    }
+
+
     protected byte[] aliceCreatesCentralizedEncryptedGroupWithBobSetUp() throws SharkException, InterruptedException, IOException {
 
         setUpScenarioEstablishCurrency_2_BobAndAlice();

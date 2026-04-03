@@ -818,13 +818,128 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     @Test
     public void centralizedGroupWith3PeersAndTransferAPromise() throws SharkException, IOException, InterruptedException {
-        //TODO
+        byte[] groupId = this.aliceCreatesCentralizedEncryptedGroupWithBobAndClaraSetUp();
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
+        SharkCurrency currency = aliceDoc.getAssignedCurrency();
+
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(
+                2, currency, groupId, ALICE_ID, BOB_ID, true
+        );
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+
+        Thread.sleep(500);
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+
+        SharkPromise signedPromiseAlice = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
+        SharkPromise signedPromiseBob = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
+
+        Assertions.assertNotNull(signedPromiseAlice);
+        Assertions.assertNotNull(signedPromiseBob);
+        Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED, signedPromiseAlice.getStateOfPromise());
+        Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED, signedPromiseBob.getStateOfPromise());
+
+        Assertions.assertEquals(2, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
+       //
+        this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(2, this.claraImpl.getBalance(currencyId));
     }
 
     @Test
     public void centralizedGroupWith3PeersAndTransferAPromiseButDontHaveThePromise() throws SharkException, IOException, InterruptedException {
-        //TODO
+        byte[] groupId = this.aliceCreatesCentralizedEncryptedGroupWithBobAndClaraSetUp();
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
+        SharkCurrency currency = aliceDoc.getAssignedCurrency();
+
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(
+                2, currency, groupId, ALICE_ID, BOB_ID, true
+        );
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+
+        SharkPromise signedPromiseAlice = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
+        Assertions.assertNotNull(signedPromiseAlice);
+        Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED, signedPromiseAlice.getStateOfPromise());
+
+        Assertions.assertEquals(2, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
+
+        Exception transferException = assertThrows(SharkException.class, () -> {
+            this.bobCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
+        });
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertNotNull(transferException);
+        Assertions.assertEquals(2, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
     }
-
-
 }
