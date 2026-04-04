@@ -211,7 +211,7 @@ public class SharkCurrencyComponentImpl
                     promise.getCreditorID(),
                     receiver,
                     true,
-                    true,
+                    sharkGroupDocument.isEncrypted(),
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB);
             return promiseId;
         } else {
@@ -225,7 +225,7 @@ public class SharkCurrencyComponentImpl
                     promise.getDebtorID(),
                     receiver,
                     true,
-                    true,
+                    sharkGroupDocument.isEncrypted(),
                     SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED);
             return promise.getPromiseID();
         }
