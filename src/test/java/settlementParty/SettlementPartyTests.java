@@ -119,7 +119,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Synchronize all new creates Promises and sign them
         syncAliceBobClaraPeers();
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
@@ -132,8 +132,9 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         }
 
 
-        syncAliceBobClaraPeers();
         Thread.sleep(100);
+        syncAliceBobClaraPeers();
+        Thread.sleep(1000);
 
         // ==========================================
         // 4. Assertions
@@ -353,7 +354,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 ALICE_ID,
                 true);
         syncAliceBobClaraPeers();
-        this.aliceCurrencyComponent.signPromiseAndSendBack(p1_G2);
+        this.aliceImpl.signPromiseAndSendBack(p1_G2);
 
         // Group 2: Bob owes Clara 50
         CharSequence p2_G2 = this.claraCurrencyComponent.createPromise(50,

@@ -4,10 +4,14 @@ import group.SharkGroupDocument;
 import implementations.SharkCurrencyComponentImpl;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.pki.SharkPKIComponent;
 import transactionSettelment.SettlementPartyState;
 import transactionSettelment.SharkSettlementDocument;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -28,31 +32,49 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
 
     @Override
     public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence receiver) throws IOException, ASAPException {
-        Iterator<byte[]> msgIterator = messages.getMessages();
 
-        while(msgIterator.hasNext()){
-            byte[] msgBytes = msgIterator.next();
+        for (int i = 0; i < messages.size(); i++) {
+            byte[] msgData = messages.getMessage(i, true);
 
             try {
+                ByteArrayInputStream bais = new ByteArrayInputStream(msgData);
+                byte flags = ASAPSerialization.readByte(bais);
+                byte[] payload = ASAPSerialization.readByteArray(bais);
+
+                boolean isEncrypted = (flags & SharkGroupDocument.ENCRYPTED_MASK) != 0;
+                if (isEncrypted) {
+                    ASAPKeyStore ks = pki.getASAPKeyStore();
+                    bais = new ByteArrayInputStream(payload);
+                    ASAPCryptoAlgorithms.EncryptedMessagePackage encPkg =
+                            ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
+
+                    // Wenn die Nachricht nicht für mich ist -> überspringen
+                    if (!ks.isOwner(encPkg.getReceiver())) {
+                        continue;
+                    }
+                    // Nachricht entschlüsseln
+                    payload = ASAPCryptoAlgorithms.decryptPackage(encPkg, ks);
+                }
+
                 // deserialize the incoming SharkSettlementDocument
-                SharkSettlementDocument incomingDoc = SharkSettlementDocument.deserialize(msgBytes);
+                SharkSettlementDocument incomingDoc = SharkSettlementDocument.deserialize(payload);
                 CharSequence myPeerId = component.getPeerIdOfImpl();
 
                 if (incomingDoc == null || incomingDoc.isExpired() ||
-                    !incomingDoc.getExpectedPeers().contains(component.getPeerIdOfImpl().toString())) continue;
+                        !incomingDoc.getExpectedPeers().contains(myPeerId.toString())) continue;
 
                 // Check if SettlementDoc already exists
                 SharkSettlementDocument localDoc = component.getSharkCurrencyStorage().getSettlementDocument(incomingDoc.getPartyId());
                 if (localDoc == null) {
                     localDoc = incomingDoc;
                 } else {
-                    // Merge Promises: Are we missing Promises that the others already collected?
+                    // Merge Promises
                     for (Map.Entry<CharSequence, List<byte[]>> entry : incomingDoc.getCollectedPromises().entrySet()) {
                         if (!localDoc.getSubmittedPeers().contains(entry.getKey().toString())) {
                             localDoc.addPeerPromises(entry.getKey(), entry.getValue());
                         }
                     }
-                    // Merge Hashes: Are we missing Hashes that the other already collected?
+                    // Merge Hashes
                     for (Map.Entry<CharSequence, String> entry : incomingDoc.getComputedHashes().entrySet()) {
                         if (!localDoc.getComputedHashes().containsKey(entry.getKey().toString())) {
                             localDoc.addPeerHash(entry.getKey(), entry.getValue());
@@ -75,10 +97,9 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                 if (localDoc.getState() == SettlementPartyState.VERIFYING && !localDoc.getComputedHashes().containsKey(myPeerId.toString())) {
                     System.out.println("All Promises received. Calculating and adding my Hash...");
                     component.calculateAndSubmitHash(localDoc);
-                    component.sendSettlementDocument(localDoc);
                 }
 
-                // 3. Consensus match: execute final settlement (deleting old promises, creating new ones)
+                // 3. Consensus match: execute final settlement
                 if (localDoc.getState() == SettlementPartyState.COMPLETED) {
                     if (!component.hasSettlementBeenExecuted(localDoc.getPartyId())) {
                         System.out.println("CONSENSUS MATCH! Executing Final Settlement...");
@@ -88,6 +109,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                 } else if (localDoc.getState() == SettlementPartyState.CANCELLED) {
                     System.err.println("Settlement Party failed or Hashes mismatched.");
                 }
+
             } catch (Exception e) {
                 System.out.println("Shark Settlement Party Error: " + e.getMessage());
                 e.printStackTrace();

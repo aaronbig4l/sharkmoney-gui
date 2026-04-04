@@ -299,14 +299,20 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         // 5.(Assertions)
         SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
         SharkGroupDocument bobDoc = this.bobStorage.getGroupDocument(groupId);
+        SharkGroupDocument claraDoc = this.claraStorage.getGroupDocument(groupId);
+        SharkGroupDocument davidDoc = this.davidStorage.getGroupDocument(groupId);
 
         // Not null?
         Assertions.assertNotNull(aliceDoc, "Alice Group Doc should exist!");
         Assertions.assertNotNull(bobDoc, "Bobs Group Doc should exist!");
+        Assertions.assertNotNull(claraDoc, "Claras Group Doc should exist!");
+        Assertions.assertNotNull(davidDoc, "Davids Group Doc should exist!");
 
         // Group Member size equals 4 (Alice, Bob, Clara, David)?
         Assertions.assertEquals(4, aliceDoc.getCurrentMembers().size(), "The Group should include 4 Member (Alice Doc)");
         Assertions.assertEquals(4, bobDoc.getCurrentMembers().size(), "The Group should include 4 Member (Bob Doc)");
+        Assertions.assertEquals(4, claraDoc.getCurrentMembers().size(), "The Group should include 4 Member (Clara Doc)");
+        Assertions.assertEquals(4, davidDoc.getCurrentMembers().size(), "The Group should include 4 Member (David Doc)");
 
         // No pending invites?
         Assertions.assertFalse(this.bobStorage.hasPendingInvites(), "Bob should have no more pending invites...");

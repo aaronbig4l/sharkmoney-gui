@@ -546,7 +546,35 @@ public class SharkCurrencyComponentImpl
     */
     public void sendSettlementDocument(SharkSettlementDocument sharkSettlementDocument) throws IOException, ASAPException {
         byte[] serializedDoc = sharkSettlementDocument.serialize();
-        this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, serializedDoc);
+        SharkGroupDocument groupDoc = this.sharkCurrencyStorage.getGroupDocument(sharkSettlementDocument.getGroupId());
+
+        if (groupDoc != null && groupDoc.isEncrypted()) {
+            // 1. Collect all potential receivers (without the peer sending it)
+            Set<String> receivers = new HashSet<>(groupDoc.getCurrentMembers().keySet());
+            receivers.remove(this.asapPeer.getPeerID().toString());
+
+            // 2. Create for every potential receiver an encrypted message
+            for (String targetPeer : receivers) {
+                byte[] encryptedDoc = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
+                        serializedDoc, targetPeer, this.sharkPKIComponent.getASAPKeyStore()
+                );
+
+                byte flags = SharkGroupDocument.ENCRYPTED_MASK;
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ASAPSerialization.writeByteParameter(flags, baos);
+                ASAPSerialization.writeByteArray(encryptedDoc, baos);
+
+                this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, baos.toByteArray());
+            }
+        } else {
+            // Unencrypted Broadcast for Groups
+            byte flags = 0;
+            ByteArrayOutputStream boas = new ByteArrayOutputStream();
+            ASAPSerialization.writeByteParameter(flags, boas);
+            ASAPSerialization.writeByteArray(serializedDoc, boas);
+
+            this.asapPeer.sendASAPMessage(CURRENCY_FORMAT, SETTLEMENT_URI, boas.toByteArray());
+        }
     }
 
     /**
