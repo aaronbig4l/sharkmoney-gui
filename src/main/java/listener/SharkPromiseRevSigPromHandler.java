@@ -23,10 +23,10 @@ public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandle
     }
 
     public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence sender) throws IOException, ASAPException {
-        try {
-            System.out.println("DEBUG: received a fully signed promise from: " + sender);
+        System.out.println("DEBUG: received a fully signed promise from: " + sender);
 
-            for (int i = 0; i < messages.size(); i++) {
+        for (int i = 0; i < messages.size(); i++) {
+            try {
                 byte[] messageData = messages.getMessage(i, true);
 
                 SharkPromise promise = SharkPromiseSerializer
@@ -34,8 +34,11 @@ public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandle
                                 pki.getASAPKeyStore(),
                                 this.currencyStorage);
 
-                CharSequence promiseId = promise.getPromiseID();
+                if (promise == null) {
+                    continue;
+                }
 
+                CharSequence promiseId = promise.getPromiseID();
 
                 // move it to the signed store now that we have the full signature back.
                 if (this.currencyStorage.getSharkPendingPromiseFromStorage(promiseId) != null) {
@@ -46,9 +49,10 @@ public class SharkPromiseRevSigPromHandler implements SharkCurrencyMessageHandle
                 }
 
                 this.sharkCurrencyComponent.addBalance(promise);
+            } catch (Exception e) {
+                System.err.println("DEBUG: skipping message in RevSigPromHandler due to error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }
+

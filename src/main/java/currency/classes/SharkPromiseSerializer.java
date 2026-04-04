@@ -256,6 +256,15 @@ public class SharkPromiseSerializer {
 
         SharkPromise promise = sharkCurrencyStorage
                 .getSharkPendingPromiseFromStorage(promiseId);
+
+        if (promise == null) {
+            if (sharkCurrencyStorage.containsSignedPromise(promiseId)) {
+                return null; // Wurde bereits verarbeitet
+            } else {
+                throw new ASAPException("Promise " + promiseId + " not found in pending storage");
+            }
+        }
+
         if(snSender.equals(promise.getCreditorID().toString())) {
             promise.setCreditorSignature(signatureSender);
         } else if(snSender.equals(promise.getDebtorID().toString())) {

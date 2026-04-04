@@ -423,7 +423,7 @@ public class SharkCurrencyComponentImpl
     public void addBalance(SharkPromise promise) {
         int transactionAmount;
         CharSequence relation;
-        if(this.asapPeer.getPeerID()==promise.getCreditorID()){
+        if(this.asapPeer.getPeerID().toString().equals(promise.getCreditorID().toString())){
             transactionAmount = promise.getAmount();
         relation = promise.getDebtorID();}
         else {
