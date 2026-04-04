@@ -32,6 +32,12 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
                 SharkPromise promise = SharkPromiseSerializer
                         .deserializePromise(messageData, pki.getASAPKeyStore());
 
+                // Am I the debtor?
+                if (!pki.getOwnerID().toString().equals(promise.getDebtorID().toString())) {
+                    System.out.println("DEBUG Handler: askDeb skipping promise " + promise.getPromiseID() + " - I am not the debtor");
+                    continue;
+                }
+
                 CharSequence promiseId = promise.getPromiseID();
 
                 // in the signed store, do NOT overwrite it with the older unsigned version.
