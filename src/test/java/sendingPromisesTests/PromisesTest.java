@@ -9,9 +9,11 @@ import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,19 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
+
+        File rootFolder = new File("testResultsRootFolder");
+
+        if (rootFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(rootFolder);
+            } catch (IOException e) {
+
+                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+            }
+        }
+
+
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
@@ -854,7 +869,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
         Thread.sleep(500);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
         Thread.sleep(500);
 
         SharkPromise signedPromiseAlice = this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId);
@@ -868,7 +882,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(2, this.aliceImpl.getBalance(currencyId));
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
-       //
+
         this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
 
         Thread.sleep(500);
@@ -877,8 +891,20 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
         Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
+
+        this.claraImpl.signPromiseAndSendBack(promiseId);
+
+        Thread.sleep(500);
+        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(2, this.claraImpl.getBalance(currencyId));
     }
+
+
 
     @Test
     public void centralizedGroupWith3PeersAndTransferAPromiseButDontHaveThePromise() throws SharkException, IOException, InterruptedException {
@@ -929,13 +955,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
 
-        Exception transferException = assertThrows(SharkException.class, () -> {
-            this.bobCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
+        Exception transferException = assertThrows(SharkCurrencyException.class, () -> {
+            this.claraImpl.transferPromiseToAnotherPeer(promiseId, BOB_ID);
         });
-
-        Thread.sleep(500);
-        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(500);
 
         Assertions.assertNotNull(transferException);
         Assertions.assertEquals(2, this.aliceImpl.getBalance(currencyId));

@@ -480,31 +480,62 @@ public class SharkCurrencyComponentImpl
         boolean isCreditor = myPeerId.equals(promise.getCreditorID());
         boolean isDebtor = myPeerId.equals(promise.getDebtorID());
 
-       
         if (isCreditor) {
             if (!promise.allowedToChangeCreditor()) {
                 throw new SharkCurrencyException("Transfer failed: Permission to change the creditor is missing.");
             }
-            promise.setCreditor(newPeerId);
         } else if (isDebtor) {
             if (!promise.allowedToChangeDebtor()) {
                 throw new SharkCurrencyException("Transfer failed: Permission to change the debtor is missing.");
             }
-            promise.setDebtor(newPeerId);
         } else {
             throw new SharkCurrencyException("Transfer failed: The executing peer is neither creditor nor debtor of this promise.");
         }
 
-       
+        this.subtractBalance(promise);
+
+        if (isCreditor) {
+            promise.setCreditor(newPeerId);
+            promise.setCreditorSignature(null);
+        } else {
+            promise.setDebtor(newPeerId);
+            promise.setDebtorSignature(null);
+        }
+
         promise.updateState();
 
-        
         this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseId);
-        this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
 
-      
-        this.signPromiseAndSendBack(promiseId);
+        try {
+            Set<CharSequence> receiver = new HashSet<>();
+            receiver.add(newPeerId);
+            boolean encrypt = this.sharkCurrencyStorage
+                    .getGroupDocument(promise.getGroupIDOfPromise()).isEncrypted();
+
+            CharSequence uri = isCreditor
+                    ? SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED
+                    : SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB;
+
+            byte[] serializedPromise = SharkPromiseSerializer
+                    .serializePromise(promise,
+                            myPeerId,
+                            receiver,
+                            true,
+                            encrypt,
+                            this.sharkPKIComponent.getASAPKeyStore(),
+                            false,
+                            0);
+
+            this.asapPeer.sendASAPMessage(
+                    SharkCurrencyComponent.CURRENCY_FORMAT,
+                    uri,
+                    serializedPromise);
+        } catch (IOException | ASAPException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
 
     @Override
     public byte[] initiateSettlementParty(byte[] groupId) {

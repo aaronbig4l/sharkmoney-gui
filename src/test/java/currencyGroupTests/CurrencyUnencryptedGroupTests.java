@@ -8,10 +8,13 @@ import exepections.SharkCurrencyException;
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.pki.SharkPKIComponent;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.*;
+import sendingPromisesTests.PromisesTest;
 import testHelper.AsapCurrencyTestHelper;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.util.*;
@@ -26,10 +29,23 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
+
+        File rootFolder = new File("testResultsRootFolder");
+
+        if (rootFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(rootFolder);
+            } catch (IOException e) {
+
+                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+            }
+        }
+
+
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyUnencryptedGroupTests.class.getSimpleName(),
+                PromisesTest.class.getSimpleName(),
                 testName
         );
     }

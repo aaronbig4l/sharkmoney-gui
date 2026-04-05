@@ -18,6 +18,14 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+
+
+        <dependency>
             <groupId>net.sharksystem</groupId>
             <artifactId>SharkPKI</artifactId>
             <version>0.0.1</version>

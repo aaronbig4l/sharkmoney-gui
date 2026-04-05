@@ -209,7 +209,7 @@ public interface SharkCurrencyComponent extends SharkComponent {
 
     /**
      * Transfers an existing promise to a new peer. Evaluates the role of the 
-     * executing peer (Creditor/Debtor) and checks the respective modification permissions.
+     * executing peer (Creditor/Debtor) and checks the respective modification permissions and asks the other peer if you want to change.
      * If permitted, modifies the promise, signs it newly, and updates the storage.
      *
      * @param promiseId The ID of the promise to transfer.

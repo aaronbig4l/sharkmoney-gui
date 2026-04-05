@@ -2,8 +2,13 @@ package conectiontoAChain;
 
 import currencyGroupTests.CurrencyUnencryptedGroupTests;
 import net.sharksystem.SharkException;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
+import sendingPromisesTests.PromisesTest;
 import testHelper.AsapCurrencyTestHelper;
+
+import java.io.File;
+import java.io.IOException;
 
 public class CryptoWalletTest extends  AsapCurrencyTestHelper{
 
@@ -13,10 +18,23 @@ public class CryptoWalletTest extends  AsapCurrencyTestHelper{
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
+
+        File rootFolder = new File("testResultsRootFolder");
+
+        if (rootFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(rootFolder);
+            } catch (IOException e) {
+
+                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+            }
+        }
+
+
         String testName = testInfo.getDisplayName()
                 .replaceAll("[^a-zA-Z0-9]", "_");
         this.initSubRootFolder(
-                CurrencyUnencryptedGroupTests.class.getSimpleName(),
+                PromisesTest.class.getSimpleName(),
                 testName
         );
     }
