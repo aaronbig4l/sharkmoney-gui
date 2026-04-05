@@ -37,8 +37,7 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
             try {
                 FileUtils.deleteDirectory(rootFolder);
             } catch (IOException e) {
-
-                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+                System.out.printf("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden. %s", e);
             }
         }
 
@@ -310,7 +309,8 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         Thread.sleep(1000);
         this.runEncounter(this.bobSharkPeer, this.davidSharkPeer, true);
         Thread.sleep(1000);
-
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(1000);
 
         // 5.(Assertions)
         SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);

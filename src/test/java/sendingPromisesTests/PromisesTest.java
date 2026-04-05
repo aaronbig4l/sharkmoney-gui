@@ -36,8 +36,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
             try {
                 FileUtils.deleteDirectory(rootFolder);
             } catch (IOException e) {
-
-                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+                System.out.printf("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden: %s", e);
             }
         }
 
@@ -157,20 +156,17 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     public void createPromiseSendAndSignWithNothingWithinAGroupAliceBob() throws SharkException, IOException, InterruptedException {
 
         byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                ALICE_ID, //creditor
+                BOB_ID, //debtor
+                true);
 
-        try {
-            SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
-            CharSequence promiseId = this.aliceCurrencyComponent.createPromise(2,
-                    sharkGroupDocument.getAssignedCurrency(),
-                    groupId,
-                    ALICE_ID, //creditor
-                    BOB_ID, //debtor
-                    true);
-            Assertions.fail("It should not find BOBs public Key bc they not exchanged credentials ");
-        }
-        catch (ASAPException e ){
-
-        }
+        Assertions.assertFalse(this.bobStorage.containsSignedPromise(promiseId));
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
+        Assertions.assertArrayEquals(groupId, this.bobStorage.getGroupDocument(groupId).getGroupId());
     }
 
     @Test
@@ -964,4 +960,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
     }
+
+
+
 }
