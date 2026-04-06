@@ -28,15 +28,11 @@ public class SharkPromiseAskForDebtSettledHandler implements SharkCurrencyMessag
             byte flags = ASAPSerialization.readByteParameter(bais);
             byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
 
-            boolean signed = (flags & SharkPromise.SIGNED_MASK) != 0;
             boolean encrypted = (flags & SharkPromise.ENCRYPTED_MASK) != 0;
 
-
             if (encrypted) {
-
                 ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage =
                         ASAPCryptoAlgorithms.parseEncryptedMessagePackage(tmpMessage);
-
 
                 if (!pki.getASAPKeyStore().isOwner(encryptedMessagePackage.getReceiver())) {
                     throw new ASAPException("SharkPromise Message: message not for me. Current user: "
@@ -46,28 +42,14 @@ public class SharkPromiseAskForDebtSettledHandler implements SharkCurrencyMessag
                 }
 
                 try {
-
                     tmpMessage = ASAPCryptoAlgorithms.decryptPackage(encryptedMessagePackage, pki.getASAPKeyStore());
                 } catch (ASAPSecurityException e) {
-                    throw new ASAPException("Entschlüsselung der AskForDebtSettled-Nachricht fehlgeschlagen", e);
+                    throw new ASAPException("Decryption of AskForDebtSettled message failed", e);
                 }
             }
 
-
-            if (signed) {
-                bais = new ByteArrayInputStream(tmpMessage);
-                byte[] wrappedContent = ASAPSerialization.readByteArray(bais);
-                byte[] signature = ASAPSerialization.readByteArray(bais);
-
-                tmpMessage = wrappedContent;
-            }
-
-
             ByteArrayInputStream payloadStream = new ByteArrayInputStream(tmpMessage);
-
-
             CharSequence promiseID = ASAPSerialization.readCharSequenceParameter(payloadStream);
-
             this.currencyStorage.addSharkToBeSettledPromiseToStorage(promiseID);
         }
     }
