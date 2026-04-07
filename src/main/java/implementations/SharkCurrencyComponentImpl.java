@@ -141,6 +141,8 @@ public class SharkCurrencyComponentImpl
                 promise = this.sharkCurrencyStorage.getSharkSignedPromiseFromStorage(promiseId);
             }
 
+            boolean asCred= promise.getCreditorID().toString().equals(this.asapPeer.getPeerID().toString());
+
             byte[] serializedPromise = SharkPromiseSerializer
                     .serializePromise(promise,
                             sender,
@@ -148,8 +150,9 @@ public class SharkCurrencyComponentImpl
                             sign,
                             encrypt,
                             this.sharkPKIComponent.getASAPKeyStore(),
-                            false,
-                            0);
+                            true,
+                            0,
+                            asCred);
 
             this.asapPeer
                     .sendASAPMessage(SharkCurrencyComponent.CURRENCY_FORMAT, uri, serializedPromise);
@@ -201,7 +204,7 @@ public class SharkCurrencyComponentImpl
         CharSequence promiseId = promise.getPromiseID();
         if(asCreditor) {
             SharkPromiseManagement
-                    .signAsCreditor(keystore, promise);
+                    .signAsCreditor(keystore, promise, sharkGroupDocument.isEncrypted());
             promise.updateState();
             receiver.add(promise.getDebtorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
@@ -216,7 +219,7 @@ public class SharkCurrencyComponentImpl
             return promiseId;
         } else {
             SharkPromiseManagement
-                    .signAsDebtor(keystore, promise);
+                    .signAsDebtor(keystore, promise, sharkGroupDocument.isEncrypted());
             promise.updateState();
             receiver.add(promise.getCreditorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
@@ -244,6 +247,9 @@ public class SharkCurrencyComponentImpl
                 throw new SharkPromiseException("Promise with PromiseId: "
                         + promiseId + " not found in pending Storage");
             }
+            boolean encrypted
+                    =this.sharkCurrencyStorage
+                    .isEncryptedByCurrency(promise.getReferenceValue().getCurrencyId());
             CharSequence creditorId = promise.getCreditorID();
             CharSequence debtorId = promise.getDebtorID();
             boolean asCreditor = this.asapPeer.getPeerID().toString().equals(creditorId.toString());
@@ -252,11 +258,11 @@ public class SharkCurrencyComponentImpl
             Set<CharSequence> receiver = new HashSet<>();
             if(asCreditor) {
                 System.out.println("AS CREDITOR HERE");
-                SharkPromiseManagement.signAsCreditor(ks, promise);
+                SharkPromiseManagement.signAsCreditor(ks, promise, encrypted);
                 sender=creditorId;
                 receiver.add(debtorId);
             } else {
-                SharkPromiseManagement.signAsDebtor(ks, promise);
+                SharkPromiseManagement.signAsDebtor(ks, promise, encrypted);
                 sender=debtorId;
                 receiver.add(creditorId);
             }
@@ -524,7 +530,8 @@ public class SharkCurrencyComponentImpl
                             encrypt,
                             this.sharkPKIComponent.getASAPKeyStore(),
                             false,
-                            0);
+                            0,
+                            isCreditor);
 
             this.asapPeer.sendASAPMessage(
                     SharkCurrencyComponent.CURRENCY_FORMAT,
@@ -619,8 +626,9 @@ public class SharkCurrencyComponentImpl
         List<SharkPromise> promises = this.sharkCurrencyStorage.getSignedPromisesForGroup(groupId);
         for (SharkPromise p : promises) {
             byte[] promisAsByte = SharkPromiseSerializer.serializePromise(
-                    p, p.getCreditorID(), new HashSet<>(), false, false, this.sharkPKIComponent.getASAPKeyStore(), false, 0
-            );
+                    p, p.getCreditorID(), new HashSet<>(), false,
+                    false, this.sharkPKIComponent.getASAPKeyStore(), false,
+                    0, true);
             serializedPromises.add(promisAsByte);
         }
         return serializedPromises;

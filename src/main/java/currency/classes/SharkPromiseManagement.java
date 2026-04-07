@@ -10,29 +10,29 @@ import java.util.Set;
 
 public class SharkPromiseManagement {
 
-    public static void signAsCreditor(ASAPKeyStore asapKeyStore, SharkPromise promise) throws SharkPromiseException, ASAPSecurityException, IOException {
+    public static void signAsCreditor(ASAPKeyStore asapKeyStore, SharkPromise promise, boolean encrypted) throws SharkPromiseException, ASAPSecurityException, IOException {
         if (!asapKeyStore.getOwner().equals(promise.getCreditorID())) {
             throw new SharkPromiseException("The provided keyStore owner ("
                     + asapKeyStore.getOwner()
                     + ") doesn't match the creditor's id ("
                     + promise.getCreditorID() + ")");
         } else {
-            promise.setCreditorSignature(signPromise(asapKeyStore, promise, true));
+            promise.setCreditorSignature(signPromise(asapKeyStore, promise, true, encrypted));
         }
     }
 
-    public static void signAsDebtor(ASAPKeyStore asapKeyStore, SharkPromise promise) throws SharkPromiseException, ASAPSecurityException, IOException {
+    public static void signAsDebtor(ASAPKeyStore asapKeyStore, SharkPromise promise, Boolean encrypted) throws SharkPromiseException, ASAPSecurityException, IOException {
         if (!asapKeyStore.getOwner().equals(promise.getDebtorID())) {
             throw new SharkPromiseException("The provided keyStore owner ("
                     + asapKeyStore.getOwner()
                     + ") doesn't match the debtor's id ("
                     + promise.getDebtorID() + ")");
         } else {
-            promise.setDebtorSignature(signPromise(asapKeyStore, promise, false));
+            promise.setDebtorSignature(signPromise(asapKeyStore, promise, false, encrypted));
         }
     }
 
-    private static byte[] signPromise(ASAPKeyStore asapKeyStore, SharkPromise promise, boolean signAsCreditor) throws ASAPSecurityException, IOException {
+    private static byte[] signPromise(ASAPKeyStore asapKeyStore, SharkPromise promise, boolean signAsCreditor , boolean encrypted) throws ASAPSecurityException, IOException {
         Set<CharSequence> receiver = new HashSet<>();
         CharSequence sender;
         if (signAsCreditor) {
@@ -42,7 +42,7 @@ public class SharkPromiseManagement {
             sender = promise.getDebtorID();
             receiver.add(promise.getCreditorID());
         }
-        return SharkPromiseSerializer.serializePromise(promise, sender, receiver, true, true, asapKeyStore, true, 1);
+        return SharkPromiseSerializer.serializePromise(promise, sender, receiver, true, encrypted, asapKeyStore, true, 1, signAsCreditor);
     }
 
 }

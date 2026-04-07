@@ -82,9 +82,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(promiseId.toString(), alicePromise.getPromiseID().toString());
         Assertions.assertEquals(promiseId.toString(), bobPromise.getPromiseID().toString());
         Assertions.assertEquals(SharkPromiseState.SIGNED_BY_CREDITOR
-                ,alicePromise.getStateOfPromise());
+                , alicePromise.getStateOfPromise());
         Assertions.assertEquals(SharkPromiseState.SIGNED_BY_CREDITOR
-                ,bobPromise.getStateOfPromise());
+                , bobPromise.getStateOfPromise());
         Assertions.assertNull(alicePromise.getDebtorSignature());
         Assertions.assertNotNull(alicePromise.getCreditorSignature());
         Assertions.assertNull(bobPromise.getDebtorSignature());
@@ -135,9 +135,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(promiseId, signedPromiseAlice.getPromiseID());
         Assertions.assertEquals(promiseId, signedPromiseBob.getPromiseID());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseAlice.getStateOfPromise());
+                , signedPromiseAlice.getStateOfPromise());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseBob.getStateOfPromise());
+                , signedPromiseBob.getStateOfPromise());
         Assertions.assertNotNull(signedPromiseAlice.getCreditorSignature());
         Assertions.assertNotNull(signedPromiseAlice.getDebtorSignature());
         Assertions.assertNotNull(signedPromiseBob.getCreditorSignature());
@@ -219,9 +219,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(promiseId, signedPromiseAlice.getPromiseID());
         Assertions.assertEquals(promiseId, signedPromiseBob.getPromiseID());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseAlice.getStateOfPromise());
+                , signedPromiseAlice.getStateOfPromise());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseBob.getStateOfPromise());
+                , signedPromiseBob.getStateOfPromise());
         Assertions.assertNotNull(signedPromiseAlice.getCreditorSignature());
         Assertions.assertNotNull(signedPromiseAlice.getDebtorSignature());
         Assertions.assertNotNull(signedPromiseBob.getCreditorSignature());
@@ -239,7 +239,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     @Test
     public void sendPromiseAndSeeHowMuchBobAndAliceHaveAfterSendingToHim() throws SharkException, IOException, InterruptedException {
-        byte []  groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobSetUp();
 
         SharkPKIComponent alicePKI
                 = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
@@ -289,7 +289,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(2, aliceImpl.getBalance(currencyId));
         Assertions.assertEquals(-2, bobCurrencyComponent.getExtendedBalance(currencyId, aliceSharkPeer.getPeerID()));
         Assertions.assertEquals(2, aliceImpl.getExtendedBalance(currencyId, bobSharkPeer.getPeerID()));
-
 
 
     }
@@ -415,17 +414,17 @@ public class PromisesTest extends AsapCurrencyTestHelper {
 
     @Test
     public void sendingPromisesToOtherPeerInAnotherGroup() throws SharkException, InterruptedException {
-       byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
-       byte[] groupIdAlice = groupIds[0];
-       byte[] groupIdBob = groupIds[1];
-       SharkCurrency aliceCurrency
-               = this.aliceStorage.getGroupDocument(groupIdAlice).getAssignedCurrency();
-       SharkCurrency bobCurrency
-               = this.bobStorage.getGroupDocument(groupIdBob).getAssignedCurrency();
-       byte[] currencyIdAlice = aliceCurrency.getCurrencyId();
-       byte[] currencyIdBob = bobCurrency.getCurrencyId();
+        byte[][] groupIds = aliceCreatesEncryptedGroupAndBobToo();
+        byte[] groupIdAlice = groupIds[0];
+        byte[] groupIdBob = groupIds[1];
+        SharkCurrency aliceCurrency
+                = this.aliceStorage.getGroupDocument(groupIdAlice).getAssignedCurrency();
+        SharkCurrency bobCurrency
+                = this.bobStorage.getGroupDocument(groupIdBob).getAssignedCurrency();
+        byte[] currencyIdAlice = aliceCurrency.getCurrencyId();
+        byte[] currencyIdBob = bobCurrency.getCurrencyId();
 
-       //Assertions
+        //Assertions
         Exception exAliceToBob = assertThrows(SharkPromiseException.class, () -> {
             this.aliceCurrencyComponent.createPromise(5,
                     aliceCurrency, groupIdAlice, ALICE_ID, BOB_ID, true);
@@ -442,7 +441,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         });
 
         Assertions.assertEquals("Creditor and Debitor must be in the same group with given ID: "
-                + Arrays.toString(groupIdAlice),
+                        + Arrays.toString(groupIdAlice),
                 exAliceToBob.getMessage());
         Assertions.assertEquals("Creditor and Debitor must be in the same group with given ID: "
                         + Arrays.toString(groupIdBob),
@@ -665,9 +664,9 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(promiseId, signedPromiseAlice.getPromiseID());
         Assertions.assertEquals(promiseId, signedPromiseBob.getPromiseID());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseAlice.getStateOfPromise());
+                , signedPromiseAlice.getStateOfPromise());
         Assertions.assertEquals(SharkPromiseState.FULLY_SIGNED
-                ,signedPromiseBob.getStateOfPromise());
+                , signedPromiseBob.getStateOfPromise());
         Assertions.assertNotNull(signedPromiseAlice.getCreditorSignature());
         Assertions.assertNotNull(signedPromiseAlice.getDebtorSignature());
         Assertions.assertNotNull(signedPromiseBob.getCreditorSignature());
@@ -840,8 +839,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertTrue(bobGettingCentralizedException
                 .getMessage()
                 .contains("Trying to create a promise in a centralized group. You are not the owner of this group."));
-        Assertions.assertEquals(0,this.aliceStorage.getPendingPromiseStorageSize());
-        Assertions.assertEquals(0,this.bobStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.aliceStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
 
     }
 
@@ -919,7 +918,6 @@ public class PromisesTest extends AsapCurrencyTestHelper {
     }
 
 
-
     @Test
     public void centralizedGroupWith3PeersAndTransferAPromiseButDontHaveThePromise() throws SharkException, IOException, InterruptedException {
         byte[] groupId = this.aliceCreatesCentralizedEncryptedGroupWithBobAndClaraSetUp();
@@ -978,7 +976,4 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
     }
-
-
-
 }

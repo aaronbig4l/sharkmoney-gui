@@ -10,6 +10,7 @@ import net.sharksystem.asap.utils.ASAPSerialization;
 
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class SharkPromiseSerializer {
                                        Set<CharSequence> receiver,
                                        boolean sign, boolean encrypt,
                                        ASAPKeyStore asapKeyStore, boolean excludeSignature,
-                                       int usedFor) throws ASAPSecurityException, IOException {
+                                       int usedFor, boolean asCred) throws ASAPSecurityException, IOException {
 
         if( (receiver != null && receiver.size() > 1) && encrypt) {
             throw new ASAPSecurityException("cannot (yet) encrypt one message for more than one recipient - split it into more messages");
@@ -51,7 +52,15 @@ public class SharkPromiseSerializer {
         byte flags = 0;
         // Sign Promise
         if(sign) {
-            byte[] signature = ASAPCryptoAlgorithms.sign(content, asapKeyStore);
+            byte[] existingSignature = asCred
+                    ? promise.getCreditorSignature()
+                    : promise.getDebtorSignature();
+
+            byte[] signature = (existingSignature != null)
+                    ? existingSignature
+                    : ASAPCryptoAlgorithms.sign(content, asapKeyStore);
+
+            System.out.println("DEBUG: content length that is written: " + content.length);
             // usedFor == 1 function is used for signature purpose
             if (usedFor == 1) {
                 return signature;
@@ -132,10 +141,12 @@ public class SharkPromiseSerializer {
         boolean verified = false; // initialize
         if (signature != null) {
             try {
+                System.out.println("DEBUG: content length that is being verified: " + signedMessage.length + " and sender: " + snSender);
                 verified = ASAPCryptoAlgorithms.verify(
                         signedMessage, signature, snSender, asapKeyStore);
             } catch (ASAPSecurityException e) {
                 // verified definitely false
+                System.out.println("DEBUG: security exception: " + e.getMessage());
                 verified = false;
             }
         }
@@ -149,23 +160,33 @@ public class SharkPromiseSerializer {
     }
 
     public static byte[] sharkPromiseToByteArray(SharkPromise promise, boolean excludeSignature) {
-            byte[] byteArray = null;
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream out = null;
-            try {
-                out = new ObjectOutputStream(bos);
-                out.writeObject(promise);
-                out.flush();
-                byteArray = bos.toByteArray();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    bos.close();
-                } catch (IOException ex) {
-                }
+        byte[] byteArray = null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            // Temporarily strip signatures for consistent signing content
+            byte[] savedCredSig = promise.getCreditorSignature();
+            byte[] savedDebSig  = promise.getDebtorSignature();
+
+            if (excludeSignature) {
+                promise.setCreditorSignature(null);
+                promise.setDebtorSignature(null);
             }
-            return byteArray;
+
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(promise);
+            out.flush();
+            byteArray = bos.toByteArray();
+
+            // Restore signatures
+            if (excludeSignature) {
+                promise.setCreditorSignature(savedCredSig);
+                promise.setDebtorSignature(savedDebSig);
+            }
+            bos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return byteArray;
     }
 
     public static SharkPromise byteArrayToSharkPromise(byte [] byteArray) throws IOException, ClassNotFoundException {

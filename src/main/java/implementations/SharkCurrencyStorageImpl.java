@@ -224,4 +224,12 @@ public class SharkCurrencyStorageImpl implements SharkCurrencyStorage {
         return this.sharkPromiseStoreSigned.size();
     }
 
+    public boolean isEncryptedByCurrency(byte[] currencyId) {
+        return this.groupDocuments.values().stream()
+                .filter(doc -> Arrays.equals(doc.getAssignedCurrency().getCurrencyId(), currencyId))
+                .findFirst()
+                .map(SharkGroupDocument::isEncrypted)
+                .orElse(false);
+    }
+
 }

@@ -56,4 +56,6 @@ public interface SharkCurrencyStorage {
     // PROMISE CREATION TRACKER
     void putPromiseCreation(byte[] groupId);
     int getCreationCounter(byte[] groupId);
+
+    boolean isEncryptedByCurrency(byte[] currencyId);
 }

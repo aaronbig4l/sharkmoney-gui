@@ -24,7 +24,7 @@ public class SharkPromiseAskSigDebHandler implements SharkCurrencyMessageHandler
     @Override
     public void handle(CharSequence uri, ASAPMessages messages, SharkPKIComponent pki, CharSequence receiver) throws IOException {
 
-        System.out.println("DEBUG: received a message being asked to sign as debitor from. Iam: "+receiver);
+        System.out.println("DEBUG: received a message being asked to sign as debitor. Iam: "+receiver);
         for (int i = 0; i < messages.size(); i++) {
             try {
                 byte[] messageData = messages.getMessage(i, true);
