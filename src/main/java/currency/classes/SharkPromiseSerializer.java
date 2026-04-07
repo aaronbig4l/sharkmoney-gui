@@ -52,13 +52,7 @@ public class SharkPromiseSerializer {
         byte flags = 0;
         // Sign Promise
         if(sign) {
-            byte[] existingSignature = asCred
-                    ? promise.getCreditorSignature()
-                    : promise.getDebtorSignature();
-
-            byte[] signature = (existingSignature != null)
-                    ? existingSignature
-                    : ASAPCryptoAlgorithms.sign(content, asapKeyStore);
+            byte[] signature = ASAPCryptoAlgorithms.sign(content, asapKeyStore);
 
             System.out.println("DEBUG: content length that is written: " + content.length);
             // usedFor == 1 function is used for signature purpose
@@ -162,14 +156,16 @@ public class SharkPromiseSerializer {
     public static byte[] sharkPromiseToByteArray(SharkPromise promise, boolean excludeSignature) {
         byte[] byteArray = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
         try {
-            // Temporarily strip signatures for consistent signing content
             byte[] savedCredSig = promise.getCreditorSignature();
             byte[] savedDebSig  = promise.getDebtorSignature();
+            SharkPromiseState savedState = promise.getStateOfPromise();
 
             if (excludeSignature) {
                 promise.setCreditorSignature(null);
                 promise.setDebtorSignature(null);
+                promise.setStateOfPromise(SharkPromiseState.UNSIGNED);
             }
 
             ObjectOutputStream out = new ObjectOutputStream(bos);
@@ -177,15 +173,22 @@ public class SharkPromiseSerializer {
             out.flush();
             byteArray = bos.toByteArray();
 
-            // Restore signatures
             if (excludeSignature) {
                 promise.setCreditorSignature(savedCredSig);
                 promise.setDebtorSignature(savedDebSig);
+                promise.setStateOfPromise(savedState);
             }
-            bos.close();
+
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                // ignore
+            }
         }
+
         return byteArray;
     }
 

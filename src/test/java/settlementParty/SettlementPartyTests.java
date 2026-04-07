@@ -92,11 +92,8 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         this.claraImpl.signPromiseAndSendBack(promiseClaraToAlice);
         Thread.sleep(100);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(200);
 
-        syncAliceBobClaraPeers();
-
-        Thread.sleep(100);
 
         // ==========================================
         // 3. Settlement Party
@@ -123,17 +120,22 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
+            System.out.println("DEBUG: Bob signing promise and sending Alice, total amount: "+this.bobStorage.getPendingPromiseStorageSize() + " should go between Bob: " + p.getCreditorID() + " and Alice: "+ p.getDebtorID());
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
+        Thread.sleep(1000);
+        this.runEncounter(bobSharkPeer,aliceSharkPeer,true);
+        Thread.sleep(1000);
+
         // Clara signs the new Promises
         for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
+            System.out.println("DEBUG: Clara signing promise and sending Alice, total amount: "+this.claraStorage.getPendingPromiseStorageSize() + " should go between Clara: " + p.getCreditorID() + " and Alice: "+ p.getDebtorID());
             this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
-
-        Thread.sleep(100);
-        syncAliceBobClaraPeers();
+        Thread.sleep(1000);
+        this.runEncounter(claraSharkPeer,aliceSharkPeer,true);
         Thread.sleep(1000);
 
         // ==========================================
