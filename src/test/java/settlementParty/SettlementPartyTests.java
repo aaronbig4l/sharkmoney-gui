@@ -4,6 +4,7 @@ import currency.classes.*;
 import exepections.SharkCurrencyException;
 import exepections.SharkSettlementException;
 import group.SharkGroupDocument;
+import net.sharksystem.SharkException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -566,10 +567,6 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
         Thread.sleep(100);
 
-        syncAliceBobClaraPeers();
-
-        Thread.sleep(100);
-
         // ==========================================
         // 3. Settlement Party
         // ==========================================
@@ -598,16 +595,18 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
+        Thread.sleep(1000);
+        this.runEncounter(bobSharkPeer,aliceSharkPeer,true);
+        Thread.sleep(1000);
 
-        Thread.sleep(200);
         // Clara signs the new Promises
         for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
             Thread.sleep(200);
             this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
-
-        syncAliceBobClaraPeers();
+        Thread.sleep(1000);
+        this.runEncounter(claraSharkPeer,aliceSharkPeer,true);
         Thread.sleep(1000);
 
         // ==========================================
