@@ -10,6 +10,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
 
@@ -976,4 +977,58 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
     }
+
+    @Test
+    public void switchingParameterSendingPromises() throws SharkException, IOException, InterruptedException {
+        // Alice created a group with bob in it (he accepted). This method returns the groupID
+        byte[] groupId = this.aliceCreatesUnencryptedGroupWithBobSetUp();
+        byte[] currencyId
+                = this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency().getCurrencyId();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+
+        // let Bob accept ALice credentials and create a certificate
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+
+        // Alice accepts Bob Public Key
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        SharkGroupDocument sharkGroupDocument = this.aliceStorage.getGroupDocument(groupId);
+        CharSequence promiseId1 = this.aliceCurrencyComponent.createPromise(3,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                ALICE_ID, //creditor
+                BOB_ID, //debtor
+                true);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+        CharSequence promiseId2 = this.aliceCurrencyComponent.createPromise(2,
+                sharkGroupDocument.getAssignedCurrency(),
+                groupId,
+                BOB_ID, //creditor
+                ALICE_ID, //debtor
+                false);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        this.bobImpl.signPromiseAndSendBack(promiseId1);
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+        this.bobImpl.signPromiseAndSendBack(promiseId2);
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(1000);
+
+        Assertions.assertEquals(2, this.aliceStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(2, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(1,this.aliceCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(-1,this.bobCurrencyComponent.getBalance(currencyId));
+    }
+
 }

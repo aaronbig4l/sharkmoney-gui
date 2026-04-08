@@ -151,21 +151,21 @@ public class SharkInMemoPromise implements SharkPromise, Serializable {
     }
 
     @Override
-    public void updateState() {
+    public synchronized  void updateState() {
 
         if (this.promiseState == SharkPromiseState.ANULLED) { return; }
 
-        boolean hasDebtor = this.debtorSignature != null && this.debtorSignature.length > 0;
         boolean hasCreditor = this.creditorSignature != null && this.creditorSignature.length > 0;
+        boolean hasDebtor   = this.debtorSignature   != null && this.debtorSignature.length > 0;
 
         if (!hasDebtor && !hasCreditor) {
             setStateOfPromise(SharkPromiseState.UNSIGNED);
-        } else if (!hasDebtor && hasCreditor) {
-            setStateOfPromise(SharkPromiseState.SIGNED_BY_CREDITOR);
-        } else if (hasDebtor && !hasCreditor) {
+        } else if (hasDebtor && hasCreditor) {
+            setStateOfPromise(SharkPromiseState.FULLY_SIGNED);
+        } else if (hasDebtor) {
             setStateOfPromise(SharkPromiseState.SIGNED_BY_DEBITOR);
         } else {
-            setStateOfPromise(SharkPromiseState.FULLY_SIGNED);
+            setStateOfPromise(SharkPromiseState.SIGNED_BY_CREDITOR);
         }
     }
 

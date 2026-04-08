@@ -150,7 +150,7 @@ public class SharkCurrencyComponentImpl
                             sign,
                             encrypt,
                             this.sharkPKIComponent.getASAPKeyStore(),
-                            true,
+                            false,
                             0,
                             asCred);
 
@@ -171,6 +171,14 @@ public class SharkCurrencyComponentImpl
         }
 
         String pId = this.asapPeer.getPeerID().toString();
+
+        if (asCreditor && !pId.equals(creditorId.toString())) {
+            throw new SharkPromiseException("You cannot act as creditor for another peer");
+        }
+
+        if (!asCreditor && !pId.equals(debtorId.toString())) {
+            throw new SharkPromiseException("You cannot act as debtor for another peer");
+        }
 
         SharkGroupDocument sharkGroupDocument;
         if(this.sharkCurrencyStorage.getGroupDocument(groupId)==null) {
@@ -205,7 +213,9 @@ public class SharkCurrencyComponentImpl
         if(asCreditor) {
             SharkPromiseManagement
                     .signAsCreditor(keystore, promise, sharkGroupDocument.isEncrypted());
+            System.out.println("DEBUG: State before creation: " + promise.getStateOfPromise());
             promise.updateState();
+            System.out.println("DEBUG: State after creation: " + promise.getStateOfPromise());
             receiver.add(promise.getDebtorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sharkCurrencyStorage.putPromiseCreation(groupId);
@@ -220,7 +230,9 @@ public class SharkCurrencyComponentImpl
         } else {
             SharkPromiseManagement
                     .signAsDebtor(keystore, promise, sharkGroupDocument.isEncrypted());
+            System.out.println("DEBUG: State before creation: " + promise.getStateOfPromise());
             promise.updateState();
+            System.out.println("DEBUG: State after creation: " + promise.getStateOfPromise());
             receiver.add(promise.getCreditorID());
             this.sharkCurrencyStorage.addSharkPendingPromiseToStorage(promise);
             this.sendPromise(promiseId,
@@ -257,7 +269,6 @@ public class SharkCurrencyComponentImpl
             CharSequence sender;
             Set<CharSequence> receiver = new HashSet<>();
             if(asCreditor) {
-                System.out.println("AS CREDITOR HERE");
                 SharkPromiseManagement.signAsCreditor(ks, promise, encrypted);
                 sender=creditorId;
                 receiver.add(debtorId);
@@ -267,6 +278,7 @@ public class SharkCurrencyComponentImpl
                 receiver.add(creditorId);
             }
             promise.updateState();
+            System.out.println("DEBUG: New State: " + promise.getStateOfPromise() + " cred sig: " + promise.getCreditorSignature()[10] + " deb sig: " + promise.getDebtorSignature()[10]);
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
