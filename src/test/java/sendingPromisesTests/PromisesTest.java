@@ -834,7 +834,7 @@ public class PromisesTest extends AsapCurrencyTestHelper {
                     groupId,
                     ALICE_ID, //creditor
                     BOB_ID, //debtor
-                    true);
+                    false);
         });
 
         Assertions.assertTrue(bobGettingCentralizedException
@@ -1030,6 +1030,60 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(1,this.aliceCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(-1,this.bobCurrencyComponent.getBalance(currencyId));
     }
+
+    @Test
+    public void transferPromiseFromPendingStorageShouldFail() throws SharkException, IOException, InterruptedException {
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME,
+                System.currentTimeMillis(), alicePKI.getPublicKey()));
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME,
+                System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME,
+                System.currentTimeMillis(), claraPKI.getPublicKey()));
+
+        this.aliceCurrencyComponent.createPromise(5,
+                this.aliceStorage.getGroupDocument(groupId).getAssignedCurrency(),
+                groupId,
+                ALICE_ID,
+                BOB_ID,
+                true);
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(1000);
+
+
+
+        Assertions.assertEquals(1, this.bobStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.bobStorage.getSignedPromiseStorageSize());
+
+        CharSequence pendingPromiseId = this.bobStorage.getAllPendingPromises().iterator().next().getPromiseID();
+
+        Exception exception = assertThrows(SharkCurrencyException.class, () -> {
+            this.bobCurrencyComponent.transferPromiseToAnotherPeer(pendingPromiseId, CLARA_ID);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("Transfer failed: Promise with ID " + pendingPromiseId + " does not exist in Signed Storage."));
+        Assertions.assertEquals(1, this.bobStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.claraStorage.getPendingPromiseStorageSize());
+        Assertions.assertEquals(0, this.claraStorage.getSignedPromiseStorageSize());
+    }
+
+
+
 
 
 }
