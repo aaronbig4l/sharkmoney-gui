@@ -27,6 +27,7 @@ public class SharkGroupDocument {
     private GroupSignings groupDocState;
     private final Map<String,byte[]> currentMembers = new HashMap<>(); //<PeerId, Signature>
     private final Map<String, String> memberEthAdresses = new HashMap<>(); // <PeerId, Eth Adress>
+    private boolean promiseCreationLock = false;
 
     /**
      * Public constructor setting a new GroupId
@@ -173,6 +174,7 @@ public class SharkGroupDocument {
         documentVariables.add(serializeList(this.whitelistMember));
 
         // 5. Booleans & State
+        documentVariables.add(String.valueOf(this.promiseCreationLock));
         documentVariables.add(String.valueOf(this.centralized));
         documentVariables.add(String.valueOf(this.encrypted));
         documentVariables.add(String.valueOf(this.balanceVisible));
@@ -256,6 +258,7 @@ public class SharkGroupDocument {
         ArrayList<CharSequence> whitelist = deserializeList(listData);
 
         // 5. Booleans
+        boolean lock = parseBoolean(documentVariables.get(idx++)); //TODO: integriere lock in einem neuen konstuktor
         boolean cen = parseBoolean(documentVariables.get(idx++));
         boolean enc = parseBoolean(documentVariables.get(idx++));
         boolean bal = parseBoolean(documentVariables.get(idx++));
@@ -377,4 +380,6 @@ public class SharkGroupDocument {
     public ArrayList<CharSequence> getWhitelistMember() { return whitelistMember; }
     public String getEthAdressForPeer(CharSequence peerId) { return this.memberEthAdresses.get(peerId.toString()); }
     public Map<String, String> getMemberEthAdresses() { return this.memberEthAdresses; }
+    public boolean isPromiseCreationLocked() { return this.promiseCreationLock; }
+    private void setPromiseCreationLock(boolean lock) { this.promiseCreationLock=lock;}
 }
