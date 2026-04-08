@@ -341,4 +341,17 @@ public class CurrencyEncryptedGroupTests extends AsapCurrencyTestHelper {
         Assertions.assertTrue(verifiedAliceSig, "Alices Signature has to be verified");
     }
 
+    @Test
+    public void creatingGroupAndCurrencyButStringsAreTooLong() throws SharkException {
+        this.setUpScenarioEstablishCurrency_1_justAlice();
+        String curTooLong = "The name of this currency is just waaaaay too long!!!";
+        String exception = "";
+        try {
+            new SharkLocalCurrency(curTooLong, "an okay spec");
+        } catch(IllegalArgumentException e) {
+            exception=e.getMessage();
+        }
+        Assertions.assertTrue(exception.contains("The name of the Currency must be between 1 and 30 characters long"));
+    }
+
 }
