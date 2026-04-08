@@ -3,23 +3,15 @@ package settlementParty;
 import currency.classes.*;
 import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
-import implementations.SharkCurrencyComponentImpl;
-import net.sharksystem.SharkException;
-import net.sharksystem.asap.pki.CredentialMessageInMemo;
-import net.sharksystem.pki.SharkPKIComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import testHelper.AsapCurrencyTestHelper;
-import transactionSettelment.SettlementParty;
 import transactionSettelment.SettlementPartyState;
 import transactionSettelment.SharkSettlementDocument;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SettlementPartyTests extends AsapCurrencyTestHelper {
     public SettlementPartyTests() {
@@ -337,8 +329,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 BOB_ID,
                 ALICE_ID,
                 true);
-        syncAliceBobClaraPeers();
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
         this.aliceImpl.signPromiseAndSendBack(p1_G1);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
 
         // Group 1: Bob owes Clara 30
         CharSequence p2_G1 = this.claraCurrencyComponent.createPromise(30,
@@ -347,8 +344,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 CLARA_ID,
                 BOB_ID,
                 true);
-        syncAliceBobClaraPeers();
+        Thread.sleep(500);
+        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
         this.bobImpl.signPromiseAndSendBack(p2_G1);
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
 
         // Group 1: Clara owes Alice 100
         CharSequence p3_G1 = this.aliceCurrencyComponent.createPromise(100,
@@ -357,8 +359,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 ALICE_ID,
                 CLARA_ID,
                 true);
-        syncAliceBobClaraPeers();
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
         this.claraImpl.signPromiseAndSendBack(p3_G1);
+        Thread.sleep(500);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
 
         // Group 2: Alice owes Bob 500
         CharSequence p1_G2 = this.bobCurrencyComponent.createPromise(500,
@@ -367,20 +374,30 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 BOB_ID,
                 ALICE_ID,
                 true);
-        syncAliceBobClaraPeers();
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
         this.aliceImpl.signPromiseAndSendBack(p1_G2);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
 
-        // Group 2: Bob owes Clara 50
-        CharSequence p2_G2 = this.claraCurrencyComponent.createPromise(50,
+
+        // Group 2: Alice owes Clara 200
+        CharSequence p3_G2 = this.claraCurrencyComponent.createPromise(200,
                 groupDoc2.getAssignedCurrency(),
                 groupId2,
                 CLARA_ID,
-                BOB_ID,
+                ALICE_ID,
                 true);
-        syncAliceBobClaraPeers();
-        this.bobImpl.signPromiseAndSendBack(p2_G2);
+        Thread.sleep(500);
+        this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+        this.aliceImpl.signPromiseAndSendBack(p3_G2);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
 
-        syncAliceBobClaraPeers();
 
         // ==========================================
         // 3. Settlement Party
@@ -388,9 +405,17 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         byte[] partyId = this.aliceImpl.initiateSettlementParty(groupId1);
 
+        // Gossip Loop: The document has different States GATHERING -> VERIFYING -> COMPLETED, therefore we simulate a Loop for exchanging the Doc
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(100);
+            Thread.sleep(100); // Pause to let them calculate the Hashes
+
+            // Show the SharkSettlementDoc live
+            SharkSettlementDocument currentDoc = this.aliceStorage.getSettlementDocument(partyId);
+            if (currentDoc != null) {
+                System.out.println("Runde " + i + " | Status Alice: " + currentDoc.getState()
+                        + " | Gesammelte Hashes: " + currentDoc.getComputedHashes().size());
+            }
         }
 
         // Alice signs the new Promises
@@ -398,12 +423,18 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
             this.aliceImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
+        Thread.sleep(1000);
+        this.runEncounter(claraSharkPeer,aliceSharkPeer,true);
+        Thread.sleep(1000);
+
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
-
-            Thread.sleep(200);
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
+
+        Thread.sleep(1000);
+        this.runEncounter(bobSharkPeer,claraSharkPeer,true);
+        Thread.sleep(1000);
 
         syncAliceBobClaraPeers();
         Thread.sleep(100);
