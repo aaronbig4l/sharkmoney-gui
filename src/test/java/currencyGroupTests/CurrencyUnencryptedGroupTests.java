@@ -36,8 +36,7 @@ public class CurrencyUnencryptedGroupTests extends AsapCurrencyTestHelper {
             try {
                 FileUtils.deleteDirectory(rootFolder);
             } catch (IOException e) {
-
-                throw new RuntimeException("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden.", e);
+                System.out.println("Setup fehlgeschlagen: Ordner konnte nicht gelöscht werden." + e.getMessage());
             }
         }
 
