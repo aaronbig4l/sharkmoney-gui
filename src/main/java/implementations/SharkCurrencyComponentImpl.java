@@ -607,7 +607,6 @@ public class SharkCurrencyComponentImpl
             // 1. Collect all potential receivers (without the peer sending it)
             Set<String> receivers = new HashSet<>(groupDoc.getCurrentMembers().keySet());
             receivers.remove(this.asapPeer.getPeerID().toString());
-            byte flags = 0;
 
             // 2. Create for every potential receiver an encrypted message
             for (String targetPeer : receivers) {
@@ -615,7 +614,7 @@ public class SharkCurrencyComponentImpl
                         serializedDoc, targetPeer, this.sharkPKIComponent.getASAPKeyStore()
                 );
 
-                flags += SharkGroupDocument.ENCRYPTED_MASK;
+                byte flags = SharkGroupDocument.ENCRYPTED_MASK;
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ASAPSerialization.writeByteParameter(flags, baos);
                 ASAPSerialization.writeByteArray(encryptedDoc, baos);
