@@ -528,13 +528,15 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 ALICE_ID, //debtor
                 true);
 
-        Thread.sleep(100);
+        Thread.sleep(500);
         this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(500);
         this.aliceImpl.signPromiseAndSendBack(promiseAliceToBob);
-        Thread.sleep(100);
+        Thread.sleep(500);
+        System.out.println("DEBUG: before signback alice to bob should be here");
         this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(100);
+        System.out.println("DEBUG: after signback alice to bob should be here");
+        Thread.sleep(500);
 
         // Bob owes Clara 50
         CharSequence promiseBobToClara = this.claraCurrencyComponent.createPromise(50,
@@ -544,29 +546,39 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
                 BOB_ID, //debtor
                 true);
 
-        Thread.sleep(100);
+        Thread.sleep(500);
         this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(500);
         this.bobImpl.signPromiseAndSendBack(promiseBobToClara);
-        Thread.sleep(100);
+        Thread.sleep(500);
+        System.out.println("DEBUG: before signback bob to clara should be here");
         this.runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(100);
+        System.out.println("DEBUG: after signback bob to clara should be here");
+        Thread.sleep(500);
 
         // Clara owes Alice 30
-        CharSequence promiseClaraToAlice = this.aliceCurrencyComponent.createPromise(30,
+        CharSequence promiseClaraToAlice = this.claraCurrencyComponent.createPromise(30,
                 sharkGroupDocument.getAssignedCurrency(),
                 groupId,
                 ALICE_ID, //creditor
                 CLARA_ID, //debtor
-                true);
-        Thread.sleep(100);
-        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(100);
-        this.claraImpl.signPromiseAndSendBack(promiseClaraToAlice);
-        Thread.sleep(100);
+                false);
+        Thread.sleep(500);
         this.runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
+        Thread.sleep(500);
+        this.aliceImpl.signPromiseAndSendBack(promiseClaraToAlice);
+        Thread.sleep(500);
+        System.out.println("DEBUG: before signback clara to alice should be here");
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        System.out.println("DEBUG: after signback clara to alice should be here");
+        Thread.sleep(500);
 
+        int alicesigStorSize = this.aliceStorage.getSignedPromiseStorageSize();
+        int bobsigStorSize = this.bobStorage.getSignedPromiseStorageSize();
+        int clarasigStorSize = this.claraStorage.getSignedPromiseStorageSize();
+
+
+        System.out.println("DEBUG: should be 2 each: "+alicesigStorSize+bobsigStorSize+clarasigStorSize);
         // ==========================================
         // 3. Settlement Party
         // ==========================================
@@ -576,7 +588,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // Gossip Loop: The document has different States GATHERING -> VERIFYING -> COMPLETED, therefore we simulate a Loop for exchanging the Doc
         for (int i = 1; i <= 5; i++) {
             syncAliceBobClaraPeers();
-            Thread.sleep(1000); // Pause to let them calculate the Hashes
+            Thread.sleep(100); // Pause to let them calculate the Hashes
 
             // Show the SharkSettlementDoc live
             SharkSettlementDocument currentDoc = this.aliceStorage.getSettlementDocument(partyId);
@@ -592,6 +604,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
+            System.out.println("DEBUG: Bob signing promise and sending Alice, total amount: "+this.bobStorage.getPendingPromiseStorageSize() + " should go between Bob: " + p.getCreditorID() + " and Alice: "+ p.getDebtorID());
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
@@ -601,7 +614,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Clara signs the new Promises
         for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
-            Thread.sleep(200);
+            System.out.println("DEBUG: Clara signing promise and sending Alice, total amount: "+this.claraStorage.getPendingPromiseStorageSize() + " should go between Clara: " + p.getCreditorID() + " and Alice: "+ p.getDebtorID());
             this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
