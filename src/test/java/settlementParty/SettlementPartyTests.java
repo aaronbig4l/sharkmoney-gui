@@ -2,6 +2,7 @@ package settlementParty;
 
 import currency.classes.*;
 import exepections.SharkCurrencyException;
+import exepections.SharkSettlementException;
 import group.SharkGroupDocument;
 import implementations.SharkCurrencyComponentImpl;
 import net.sharksystem.SharkException;
@@ -644,7 +645,9 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
     }
 
     @Test
-    public void startingPartyWithOnly1PersonGroup() throws SharkCurrencyException {
+    public void startingPartyWithOnly1PersonGroup() throws SharkException {
+
+        this.setUpScenarioEstablishCurrency_1_justAlice();
 
         CharSequence currencyName = "AliceTalerAlone";
         SharkCurrency dummyCurrency = new SharkLocalCurrency(
@@ -653,7 +656,22 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         );
 
         // ALice creates group only with herself
-        this.aliceImpl.establishGroup(dummyCurrency, false, false, true);
-    }
+        byte[] groupId = this.aliceImpl.establishGroup(dummyCurrency,
+                false,
+                false,
+                true);
+        String exception = "";
 
+        try {
+            this.aliceImpl.initiateSettlementParty(groupId);
+        } catch(SharkSettlementException e) {
+            exception=e.getMessage();
+        }
+
+        SharkGroupDocument doc = this.aliceStorage.getGroupDocument(groupId);
+
+        Assertions.assertEquals(1, doc.getCurrentMembers().size());
+        Assertions.assertTrue(doc.getCurrentMembers().containsKey(ALICE_ID));
+        Assertions.assertEquals("Can not start a settlement party with less than 2 members", exception);
+    }
 }
