@@ -5,6 +5,7 @@ import blockchain.wallet.WalletManager;
 import currency.classes.*;
 import currency.storage.SharkCurrencyStorage;
 import exepections.SharkPromiseException;
+import exepections.SharkSettlementException;
 import group.SharkGroupDocument;
 import currency.api.SharkCurrencyComponent;
 import group.GroupSignings;
@@ -563,6 +564,10 @@ public class SharkCurrencyComponentImpl
 
             if (groupDoc == null) throw new SharkCurrencyException("Group not found for Settlement!");
 
+            if(groupDoc.getCurrentMembers().size()<=1) {
+                throw new SharkSettlementException("Can not start a settlement party with less than 2 members");
+            }
+
             // Add all current Members of the Group to the Settlement Party
             Set<CharSequence> expectedPeers = new HashSet<>(groupDoc.getCurrentMembers().keySet());
 
@@ -602,6 +607,7 @@ public class SharkCurrencyComponentImpl
             // 1. Collect all potential receivers (without the peer sending it)
             Set<String> receivers = new HashSet<>(groupDoc.getCurrentMembers().keySet());
             receivers.remove(this.asapPeer.getPeerID().toString());
+            byte flags = 0;
 
             // 2. Create for every potential receiver an encrypted message
             for (String targetPeer : receivers) {
@@ -609,7 +615,7 @@ public class SharkCurrencyComponentImpl
                         serializedDoc, targetPeer, this.sharkPKIComponent.getASAPKeyStore()
                 );
 
-                byte flags = SharkGroupDocument.ENCRYPTED_MASK;
+                flags += SharkGroupDocument.ENCRYPTED_MASK;
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ASAPSerialization.writeByteParameter(flags, baos);
                 ASAPSerialization.writeByteArray(encryptedDoc, baos);
