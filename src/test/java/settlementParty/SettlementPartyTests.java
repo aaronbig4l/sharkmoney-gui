@@ -1,6 +1,7 @@
 package settlementParty;
 
 import currency.classes.*;
+import exepections.SharkCurrencyException;
 import group.SharkGroupDocument;
 import implementations.SharkCurrencyComponentImpl;
 import net.sharksystem.SharkException;
@@ -399,6 +400,8 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
 
         // Bob signs the new Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
+
+            Thread.sleep(200);
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
@@ -563,8 +566,11 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
+
+        Thread.sleep(200);
         // Clara signs the new Promises
         for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
+            Thread.sleep(200);
             this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
         }
 
@@ -637,22 +643,17 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         Assertions.assertTrue(foundAliceToClara, "Error: New Promise (Alice pays Clara 20) not found");
     }
 
-    /**
-     * Help methode to run an encounter between Alice, Bob and Clara
-     */
-    private void syncAliceBobClaraPeers() throws Exception {
-        // Hinweg
-        runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(300);
-        runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(300);
-        runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(300);
-        // Rückweg (Damit Antworten auf demselben Weg direkt zurückkommen)
-        runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(300);
-        runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(300);
-        runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+    @Test
+    public void startingPartyWithOnly1PersonGroup() throws SharkCurrencyException {
+
+        CharSequence currencyName = "AliceTalerAlone";
+        SharkCurrency dummyCurrency = new SharkLocalCurrency(
+            currencyName.toString(),        // Name
+            "A test Currency"               // Spec
+        );
+
+        // ALice creates group only with herself
+        this.aliceImpl.establishGroup(dummyCurrency, false, false, true);
     }
+
 }

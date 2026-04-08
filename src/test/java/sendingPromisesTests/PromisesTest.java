@@ -1031,4 +1031,5 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-1,this.bobCurrencyComponent.getBalance(currencyId));
     }
 
+
 }

@@ -254,20 +254,6 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         Assertions.assertTrue(claraBalanceAfterTransaction.compareTo(claraBalanceInWei) < 0); // Claras amount decreased
     }
 
-    /**
-     * Help methode to run an encounter between Alice, Bob and Clara
-     */
-    private void syncAliceBobClaraPeers() throws Exception {
-        runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(100);
-        runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
-        Thread.sleep(100);
-        runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
-        runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
-        Thread.sleep(100);
-        runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(100);
-        runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
-    }
+    
+    
 }

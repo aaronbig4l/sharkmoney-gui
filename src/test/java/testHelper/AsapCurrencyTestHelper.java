@@ -552,6 +552,23 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         return groupId;
     }
 
+    /**
+    * Help methode to run an encounter between Alice, Bob and Clara
+    */
+    protected void syncAliceBobClaraPeers() throws Exception {
+        runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+    }
+
     protected static void stopPeerSafely(SharkPeer peer) {
         if (peer != null) {
             try {
