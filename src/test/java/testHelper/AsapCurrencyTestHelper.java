@@ -569,6 +569,35 @@ public class AsapCurrencyTestHelper extends SharkPeerTestHelper {
         runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
     }
 
+    /**
+     * Help methode to run an encounter between Alice, Bob, Clara & David
+     */
+    protected void syncAllPeers() throws Exception {
+        runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.aliceSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.bobSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.bobSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.claraSharkPeer, this.davidSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.davidSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.davidSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.davidSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.claraSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(300);
+        runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+    }
+
     protected static void stopPeerSafely(SharkPeer peer) {
         if (peer != null) {
             try {
