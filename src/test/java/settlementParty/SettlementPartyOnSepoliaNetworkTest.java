@@ -376,26 +376,27 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
             Thread.sleep(100);
         }
 
+        // Synchronize all new creates Promises and sign them
+        syncAliceBobClaraPeers();
+        Thread.sleep(1000);
 
         // Sign pending optimized Crypto-Promises
         for (SharkPromise p : this.bobStorage.getAllPendingPromises()) {
             this.bobImpl.signPromiseAndSendBack(p.getPromiseID());
-            Thread.sleep(1000);
-            runEncounter(bobSharkPeer, aliceSharkPeer, true);
-            Thread.sleep(1000);
         }
+
+        Thread.sleep(1000);
+        this.runEncounter(bobSharkPeer,aliceSharkPeer,true);
+        Thread.sleep(1000);
 
         for (SharkPromise p : this.claraStorage.getAllPendingPromises()) {
             this.claraImpl.signPromiseAndSendBack(p.getPromiseID());
-            Thread.sleep(1000);
-            runEncounter(claraSharkPeer, davidSharkPeer, true);
-            Thread.sleep(1000);
         }
 
-        for (int i = 0; i < 3; i++) {
-            syncAllPeers();
-            Thread.sleep(100);
-        }
+        Thread.sleep(1000);
+        this.runEncounter(claraSharkPeer,davidSharkPeer,true);
+        Thread.sleep(1000);
+
 
         // ==========================================
         // 4. Settlement Party Assertions
@@ -436,7 +437,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
 
         // Prüfe Davids lokalen Speicher auf die neuen Promises
         List<byte[]> serializedPromisesDavid = this.davidImpl.getSerializedPromisesForGroup(groupId);
-        for (byte[] pBytes : serializedPromisesAlice) {
+        for (byte[] pBytes : serializedPromisesDavid) {
             SharkPromise promise = SharkPromiseSerializer.deserializePromise(
                     pBytes, this.davidImpl.getSharkPKIComponent().getASAPKeyStore()
             );
