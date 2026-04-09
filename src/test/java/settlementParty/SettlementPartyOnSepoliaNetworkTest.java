@@ -377,7 +377,7 @@ public class SettlementPartyOnSepoliaNetworkTest extends AsapCurrencyTestHelper 
         }
 
         // Synchronize all new creates Promises and sign them
-        syncAliceBobClaraPeers();
+        syncAllPeers();
         Thread.sleep(1000);
 
         // Sign pending optimized Crypto-Promises
