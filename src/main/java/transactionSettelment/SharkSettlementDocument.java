@@ -27,8 +27,8 @@ public class SharkSettlementDocument {
     private final byte[] partyId; // ID to identify the settlement party instance
     private final byte[] groupId; // GroupID this settlement belongs
     private final CharSequence initiatorId; // The peer who initialized this settlement party
-    private Set<CharSequence> expectedPeers; // Set of Peers that are expected to participate (usually all group members)
-    private Set<CharSequence> submittedPeers; // Set of Peers that habe already submitted their Promises
+    private final Set<CharSequence> expectedPeers; // Set of Peers that are expected to participate (usually all group members)
+    private final Set<CharSequence> submittedPeers; // Set of Peers that habe already submitted their Promises
     private SettlementPartyState state; // current lifecycle of this settlement party
     private final long createdAt; // timestamp when the party was created
     private final long expiresAt; // timestamp at which the Settlement Party expires

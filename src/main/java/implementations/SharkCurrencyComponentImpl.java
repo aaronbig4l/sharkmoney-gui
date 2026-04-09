@@ -637,7 +637,7 @@ public class SharkCurrencyComponentImpl
      * @param groupId ID of the group whose promises should be collected
      * @return a list of serialized promise byte arrays
      */
-    public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) throws ASAPSecurityException, IOException {
+    public List<byte[]> getSerializedPromisesForGroup(byte[] groupId) throws ASAPSecurityException, IOException, SharkCurrencyException {
         List<byte[]> serializedPromises = new ArrayList<>();
 
         List<SharkPromise> promises = this.sharkCurrencyStorage.getSignedPromisesForGroup(groupId);

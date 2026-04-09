@@ -193,13 +193,13 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         for (SharkPromise p : allFinalPromises) {
             System.out.println("Debtor: " + p.getDebtorID() + " | Creditor: " + p.getCreditorID() + " | Amount: " + p.getAmount());
 
-            if (p.getDebtorID().toString().equals(ALICE_ID.toString()) &&
-                    p.getCreditorID().toString().equals(BOB_ID.toString()) &&
+            if (p.getDebtorID().toString().equals(ALICE_ID) &&
+                    p.getCreditorID().toString().equals(BOB_ID) &&
                     p.getAmount() == 50) {
                 foundAliceToBob = true;
             }
-            if (p.getDebtorID().toString().equals(ALICE_ID.toString()) &&
-                    p.getCreditorID().toString().equals(CLARA_ID.toString()) &&
+            if (p.getDebtorID().toString().equals(ALICE_ID) &&
+                    p.getCreditorID().toString().equals(CLARA_ID) &&
                     p.getAmount() == 20) {
                 foundAliceToClara = true;
             }
