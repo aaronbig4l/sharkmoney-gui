@@ -188,6 +188,9 @@ public class SharkCurrencyComponentImpl
         } else {
             sharkGroupDocument = this.sharkCurrencyStorage.getGroupDocument(groupId);
         }
+        if(sharkGroupDocument.isPromiseCreationLocked()) {
+            throw new SharkPromiseException("Promise creation is locked due to ongoing settlement...");
+        }
 
         SharkCurrency sharkCurrency = sharkGroupDocument.getAssignedCurrency();
         if(sharkCurrency.hasGlobalLimit() && this.sharkCurrencyStorage
@@ -609,6 +612,7 @@ public class SharkCurrencyComponentImpl
             sharkSettlementDocument.addPeerPromises(this.asapPeer.getPeerID(), serializedPromises);
 
             // Save and broadcast document to all peers
+            groupDoc.setPromiseCreationLock(true);
             this.getSharkCurrencyStorage().saveSettlementDocument(partyId, sharkSettlementDocument);
             this.sendSettlementDocument(sharkSettlementDocument);
             System.out.println("Settlement Party initiated successfully!");
@@ -717,6 +721,8 @@ public class SharkCurrencyComponentImpl
         }
 
         // 3. Create new Promises
+        this.sharkCurrencyStorage
+                .getGroupDocument(settlementDocument.getGroupId()).setPromiseCreationLock(false);
         for (SettlementTransaction tx : optimizedTx) {
             if (this.asapPeer.getPeerID().toString().equals(tx.getDebtorId().toString())) {
                 this.createPromise(

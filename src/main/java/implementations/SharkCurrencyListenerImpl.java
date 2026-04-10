@@ -35,10 +35,9 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListener {
         handlers.put(SharkCurrencyComponent.SHARK_PROMISE_RESPONSE_DEBT_SETTLED,
                 new SharkPromiseResponseForDebtSettledHandler(storage, this.sharkCurrencyComponent));
 
+        //Transfer handler
         handlers.put(SharkPromise.SHARK_PROMISE_TRANSFER_NOTIFICATION,
                 new SharkPromiseTransferNotificationHandler(storage, this.sharkCurrencyComponent));
-
-
 
         //Group handler
         handlers.put(SharkCurrencyComponent.INVITE_CHANNEL_URI,
@@ -50,7 +49,7 @@ public class SharkCurrencyListenerImpl implements SharkCurrencyListener {
 
         //Settlement Handler
         handlers.put(SharkCurrencyComponent.SETTLEMENT_URI,
-                new SharkSettlementHandler(this.sharkCurrencyComponent));
+                new SharkSettlementHandler(storage, this.sharkCurrencyComponent));
     }
 
     @Override

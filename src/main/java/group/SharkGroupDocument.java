@@ -383,5 +383,5 @@ public class SharkGroupDocument {
     public String getEthAdressForPeer(CharSequence peerId) { return this.memberEthAdresses.get(peerId.toString()); }
     public Map<String, String> getMemberEthAdresses() { return this.memberEthAdresses; }
     public boolean isPromiseCreationLocked() { return this.promiseCreationLock; }
-    private void setPromiseCreationLock(boolean lock) { this.promiseCreationLock=lock;}
+    public void setPromiseCreationLock(boolean lock) { this.promiseCreationLock=lock;}
 }

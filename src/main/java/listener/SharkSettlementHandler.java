@@ -1,5 +1,6 @@
 package listener;
 
+import currency.storage.SharkCurrencyStorage;
 import group.SharkGroupDocument;
 import implementations.SharkCurrencyComponentImpl;
 import net.sharksystem.asap.ASAPException;
@@ -25,8 +26,10 @@ import java.util.Map;
 public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
 
     private final SharkCurrencyComponentImpl component;
+    private final SharkCurrencyStorage storage;
 
-    public SharkSettlementHandler(SharkCurrencyComponentImpl component) {
+    public SharkSettlementHandler(SharkCurrencyStorage storage, SharkCurrencyComponentImpl component) {
+        this.storage = storage;
         this.component = component;
     }
 
@@ -36,6 +39,7 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
         for (int i = 0; i < messages.size(); i++) {
             byte[] msgData = messages.getMessage(i, true);
 
+            SharkSettlementDocument localDoc = null;
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream(msgData);
                 byte flags = ASAPSerialization.readByte(bais);
@@ -60,13 +64,19 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                 SharkSettlementDocument incomingDoc = SharkSettlementDocument.deserialize(payload);
                 CharSequence myPeerId = component.getPeerIdOfImpl();
 
-                if (incomingDoc == null || incomingDoc.isExpired() ||
-                        !incomingDoc.getExpectedPeers().contains(myPeerId.toString())) continue;
+                if (incomingDoc == null || incomingDoc.isExpired() || !incomingDoc.getExpectedPeers().contains(myPeerId.toString())) {
+                    if (incomingDoc != null && incomingDoc.isExpired()) {
+                        SharkGroupDocument gd = storage.getGroupDocument(incomingDoc.getGroupId());
+                        if (gd != null) gd.setPromiseCreationLock(false);
+                    }
+                    continue;
+                }
 
                 // Check if SettlementDoc already exists
-                SharkSettlementDocument localDoc = component.getSharkCurrencyStorage().getSettlementDocument(incomingDoc.getPartyId());
+                localDoc = component.getSharkCurrencyStorage().getSettlementDocument(incomingDoc.getPartyId());
                 if (localDoc == null) {
                     localDoc = incomingDoc;
+                    this.storage.getGroupDocument(localDoc.getGroupId()).setPromiseCreationLock(true);
                 } else {
                     // Merge Promises
                     for (Map.Entry<CharSequence, List<byte[]>> entry : incomingDoc.getCollectedPromises().entrySet()) {
@@ -108,11 +118,15 @@ public class SharkSettlementHandler implements SharkCurrencyMessageHandler{
                     }
                 } else if (localDoc.getState() == SettlementPartyState.CANCELLED) {
                     System.err.println("Settlement Party failed or Hashes mismatched.");
+                    this.storage.getGroupDocument(localDoc.getGroupId()).setPromiseCreationLock(false);
                 }
 
             } catch (Exception e) {
                 System.out.println("Shark Settlement Party Error: " + e.getMessage());
-                e.printStackTrace();
+                if (localDoc != null) {
+                    this.storage.getGroupDocument(localDoc.getGroupId())
+                            .setPromiseCreationLock(false);
+                }
             }
         }
     }
