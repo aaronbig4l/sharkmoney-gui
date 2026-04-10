@@ -550,6 +550,30 @@ public class SharkCurrencyComponentImpl
                     SharkCurrencyComponent.CURRENCY_FORMAT,
                     uri,
                     serializedPromise);
+            CharSequence otherPartyId = isCreditor
+                    ? promise.getDebtorID()
+                    : promise.getCreditorID();
+
+            Set<CharSequence> otherReceiver = new HashSet<>();
+            otherReceiver.add(otherPartyId);
+
+            byte[] notificationPromise = SharkPromiseSerializer
+                    .serializePromise(promise,
+                            myPeerId,
+                            otherReceiver,
+                            true,
+                            encrypt,
+                            this.sharkPKIComponent.getASAPKeyStore(),
+                            false,
+                            0,
+                            isCreditor);
+
+            this.asapPeer.sendASAPMessage(
+                    SharkCurrencyComponent.CURRENCY_FORMAT,
+                    SharkPromise.SHARK_PROMISE_TRANSFER_NOTIFICATION,
+                    notificationPromise);
+
+
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
         }

@@ -6,11 +6,9 @@ import exepections.SharkCurrencyException;
 import exepections.SharkPromiseException;
 import group.SharkGroupDocument;
 import net.sharksystem.SharkException;
-import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.pki.CredentialMessageInMemo;
 import net.sharksystem.pki.SharkPKIComponent;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import testHelper.AsapCurrencyTestHelper;
 
@@ -507,6 +505,8 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
 
+
+
         this.claraImpl.signPromiseAndSendBack(promiseId);
 
         Thread.sleep(500);
@@ -903,19 +903,13 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
         Thread.sleep(500);
 
-        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
-        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
-        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
+        Assertions.assertEquals(0, this.aliceStorage.getSignedPromiseStorageSize());
+        Assertions.assertNull(this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId));
 
-        this.claraImpl.signPromiseAndSendBack(promiseId);
+        Assertions.assertEquals(1, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(ALICE_ID, this.bobStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorID());
 
-        Thread.sleep(500);
-        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
-        Thread.sleep(500);
-
-        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
-        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
-        Assertions.assertEquals(2, this.claraImpl.getBalance(currencyId));
+        Assertions.assertEquals(1, this.claraStorage.getPendingPromiseStorageSize());
     }
 
 
@@ -1081,6 +1075,87 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(0, this.claraStorage.getPendingPromiseStorageSize());
         Assertions.assertEquals(0, this.claraStorage.getSignedPromiseStorageSize());
     }
+
+    @Test
+    public void transferPromiseUpdatesStorageForAllThreeParties() throws SharkException, IOException, InterruptedException {
+        byte[] groupId = this.aliceCreatesEncryptedGroupWithBobAndClaraSetUp();
+
+        SharkPKIComponent alicePKI = (SharkPKIComponent) this.aliceSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
+        SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
+
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
+
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
+        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
+        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
+        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
+
+        SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
+        byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
+        SharkCurrency currency = aliceDoc.getAssignedCurrency();
+
+        CharSequence promiseId = this.aliceCurrencyComponent.createPromise(
+                5, currency, groupId, ALICE_ID, BOB_ID, true
+        );
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        this.bobImpl.signPromiseAndSendBack(promiseId);
+
+        Thread.sleep(500);
+        this.runEncounter(this.bobSharkPeer, this.aliceSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertEquals(1, this.aliceStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(1, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(0, this.claraStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(ALICE_ID, this.bobStorage.getSharkSignedPromiseFromStorage(promiseId).getCreditorID());
+
+        this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
+
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
+        Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertEquals(0, this.aliceStorage.getSignedPromiseStorageSize());
+        Assertions.assertNull(this.aliceStorage.getSharkSignedPromiseFromStorage(promiseId));
+
+        Assertions.assertEquals(0, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(1, this.bobStorage.getPendingPromiseStorageSize());
+
+        Assertions.assertEquals(1, this.claraStorage.getPendingPromiseStorageSize());
+
+        this.claraImpl.signPromiseAndSendBack(promiseId);
+
+        Thread.sleep(500);
+        this.runEncounter(this.claraSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
+
+        Assertions.assertEquals(0, this.aliceStorage.getSignedPromiseStorageSize());
+
+        Assertions.assertEquals(1, this.bobStorage.getSignedPromiseStorageSize());
+        Assertions.assertEquals(0, this.bobStorage.getPendingPromiseStorageSize());
+        SharkPromise bobUpdatedPromise = this.bobStorage.getSharkSignedPromiseFromStorage(promiseId);
+        Assertions.assertEquals(CLARA_ID, bobUpdatedPromise.getCreditorID().toString());
+        Assertions.assertEquals(BOB_ID, bobUpdatedPromise.getDebtorID().toString());
+
+        Assertions.assertEquals(1, this.claraStorage.getSignedPromiseStorageSize());
+        SharkPromise claraPromise = this.claraStorage.getSharkSignedPromiseFromStorage(promiseId);
+        Assertions.assertEquals(CLARA_ID, claraPromise.getCreditorID().toString());
+        Assertions.assertEquals(BOB_ID, claraPromise.getDebtorID().toString());
+
+        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
+        Assertions.assertEquals(-5, this.bobCurrencyComponent.getBalance(currencyId));
+        Assertions.assertEquals(5, this.claraImpl.getBalance(currencyId));
+    }
+
+
 
 
 

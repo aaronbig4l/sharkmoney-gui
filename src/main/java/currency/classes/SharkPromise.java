@@ -16,6 +16,8 @@ public interface SharkPromise {
     String SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED = "signAsCreditor";
     String SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB = "signAsDebitor";
     String SHARK_PROMISE_RECEIVE_SIGNED_SIG = "recSignedSig";
+    String SHARK_PROMISE_TRANSFER_NOTIFICATION = "transferNotification";
+
 
 
     /**
@@ -60,8 +62,8 @@ public interface SharkPromise {
     
     void setCreditor(CharSequence peerId);
 
-    public byte[] getCreditorSignature();
-    public byte[] getDebtorSignature();
+    byte[] getCreditorSignature();
+    byte[] getDebtorSignature();
 
     long getExpirationDate();
 
