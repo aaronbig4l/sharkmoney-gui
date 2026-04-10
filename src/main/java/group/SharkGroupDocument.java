@@ -67,6 +67,7 @@ public class SharkGroupDocument {
     private SharkGroupDocument(byte[] groupId,CharSequence groupCreator,
                                SharkCurrency assignedCurrency,
                                ArrayList<CharSequence> whitelistMember,
+                               boolean promiseCreationLock,
                                boolean centralized,
                                boolean encrypted,
                                boolean balanceVisible,
@@ -86,6 +87,7 @@ public class SharkGroupDocument {
         }
         this.groupCreator = groupCreator;
         this.assignedCurrency = assignedCurrency;
+        this.promiseCreationLock=promiseCreationLock;
         this.centralized = centralized;
         this.encrypted = encrypted;
         this.balanceVisible = balanceVisible;
@@ -271,7 +273,7 @@ public class SharkGroupDocument {
         } catch (IllegalArgumentException e) {
             // ignore
         }
-        SharkGroupDocument doc = new SharkGroupDocument(gId, cId, currency, whitelist, cen, enc, bal, state);
+        SharkGroupDocument doc = new SharkGroupDocument(gId, cId, currency, whitelist, lock, cen, enc, bal, state);
 
         // 7. Member-Map wiederherstellen (Letzter Part)
         String membersData = documentVariables.get(idx++).toString();
