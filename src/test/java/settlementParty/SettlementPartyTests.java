@@ -803,7 +803,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         // ==========================================
 
         byte[] partyId = this.aliceImpl.initiateSettlementParty(groupId);
-
+        Thread.sleep(1000);
         String exception = "";
         try {
             this.claraCurrencyComponent.createPromise(123,
@@ -815,6 +815,7 @@ public class SettlementPartyTests extends AsapCurrencyTestHelper {
         } catch(SharkPromiseException e) {
             exception=e.getMessage();
         }
+        Thread.sleep(1000);
 
         // Gossip Loop: The document has different States GATHERING -> VERIFYING -> COMPLETED, therefore we simulate a Loop for exchanging the Doc
         for (int i = 1; i <= 5; i++) {
