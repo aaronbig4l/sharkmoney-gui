@@ -282,7 +282,9 @@ public class SharkCurrencyComponentImpl
                 receiver.add(creditorId);
             }
             promise.updateState();
-            System.out.println("DEBUG: New State: " + promise.getStateOfPromise() + " cred sig: " + promise.getCreditorSignature()[10] + " deb sig: " + promise.getDebtorSignature()[10]);
+            String credSigInfo = promise.getCreditorSignature() != null ? "exists" : "null";
+            String debSigInfo = promise.getDebtorSignature() != null ? "exists" : "null";
+            System.out.println("DEBUG: New State: " + promise.getStateOfPromise() + " cred sig: " + credSigInfo + " deb sig: " + debSigInfo);
             this.sharkCurrencyStorage.removeSharkPendingPromiseFromStorage(promiseId);
             this.sharkCurrencyStorage.addSharkSignedPromiseToStorage(promise);
 
@@ -514,73 +516,54 @@ public class SharkCurrencyComponentImpl
             throw new SharkCurrencyException("Transfer failed: The executing peer is neither creditor nor debtor of this promise.");
         }
 
+
         this.subtractBalance(promise);
+        this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseId);
+
 
         if (isCreditor) {
             promise.setCreditor(newPeerId);
-            promise.setCreditorSignature(null);
         } else {
             promise.setDebtor(newPeerId);
-            promise.setDebtorSignature(null);
         }
-
+        promise.setCreditorSignature(null);
+        promise.setDebtorSignature(null);
         promise.updateState();
 
-        this.sharkCurrencyStorage.removeSharkSignedPromiseFromStorage(promiseId);
-
         try {
-            Set<CharSequence> receiver = new HashSet<>();
-            receiver.add(newPeerId);
+            Set<CharSequence> receivers = new HashSet<>();
+            receivers.add(newPeerId);
+            receivers.add(isCreditor ? promise.getDebtorID() : promise.getCreditorID());
+
             boolean encrypt = this.sharkCurrencyStorage
                     .getGroupDocument(promise.getGroupIDOfPromise()).isEncrypted();
 
-            CharSequence uri = isCreditor
-                    ? SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED
-                    : SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB;
 
-            byte[] serializedPromise = SharkPromiseSerializer
-                    .serializePromise(promise,
-                            myPeerId,
-                            receiver,
-                            true,
-                            encrypt,
-                            this.sharkPKIComponent.getASAPKeyStore(),
-                            false,
-                            0,
-                            isCreditor);
+            for (CharSequence receiver : receivers) {
+                Set<CharSequence> singleReceiverSet = new HashSet<>();
+                singleReceiverSet.add(receiver);
 
-            this.asapPeer.sendASAPMessage(
-                    SharkCurrencyComponent.CURRENCY_FORMAT,
-                    uri,
-                    serializedPromise);
-            CharSequence otherPartyId = isCreditor
-                    ? promise.getDebtorID()
-                    : promise.getCreditorID();
+                byte[] serializedPromise = SharkPromiseSerializer
+                        .serializePromise(promise,
+                                myPeerId,
+                                singleReceiverSet,
+                                false,
+                                encrypt,
+                                this.sharkPKIComponent.getASAPKeyStore(),
+                                false,
+                                0,
+                                isCreditor);
 
-            Set<CharSequence> otherReceiver = new HashSet<>();
-            otherReceiver.add(otherPartyId);
-
-            byte[] notificationPromise = SharkPromiseSerializer
-                    .serializePromise(promise,
-                            myPeerId,
-                            otherReceiver,
-                            true,
-                            encrypt,
-                            this.sharkPKIComponent.getASAPKeyStore(),
-                            false,
-                            0,
-                            isCreditor);
-
-            this.asapPeer.sendASAPMessage(
-                    SharkCurrencyComponent.CURRENCY_FORMAT,
-                    SharkPromise.SHARK_PROMISE_TRANSFER_NOTIFICATION,
-                    notificationPromise);
-
+                this.asapPeer.sendASAPMessage(
+                        SharkCurrencyComponent.CURRENCY_FORMAT,
+                        SharkPromise.SHARK_PROMISE_TRANSFER_NOTIFICATION,
+                        serializedPromise);
+            }
 
         } catch (IOException | ASAPException e) {
             throw new RuntimeException(e);
-        }
-    }
+        }}
+
 
 
 

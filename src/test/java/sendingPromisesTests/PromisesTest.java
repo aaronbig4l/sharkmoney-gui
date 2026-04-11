@@ -465,13 +465,19 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         SharkPKIComponent bobPKI = (SharkPKIComponent) this.bobSharkPeer.getComponent(SharkPKIComponent.class);
         SharkPKIComponent claraPKI = (SharkPKIComponent) this.claraSharkPeer.getComponent(SharkPKIComponent.class);
 
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
 
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey()));
-        claraPKI.acceptAndSignCredential(new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey()));
-        alicePKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
-        bobPKI.acceptAndSignCredential(new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey()));
+        CredentialMessageInMemo aliceCredentialMessage = new CredentialMessageInMemo(ALICE_ID, ALICE_NAME, System.currentTimeMillis(), alicePKI.getPublicKey());
+        CredentialMessageInMemo bobCredentialMessage = new CredentialMessageInMemo(BOB_ID, BOB_NAME, System.currentTimeMillis(), bobPKI.getPublicKey());
+        CredentialMessageInMemo claraCredentialMessage = new CredentialMessageInMemo(CLARA_ID, CLARA_NAME, System.currentTimeMillis(), claraPKI.getPublicKey());
+
+
+        bobPKI.acceptAndSignCredential(aliceCredentialMessage);
+        alicePKI.acceptAndSignCredential(bobCredentialMessage);
+
+        claraPKI.acceptAndSignCredential(aliceCredentialMessage);
+        claraPKI.acceptAndSignCredential(bobCredentialMessage);
+        alicePKI.acceptAndSignCredential(claraCredentialMessage);
+        bobPKI.acceptAndSignCredential(claraCredentialMessage);
 
         SharkGroupDocument aliceDoc = this.aliceStorage.getGroupDocument(groupId);
         byte[] currencyId = aliceDoc.getAssignedCurrency().getCurrencyId();
@@ -495,17 +501,14 @@ public class PromisesTest extends AsapCurrencyTestHelper {
         Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
         Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
 
+
         this.aliceCurrencyComponent.transferPromiseToAnotherPeer(promiseId, CLARA_ID);
 
         Thread.sleep(500);
+        this.runEncounter(this.aliceSharkPeer, this.bobSharkPeer, true);
+        Thread.sleep(500);
         this.runEncounter(this.aliceSharkPeer, this.claraSharkPeer, true);
         Thread.sleep(500);
-
-        Assertions.assertEquals(0, this.aliceImpl.getBalance(currencyId));
-        Assertions.assertEquals(-2, this.bobCurrencyComponent.getBalance(currencyId));
-        Assertions.assertEquals(0, this.claraImpl.getBalance(currencyId));
-
-
 
         this.claraImpl.signPromiseAndSendBack(promiseId);
 

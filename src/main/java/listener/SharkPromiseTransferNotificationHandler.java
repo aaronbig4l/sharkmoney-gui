@@ -2,6 +2,7 @@ package listener;
 
 import currency.api.SharkCurrencyComponent;
 import currency.classes.SharkPromise;
+import currency.classes.SharkPromiseManagement;
 import currency.classes.SharkPromiseSerializer;
 import currency.storage.SharkCurrencyStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -32,16 +33,35 @@ public class SharkPromiseTransferNotificationHandler implements SharkCurrencyMes
 
                 CharSequence promiseId = updatedPromise.getPromiseID();
 
+
                 if (this.currencyStorage.containsSignedPromise(promiseId)) {
                     SharkPromise oldPromise = this.currencyStorage.getSharkSignedPromiseFromStorage(promiseId);
+
+
                     this.sharkCurrencyComponent.subtractBalance(oldPromise);
                     this.currencyStorage.removeSharkSignedPromiseFromStorage(promiseId);
+                    System.out.println("DEBUG TransferNotification: Old promise deleted and balance adjusted.");
+
+
+                    boolean encrypt = this.currencyStorage.getGroupDocument(updatedPromise.getGroupIDOfPromise()).isEncrypted();
+                    boolean amICreditor = pki.getOwnerID().toString().equals(updatedPromise.getCreditorID().toString());
+
+                    if (amICreditor) {
+                        SharkPromiseManagement.signAsCreditor(pki.getASAPKeyStore(), updatedPromise, encrypt);
+                    } else {
+                        SharkPromiseManagement.signAsDebtor(pki.getASAPKeyStore(), updatedPromise, encrypt);
+                    }
+
+                    updatedPromise.updateState();
                     this.currencyStorage.addSharkPendingPromiseToStorage(updatedPromise);
-                    System.out.println("DEBUG TransferNotification: moved promise " + promiseId
-                            + " from signed to pending (transfer in progress)");
-                } else {
-                    System.out.println("DEBUG TransferNotification: promise " + promiseId
-                            + " not found in signed storage, skipping");
+                    System.out.println("DEBUG TransferNotification: Auto-signed the new promise without contradiction and moved to pending.");
+
+                }
+
+                else {
+
+                    this.currencyStorage.addSharkPendingPromiseToStorage(updatedPromise);
+                    System.out.println("DEBUG TransferNotification: New promise stored in pending storage. Waiting for manual sign.");
                 }
             } catch (Exception e) {
                 System.out.println("DEBUG TransferNotification: skipping message: " + e.getMessage());
