@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimpleConsoleTest extends AsapCurrencyTestHelper {
+public class CreateGroupSendAndReceivePromiseTest extends AsapCurrencyTestHelper {
 
-    public SimpleConsoleTest() {
+    public CreateGroupSendAndReceivePromiseTest() {
         super("consoleTest");
     }
 
     public static void main(String[] args) throws Exception {
-        SimpleConsoleTest test = new SimpleConsoleTest();
+        CreateGroupSendAndReceivePromiseTest test = new CreateGroupSendAndReceivePromiseTest();
 
         // Storage aus vorherigen Runs löschen
         java.io.File testFolder = new java.io.File("testResultsRootFolder/consoleTest");
