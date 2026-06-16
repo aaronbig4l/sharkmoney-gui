@@ -117,7 +117,7 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
         groupId = aliceCurrencyComponent.establishGroup(currency, whitelist, false, true, true);
 
         // Bob einladen
-        aliceCurrencyComponent.invitePeerToGroup(groupId, "Hey Bob!", BOB_ID);
+        aliceCurrencyComponent.invitePeerToGroup(groupId, "", BOB_ID);
         runEncounter(aliceSharkPeer, bobSharkPeer, true);
         Thread.sleep(1000);
 
