@@ -29,13 +29,7 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
     }
 
     public static void main(String[] args) throws Exception {
-        // Storage löschen
-        java.io.File testFolder = new java.io.File("testResultsRootFolder/sharkMoneyCLI");
-        if (testFolder.exists()) {
-            org.apache.commons.io.FileUtils.deleteDirectory(testFolder);
-        }
-
-        SharkMoneyCLI app = new SharkMoneyCLI();
+      SharkMoneyCLI app = new SharkMoneyCLI();
         app.printWelcome();
         app.init();
         app.run();
@@ -96,8 +90,8 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
         System.out.println("║   Simuliertes Testszenario   ║");
         System.out.println("╚══════════════════════════════╝");
         System.out.println("1. Gruppe erstellen");
-        System.out.println("2. Zahlungsforderung stellen");
-        System.out.println("3. Zahlung leisten");
+        System.out.println("2. Schuldbegleichung anfordern");
+        System.out.println("3. Schuld begleichen");
         System.out.println("4. Guthaben anzeigen");
         System.out.println("5. Beenden");
         System.out.print("> ");
@@ -141,11 +135,10 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
             return;
         }
 
-        System.out.println("\nInfo: Leiste eine Zahlung an" + BOB_NAME + ".");
-        System.out.println(BOB_NAME +  " muss die Zahlung bestätigen bevor sie eingetragen wird.");
+        System.out.println("\nInfo: Hier kannst du eine bestehende Schuld gegenüber " + BOB_NAME + " begleichen.");
+        System.out.println("Bob erhält eine Zahlungsaufforderung und muss diese bestätigen.");
         System.out.println();
-        System.out.print("Ich zahle " + BOB_NAME + ": ");
-        int amount;
+        System.out.print("Betrag den ich " + BOB_NAME + " gezahlt habe: ");        int amount;
         try {
             amount = Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
@@ -174,12 +167,12 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
             return;
         }
 
-        System.out.println("\n" + ALICE_NAME + " zahlt " + amount + " " + currency.getCurrencyName() + " an " + BOB_NAME + ".");
+        System.out.println("\n" + ALICE_NAME + " hat " + amount + " " + currency.getCurrencyName() + " an " + BOB_NAME + " gezahlt.");
         System.out.print(BOB_NAME + ": Bestätigst du diese Zahlung? (j/n): ");
         String answer = scanner.nextLine().trim();
 
         if (!answer.equalsIgnoreCase("j")) {
-            System.out.println(BOB_NAME + " hat die Zahlung abgelehnt.");
+            System.out.println(BOB_NAME + " hat die Zahlung nicht bestätigt.");
             return;
         }
 
@@ -223,11 +216,12 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
             return;
         }
 
-        System.out.println("\nInfo: Fordere einen Betrag von Bob ein.");
-        System.out.println("Bob muss die Forderung bestätigen bevor sie eingetragen wird.");
+        System.out.println("\nInfo: Hier kannst du eine Schuldforderung gegenüber " + BOB_NAME + " eintragen.");
+        System.out.println(BOB_NAME + " muss die Schuldforderung bestätigen bevor sie eingetragen wird.");
         System.out.println();
         // ...
-        System.out.print(BOB_NAME + " schuldet mir: ");
+        System.out.print("Betrag den " + BOB_NAME + " mir schuldet: ");
+
         int amount;
         try {
             amount = Integer.parseInt(scanner.nextLine().trim());
