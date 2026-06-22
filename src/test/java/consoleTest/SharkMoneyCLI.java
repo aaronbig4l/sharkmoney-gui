@@ -29,7 +29,12 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
     }
 
     public static void main(String[] args) throws Exception {
-      SharkMoneyCLI app = new SharkMoneyCLI();
+        java.io.File testFolder = new java.io.File("testResultsRootFolder/sharkMoneyCLI");
+        if (testFolder.exists()) {
+            org.apache.commons.io.FileUtils.deleteDirectory(testFolder);
+        }
+
+        SharkMoneyCLI app = new SharkMoneyCLI();
         app.printWelcome();
         app.init();
         app.run();
@@ -61,6 +66,7 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
                     break;
                 case "3":
                     settleDebt();
+                    break;
                 case "4":
                     showBalance();
                     break;
@@ -121,6 +127,7 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
         runEncounter(aliceSharkPeer, bobSharkPeer, true);
         Thread.sleep(1000);
 
+
         // Bob nimmt an
         bobImpl.acceptInviteAndSign(currencyName);
         runEncounter(bobSharkPeer, aliceSharkPeer, true);
@@ -147,12 +154,12 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
         }
 
         // Alice ist Debtor, Bob ist Creditor
-        CharSequence promiseId = bobCurrencyComponent.createPromise(amount, currency, groupId, BOB_ID, ALICE_ID, true);
+        CharSequence promiseId = aliceCurrencyComponent.createPromise(amount, currency, groupId, BOB_ID, ALICE_ID, false);
 
         Set<CharSequence> receiver = new HashSet<>();
-        receiver.add(ALICE_ID);
-        bobCurrencyComponent.sendPromise(promiseId, true, BOB_ID, receiver, true, false,
-                SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_DEB);
+        receiver.add(BOB_ID);
+        aliceCurrencyComponent.sendPromise(promiseId, true, ALICE_ID, receiver, true, false,
+                SharkPromise.SHARK_PROMISE_ASK_FOR_SIGNATURE_AS_CRED);
 
         // Encounter: Alice -> Bob
         runEncounter(aliceSharkPeer, bobSharkPeer, true);
@@ -182,7 +189,7 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
 
         byte[] msg = SharkPromiseSerializer.serializeSignAndSendBackMessage(
                 promiseId,
-                bobPromise.getDebtorSignature(),
+                bobPromise.getCreditorSignature(),
                 BOB_ID,
                 aliceReceivers,
                 false,
@@ -219,7 +226,6 @@ public class SharkMoneyCLI extends AsapCurrencyTestHelper {
         System.out.println("\nInfo: Hier kannst du eine Schuldforderung gegenüber " + BOB_NAME + " eintragen.");
         System.out.println(BOB_NAME + " muss die Schuldforderung bestätigen bevor sie eingetragen wird.");
         System.out.println();
-        // ...
         System.out.print("Betrag den " + BOB_NAME + " mir schuldet: ");
 
         int amount;
